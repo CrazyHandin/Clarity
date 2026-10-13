@@ -8,8 +8,9 @@ if (-not (Test-Path -LiteralPath (Join-Path $framework 'csc.exe'))) {
 $compiler = Join-Path $framework 'csc.exe'
 $exe = Join-Path $OutputDirectory 'ClearSpace.exe'
 $release = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'version.json') -Raw | ConvertFrom-Json
-$releaseTag = 'beta0.{0:00}' -f [int]$release.number
+if ($release.channel -ne 'beta' -or $release.number -lt 1 -or $release.number -gt 65535) { throw 'Invalid beta version definition.' }
 $assemblyVersion = '0.{0}.0.0' -f [int]$release.number
+$releaseTag = 'beta0.{0:00}' -f [int]$release.number
 $generatedVersion = Join-Path $OutputDirectory 'ReleaseVersion.g.cs'
 $versionSource = @"
 using System.Reflection;
@@ -18,7 +19,7 @@ using System.Reflection;
 [assembly: AssemblyInformationalVersion("$releaseTag")]
 namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; } }
 "@
-[IO.File]::WriteAllText($generatedVersion,$versionSource,[Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($generatedVersion,$versionSource,[System.Text.UTF8Encoding]::new($false))
 $compilerArguments = @(
     '/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', '/utf8output',
     '/codepage:65001', "/out:$exe", "/win32manifest:$(Join-Path $PSScriptRoot 'app.manifest')",
@@ -33,9 +34,12 @@ if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.ico')) { $compil
 $compilerArguments += (Join-Path $PSScriptRoot 'V3Tests.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'Winapp2.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'Winapp2Tests.cs')
+$compilerArguments += $generatedVersion
+$compilerArguments += (Join-Path $PSScriptRoot 'SystemDiskCleanup.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'RiskConfirmation.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'BetaTests.cs')
 foreach ($resourceName in @('rule-public-key.xml','BundledRules.signed.json')) {if (Test-Path -LiteralPath (Join-Path $PSScriptRoot $resourceName)) {$compilerArguments += "/resource:$(Join-Path $PSScriptRoot $resourceName),ClearSpace.$resourceName"}}
 $compilerArguments += "/resource:$(Join-Path $PSScriptRoot 'Winapp2.ini'),ClearSpace.Winapp2.ini"
-$compilerArguments += $generatedVersion
 & $compiler @compilerArguments
 if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
 Remove-Item -LiteralPath $generatedVersion -Force
