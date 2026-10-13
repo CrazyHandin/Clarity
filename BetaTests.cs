@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,7 +37,7 @@ public static class BetaTests {
    using(var cancelled=new CancellationTokenSource()){cancelled.Cancel();result=systemEngine.Clean(new[]{system},false,cancelled.Token,null);check(runs==1&&result.Cancelled,"Cancellation before system startup prevents its execution");}
    check(SystemDiskCleanup.Arguments=="/d C /verylowdisk"&&!SystemDiskCleanup.Arguments.Contains("sagerun"),"Automatic system cleanup targets only C using documented prompt-free arguments");check(RiskConfirmation.ItemText(system).Contains("无法在本工具中恢复"),"System cleanup confirmation states that Windows deletions bypass file recovery");
    var many=Enumerable.Range(0,35).Select(i=>new Finding{Rule=new Rule("r"+i,"Selected "+i,"软件缓存","","Risk "+i,new string[0],0,false)}).ToList();string descriptions=RiskConfirmation.Describe(many,true);check(many.All(f=>descriptions.Contains(f.Rule.Impact)),"Every selected project's risk is included without truncating the list");
-   var assembly=Assembly.GetExecutingAssembly();string info=assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute),false).Cast<AssemblyInformationalVersionAttribute>().Single().InformationalVersion;var numeric=assembly.GetName().Version;string expected="beta0."+numeric.Minor.ToString("00");check(ReleaseVersion.Display==expected&&info==ReleaseVersion.Display&&numeric.Major==0&&numeric.Minor>0&&numeric.Build==0&&numeric.Revision==0,"Runtime, informational and Windows numeric versions follow one beta definition");
+   var assembly=Assembly.GetExecutingAssembly();string info=assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute),false).Cast<AssemblyInformationalVersionAttribute>().Single().InformationalVersion;var numeric=assembly.GetName().Version;string expected="beta0."+numeric.Minor.ToString("00");check(ReleaseVersion.Display==expected&&info==ReleaseVersion.Display&&numeric.Major==0&&numeric.Minor>0&&numeric.Revision==0&&numeric.Build==0,"Runtime, informational and Windows numeric versions follow one beta definition");
    var baseline=RuleBook.Create();check(baseline.Where(r=>r.Id.StartsWith("system-")||r.InfoKind=="storage").All(r=>!r.AllowManual),"Core system files and Windows-managed directories cannot be manually removed by raw file deletion");
    File.WriteAllLines(Path.Combine(output,"beta-test-results.txt"),tests.Concat(new[]{"ALL "+tests.Count+" BETA CHECKS PASSED"}));return 0;
   }catch(Exception ex){File.WriteAllText(Path.Combine(output,"beta-test-results.txt"),String.Join("\n",tests)+"\n"+ex);return 1;}

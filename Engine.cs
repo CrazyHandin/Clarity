@@ -240,7 +240,7 @@ public static class RuleBook {
   CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
   foreach(var rule in rules)if(rule.Roots.Length>0&&String.IsNullOrEmpty(rule.InfoKind)&&!rule.Id.StartsWith("system-"))rule.AllowManual=true;
   rules.First(r=>r.Id=="office").Processes=new[]{"OfficeClickToRun","msiexec","setup"};rules.First(r=>r.Id=="uv-cache").Processes=new[]{"uv"};
-  rules.Add(SystemDiskCleanup.CreateRule());
+
   foreach(var rule in rules) rule.Roots=rule.Roots.Where(r=>String.Equals(Path.GetPathRoot(Path.GetFullPath(r)),TargetDrive,StringComparison.OrdinalIgnoreCase)).ToArray();
   return rules;
  }

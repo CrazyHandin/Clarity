@@ -1,4 +1,4 @@
-﻿param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
+param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $framework = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319'
@@ -34,6 +34,8 @@ if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.ico')) { $compil
 $compilerArguments += (Join-Path $PSScriptRoot 'V3Tests.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'Winapp2.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'Winapp2Tests.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'BackupFolders.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'RecoveryTests.cs')
 $compilerArguments += $generatedVersion
 $compilerArguments += (Join-Path $PSScriptRoot 'SystemDiskCleanup.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'RiskConfirmation.cs')
@@ -45,3 +47,4 @@ if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
 Remove-Item -LiteralPath $generatedVersion -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.exe.config') -Destination $OutputDirectory -Force
 Get-Item -LiteralPath $exe | Select-Object FullName, Length
+
