@@ -31,7 +31,10 @@ $compilerArguments = @(
 )
 if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.ico')) { $compilerArguments += "/win32icon:$(Join-Path $PSScriptRoot 'ClearSpace.ico')" }
 $compilerArguments += (Join-Path $PSScriptRoot 'V3Tests.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'Winapp2.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'Winapp2Tests.cs')
 foreach ($resourceName in @('rule-public-key.xml','BundledRules.signed.json')) {if (Test-Path -LiteralPath (Join-Path $PSScriptRoot $resourceName)) {$compilerArguments += "/resource:$(Join-Path $PSScriptRoot $resourceName),ClearSpace.$resourceName"}}
+$compilerArguments += "/resource:$(Join-Path $PSScriptRoot 'Winapp2.ini'),ClearSpace.Winapp2.ini"
 $compilerArguments += $generatedVersion
 & $compiler @compilerArguments
 if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }

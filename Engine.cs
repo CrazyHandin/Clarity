@@ -14,14 +14,14 @@ public sealed class Rule {
  public string Id, Title, Category, Description, Impact;
  public string InfoKind, GroupOverride, NamePrefix, Software, Part, Source; public bool OnlyTop, Shortcut, Privacy, Notice;
  public RegistryScope[] RegistryScopes;
- public string[] ExcludedRoots,ExcludedNames;public string FileNameRegex,Detection;public bool Heuristic;
+ public string[] ExcludedRoots,ExcludedNames;public string FileNameRegex,Detection,Warning;public bool Heuristic,ForceBackup,HeaderGuard;public Func<string,bool> AdditionalExclude;
  public string[] Roots, Processes = new string[0], Extensions;
  public int Days; public bool Quick, Protected, Single;
  public Rule(string id, string title, string category, string description, string impact, string[] roots, int days, bool quick, params string[] processes) {
   Id=id; Title=title; Category=category; Description=description; Impact=impact; Roots=roots; Days=days; Quick=quick; Processes=processes;
  }
  public bool Excluded(string path){string full=Engine.Normalize(path);if((ExcludedRoots??new string[0]).Any(r=>full.Equals(Engine.Normalize(r),StringComparison.OrdinalIgnoreCase)||full.StartsWith(Engine.Normalize(r)+"\\",StringComparison.OrdinalIgnoreCase)))return true;foreach(string root in Roots){string normalized=Engine.Normalize(root);if(full.StartsWith(normalized+"\\",StringComparison.OrdinalIgnoreCase)){string relative=full.Substring(normalized.Length+1);if(relative.Split('\\').Any(p=>(ExcludedNames??new string[0]).Contains(p,StringComparer.OrdinalIgnoreCase)))return true;if((Heuristic||Id.StartsWith("library-"))&&PathPolicy.Sensitive(path,root))return true;}}return false;}
- public bool Accept(string path) { try{return !Excluded(path)&&(NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)))&&(!Heuristic||!HeuristicScanner.LooksPersonal(path));}catch{return false;} }
+ public bool Accept(string path) { try{return !Excluded(path)&&(AdditionalExclude==null||!AdditionalExclude(path))&&(NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)))&&(!(Heuristic||HeaderGuard)||!HeuristicScanner.LooksPersonal(path));}catch{return false;} }
  public string Group { get { return GroupOverride??Groups.ForCategory(Category); } }
 }
 public sealed class Snapshot {
@@ -165,7 +165,7 @@ public sealed class Engine {
   ResetProcessSnapshot();var result=new CleanResult(); var selected=chosen.Where(f=>!f.Rule.Protected && (!quick||f.Rule.Quick)).ToList();
   int total=selected.Sum(f=>f.Candidates.Count), done=0;
   var registryChosen=selected.Where(f=>Rules.Contains(f.Rule)&&f.Rule.InfoKind=="registry-clean"&&!f.Rule.Quick).ToList();
-  RecoverySession recovery=null;if(selected.Any(f=>f.Candidates.Count>0&&(UseFileBackup||f.Rule.Heuristic))){recovery=new RecoverySession(FileBackupDirectory);result.FileBackupManifest=recovery.Manifest;}
+  RecoverySession recovery=null;if(selected.Any(f=>f.Candidates.Count>0&&(UseFileBackup||f.Rule.Heuristic||f.Rule.ForceBackup))){recovery=new RecoverySession(FileBackupDirectory);result.FileBackupManifest=recovery.Manifest;}
   if(!quick&&registryChosen.Count>0){RegistryCleaner.Clean(registryChosen,RegistryBackupDirectory,token,result);}
   foreach(var finding in selected) {
    foreach(var file in finding.Candidates) {
@@ -174,9 +174,9 @@ public sealed class Engine {
     try {
      if(!Rules.Contains(finding.Rule)) reason="识别规则已变化";
      else if(IsRunning(finding.Rule.Processes)) reason="相关程序已启动，自动保留";
-     else removed=DeleteSnapshot(finding.Rule,file,UseFileBackup||finding.Rule.Heuristic?recovery:null,token,out reason);
+     else removed=DeleteSnapshot(finding.Rule,file,UseFileBackup||finding.Rule.Heuristic||finding.Rule.ForceBackup?recovery:null,token,out reason);
     } catch(OperationCanceledException){result.Cancelled=true;return result;}catch(Exception e) { result.Failed++; reason=e.Message; }
-    if(removed) { result.Deleted++; result.Bytes+=file.Bytes;if(UseFileBackup||finding.Rule.Heuristic){result.BackupFiles++;result.BackupBytes+=file.Bytes;if(!String.Equals(Path.GetPathRoot(file.Path),Path.GetPathRoot(recovery.DirectoryPath),StringComparison.OrdinalIgnoreCase))result.EstimatedFreedBytes+=file.Bytes;}else result.EstimatedFreedBytes+=file.Bytes; } else result.Skipped++;
+    if(removed) { result.Deleted++; result.Bytes+=file.Bytes;if(UseFileBackup||finding.Rule.Heuristic||finding.Rule.ForceBackup){result.BackupFiles++;result.BackupBytes+=file.Bytes;if(!String.Equals(Path.GetPathRoot(file.Path),Path.GetPathRoot(recovery.DirectoryPath),StringComparison.OrdinalIgnoreCase))result.EstimatedFreedBytes+=file.Bytes;}else result.EstimatedFreedBytes+=file.Bytes; } else result.Skipped++;
     result.Items.Add(new AuditItem { Rule=finding.Rule.Title,Path=file.Path,Status=removed?"已删除":"已跳过",Reason=reason,Bytes=removed?file.Bytes:0 });
     done++; if(progress!=null) progress(done,total,finding.Rule.Title);
    }
