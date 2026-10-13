@@ -9,10 +9,10 @@ using Microsoft.Win32;
 
 namespace ClearSpace {
 public static class Groups {
- public static readonly string[] Names={"系统垃圾","常用软件","开发缓存","更新残留","使用痕迹","快捷方式","注册表检查","受保护资料"};
+ public static readonly string[] Names={"系统垃圾","软件缓存","网页缓存","开发缓存","更新残留","使用痕迹","快捷方式","注册表","保留项目"};
  public static string ForCategory(string category) {
-  if(category=="开发工具"||category=="开发缓存")return Names[2];if(category=="更新资料"||category=="更新残留")return Names[3];
-  if(category=="临时文件"||category=="诊断资料"||category=="系统垃圾")return Names[0];if(Names.Contains(category))return category;return Names[1];
+  if(category=="开发工具"||category=="开发缓存")return "开发缓存";if(category=="更新资料"||category=="更新残留")return "更新残留";
+  if(category=="临时文件"||category=="诊断资料"||category=="系统垃圾")return "系统垃圾";if(category=="受保护资料")return "保留项目";if(Names.Contains(category))return category;return "软件缓存";
  }
 }
 public static class ExtendedRules {

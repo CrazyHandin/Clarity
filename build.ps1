@@ -27,7 +27,7 @@ $compilerArguments = @(
     "/reference:$(Join-Path $framework 'WPF\PresentationCore.dll')",
     "/reference:$(Join-Path $framework 'WPF\WindowsBase.dll')",
     '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll',
-    (Join-Path $PSScriptRoot 'Engine.cs'), (Join-Path $PSScriptRoot 'ExtendedRules.cs'), (Join-Path $PSScriptRoot 'App.cs'), (Join-Path $PSScriptRoot 'SelfTest.cs')
+    (Join-Path $PSScriptRoot 'Engine.cs'), (Join-Path $PSScriptRoot 'ExtendedRules.cs'), (Join-Path $PSScriptRoot 'CatalogV2.cs'), (Join-Path $PSScriptRoot 'RegistryCleaner.cs'), (Join-Path $PSScriptRoot 'App.cs'), (Join-Path $PSScriptRoot 'SelfTest.cs'), (Join-Path $PSScriptRoot 'V2Tests.cs')
 )
 if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.ico')) { $compilerArguments += "/win32icon:$(Join-Path $PSScriptRoot 'ClearSpace.ico')" }
 $compilerArguments += $generatedVersion

@@ -11,7 +11,8 @@ using Microsoft.Win32.SafeHandles;
 namespace ClearSpace {
 public sealed class Rule {
  public string Id, Title, Category, Description, Impact;
- public string InfoKind, GroupOverride, NamePrefix; public bool OnlyTop, Shortcut, Privacy, Notice;
+ public string InfoKind, GroupOverride, NamePrefix, Software, Part, Source; public bool OnlyTop, Shortcut, Privacy, Notice;
+ public RegistryScope[] RegistryScopes;
  public string[] Roots, Processes = new string[0], Extensions;
  public int Days; public bool Quick, Protected, Single;
  public Rule(string id, string title, string category, string description, string impact, string[] roots, int days, bool quick, params string[] processes) {
@@ -27,13 +28,16 @@ public sealed class Finding {
  public Rule Rule; public long TotalBytes, EligibleBytes; public int Files, Unreadable, Recent, Links, Changed;
  public bool Running; public List<Snapshot> Candidates = new List<Snapshot>(); public List<string> Samples = new List<string>();
  public int VirtualItems, SuspectedItems; public string Extra;
+ public List<RegistryEntry> RegistryCandidates=new List<RegistryEntry>();
  public string Status { get { return Rule.Protected ? "保留" : Running ? "使用中 · 已保护" : EligibleBytes==0 ? "暂无可清理项" : Rule.Quick ? "建议清理" : "需自行确认"; } }
 }
 public sealed class AuditItem { public string Rule, Path, Status, Reason; public long Bytes; }
 public sealed class CleanResult {
  public long Bytes; public int Deleted, Skipped, Failed; public bool Cancelled;
+ public int RegistryDeleted; public string RegistryBackupPath;
  public List<AuditItem> Items = new List<AuditItem>();
 }
+public sealed class ScanProgress {public int Completed,Total,Files,RegistryItems;public string Title,Group;public long FoundBytes;}
 public static class Native {
  [StructLayout(LayoutKind.Sequential)] public struct FILETIME { public uint Low, High; public long Value { get { return ((long)High<<32)|Low; } } }
  [StructLayout(LayoutKind.Sequential)] public struct INFO { public uint Attributes; public FILETIME Creation, Access, Write; public uint Volume, SizeHigh, SizeLow, Links, IndexHigh, IndexLow; public long Bytes { get { return ((long)SizeHigh<<32)|SizeLow; } } }
@@ -52,6 +56,7 @@ public static class Native {
 public sealed class Engine {
  static readonly object ProcessLock=new object(); static HashSet<string> ProcessNames=new HashSet<string>(StringComparer.OrdinalIgnoreCase); static DateTime ProcessSnapshotTime=DateTime.MinValue; static bool ProcessSnapshotValid;
  public readonly List<Rule> Rules; public Func<string[],bool> IsRunning;
+ public Action<ScanProgress> LiveProgress; public string RegistryBackupDirectory; ScanProgress live; long baseBytes; int baseFiles,baseRegistry;DateTime lastPulse;
  public Engine(List<Rule> rules) { Rules=rules; IsRunning=OwnersRunning; }
  static void ResetProcessSnapshot() { lock(ProcessLock) { ProcessSnapshotTime=DateTime.MinValue; } }
  public static bool OwnersRunning(string[] owners) {
@@ -93,10 +98,12 @@ public sealed class Engine {
    if(result.Samples.Count<5) result.Samples.Add(path);
    if(result.Rule.Protected || result.Running) return;
    var snapshot=Capture(path,result,cutoff); if(snapshot!=null) {snapshot.Condition=condition; result.Candidates.Add(snapshot); result.EligibleBytes+=snapshot.Bytes; }
-  } catch { result.Unreadable++; }
+  } catch { result.Unreadable++; }finally{Pulse(result,false);}
  }
+ void Pulse(Finding f,bool force){if(LiveProgress==null||live==null)return;if(!force&&(DateTime.UtcNow-lastPulse).TotalMilliseconds<160)return;lastPulse=DateTime.UtcNow;LiveProgress(new ScanProgress{Completed=live.Completed,Total=live.Total,Title=live.Title,Group=live.Group,FoundBytes=baseBytes+f.EligibleBytes,Files=baseFiles+f.Files,RegistryItems=baseRegistry+f.RegistryCandidates.Count});}
  public Finding ScanRule(Rule rule,CancellationToken token) {
   var result=new Finding { Rule=rule,Running=!rule.Protected&&IsRunning(rule.Processes) };
+  if(rule.InfoKind=="registry-clean") {RegistryCleaner.Scan(rule,result,token);return result;}
   if(rule.InfoKind=="registry") {RegistryAudit.Read(result,token);return result;}
   var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase); DateTime cutoff=DateTime.UtcNow.AddDays(-rule.Days);
   foreach(string rawRoot in rule.Roots) {
@@ -122,7 +129,9 @@ public sealed class Engine {
   return result;
  }
  public List<Finding> Scan(CancellationToken token,Action<int,int,string> progress) {
-  ResetProcessSnapshot();var results=new List<Finding>(); for(int i=0;i<Rules.Count;i++) { token.ThrowIfCancellationRequested(); if(progress!=null) progress(i,Rules.Count,Rules[i].Title); var f=ScanRule(Rules[i],token); if(f.Files>0 || f.Unreadable>0 || f.Links>0 || f.Rule.Notice) results.Add(f); }
+  ResetProcessSnapshot();var results=new List<Finding>();var paths=new HashSet<string>(StringComparer.OrdinalIgnoreCase);baseBytes=0;baseFiles=0;baseRegistry=0;
+  for(int i=0;i<Rules.Count;i++) {token.ThrowIfCancellationRequested();live=new ScanProgress{Completed=i,Total=Rules.Count,Title=Rules[i].Title,Group=Rules[i].Group};if(progress!=null)progress(i,Rules.Count,Rules[i].Title);var f=ScanRule(Rules[i],token);f.Candidates.RemoveAll(s=>!paths.Add(s.Path));f.EligibleBytes=f.Candidates.Sum(s=>s.Bytes);if(f.Files>0||f.Unreadable>0||f.Links>0||f.Rule.Notice||f.RegistryCandidates.Count>0)results.Add(f);live.Completed=i+1;Pulse(f,true);baseBytes+=f.EligibleBytes;baseFiles+=f.Files;baseRegistry+=f.RegistryCandidates.Count;}
+  live=null;
   return results.OrderBy(f=>f.Rule.Protected).ThenByDescending(f=>f.TotalBytes).ToList();
  }
  bool DeleteSnapshot(Rule rule,Snapshot snapshot,out string reason) {
@@ -146,6 +155,8 @@ public sealed class Engine {
  public CleanResult Clean(IEnumerable<Finding> chosen,bool quick,CancellationToken token,Action<int,int,string> progress) {
   ResetProcessSnapshot();var result=new CleanResult(); var selected=chosen.Where(f=>!f.Rule.Protected && (!quick||f.Rule.Quick)).ToList();
   int total=selected.Sum(f=>f.Candidates.Count), done=0;
+  var registryChosen=selected.Where(f=>Rules.Contains(f.Rule)&&f.Rule.InfoKind=="registry-clean"&&!f.Rule.Quick).ToList();
+  if(!quick&&registryChosen.Count>0){RegistryCleaner.Clean(registryChosen,RegistryBackupDirectory,token,result);}
   foreach(var finding in selected) {
    foreach(var file in finding.Candidates) {
     if(token.IsCancellationRequested) { result.Cancelled=true; return result; }
@@ -205,6 +216,7 @@ public static class RuleBook {
   var support=Add(rules,"support","原厂驱动安装备份（保留）","受保护资料","电脑厂商预置的驱动和软件安装资料，可能用于恢复或重新安装。","不自动清理。备份到其他磁盘并确认恢复需求后，才适合另行处理。",new[]{Path.GetPathRoot(windows)+"eSupport"},0,false); support.Protected=true;
   foreach(string systemFile in new[]{"hiberfil.sys","pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,systemFile=="hiberfil.sys"?"休眠文件（保留）":"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
   ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
+  CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
   foreach(var rule in rules) rule.Roots=rule.Roots.Where(r=>String.Equals(Path.GetPathRoot(Path.GetFullPath(r)),TargetDrive,StringComparison.OrdinalIgnoreCase)).ToArray();
   return rules;
  }
