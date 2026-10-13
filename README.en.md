@@ -1,4 +1,4 @@
-# Clarity (澄净)
+# Clarity
 
 [简体中文](README.md) | **English**
 
