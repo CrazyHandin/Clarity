@@ -226,9 +226,9 @@ public static class RuleBook {
   var crash=Add(rules,"crash","软件崩溃转储","诊断资料","应用异常退出时生成的诊断文件，不是运行必需文件。","删除后无法用这些转储排查历史崩溃。不影响应用正常使用。",new[]{P(local,"CrashDumps")},1,false); crash.Extensions=new[]{".dmp"};
   var memory=Add(rules,"memory","系统崩溃转储 MEMORY.DMP","诊断资料","蓝屏或系统崩溃时生成的大型诊断文件。只识别指定文件，不扫描或清理 Windows 系统组件。","删除后无法用这个文件排查对应蓝屏。通常需要管理员权限；近期转储保留 1 天。",new[]{P(windows,"MEMORY.DMP")},1,false); memory.Single=true;
   Add(rules,"logs","旧软件诊断日志","诊断资料","微信、Epic、VS Code、WPS、OneDrive 的独立日志目录。仅处理 14 天前的文件。","旧诊断记录将无法恢复；不会删除聊天记录、文档或同步文件。",new[]{P(roaming,"Tencent\\xwechat\\log"),P(roaming,"Tencent\\Logs"),P(local,"Epic Games\\Epic Online Services\\InstallHelper\\Logs"),P(roaming,"Code\\logs"),P(roaming,"Kingsoft\\office6\\log"),P(local,"Microsoft\\OneDrive\\logs")},14,false,"Weixin","WeChat","Code","EpicGamesLauncher","OneDrive","wps");
-  foreach(string updater in new[]{"perfectworldarena-updater","unityhub-updater","ocs desktop-updater"}) {
-   string title=updater=="perfectworldarena-updater"?"完美平台更新安装包":updater=="unityhub-updater"?"Unity Hub 更新安装包":"OCS Desktop 更新安装包";
-   string process=updater=="perfectworldarena-updater"?"perfectworldarena":updater=="unityhub-updater"?"Unity Hub":"OCS Desktop";
+  foreach(string updater in new[]{"unityhub-updater"}) {
+   string title="Unity Hub 更新安装包";
+   string process="Unity Hub";
    var update=Add(rules,"update-"+updater,title,"更新资料","发现下载的安装包，包括 pending 子目录。仅列为候选，不自动判定更新已完成；只处理 7 天前的安装包。","请确认软件已更新成功、没有待安装更新，并可重新下载。pending 不代表已完成，不能仅凭文件日期判断。",new[]{P(local,updater)},7,false,process,"Update","msiexec");
    update.Extensions=new[]{".exe",".msi",".msix",".zip",".nupkg",".blockmap"};
   }
@@ -238,6 +238,7 @@ public static class RuleBook {
   foreach(string systemFile in new[]{"hiberfil.sys","pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,systemFile=="hiberfil.sys"?"休眠文件（保留）":"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
   ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
   CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
+  CommonSoftwareRules.Add(rules,local,roaming,profile,programData);
   foreach(var rule in rules)if(rule.Roots.Length>0&&String.IsNullOrEmpty(rule.InfoKind)&&!rule.Id.StartsWith("system-"))rule.AllowManual=true;
   rules.First(r=>r.Id=="office").Processes=new[]{"OfficeClickToRun","msiexec","setup"};rules.First(r=>r.Id=="uv-cache").Processes=new[]{"uv"};
 

@@ -24,16 +24,12 @@ public static class ExtendedRules {
  public static void Add(List<Rule> rules,string local,string roaming,string profile,string windows,string data){
   R(rules,"firefox","Firefox 网页与启动缓存","常用软件","Firefox 本地配置下的 cache2、startupCache 和 shader-cache；不处理漫游配置或登录数据库。","下次启动或加载页面可能稍慢，不删除历史、密码和书签。",Profiles(P(local,"Mozilla\\Firefox\\Profiles"),null,new[]{"cache2","startupCache","shader-cache"}),1,true,"firefox");
   R(rules,"brave","Brave 网页资源缓存","常用软件","独立的 Cache、Code Cache 和图形缓存。","保留收藏、密码、钱包配置及站点数据。",Chromium(P(local,"BraveSoftware\\Brave-Browser\\User Data")),1,true,"brave");
-  Web(rules,"opera","Opera 网页资源缓存",P(roaming,"Opera Software\\Opera Stable"),"opera");Web(rules,"opera-gx","Opera GX 网页资源缓存",P(roaming,"Opera Software\\Opera GX Stable"),"opera");
+  Web(rules,"opera","Opera 网页资源缓存",P(roaming,"Opera Software\\Opera Stable"),"opera");
   R(rules,"qqbrowser","QQ 浏览器网页缓存","常用软件","只识别标准用户配置中的独立网页缓存。","保留密码、账号和历史；再次访问页面重新加载资源。",Chromium(P(local,"Tencent\\QQBrowser\\User Data")),1,true,"QQBrowser");
-  Web(rules,"discord","Discord 网页资源缓存",P(roaming,"discord"),"Discord","Update");Web(rules,"discord-canary","Discord Canary 网页缓存",P(roaming,"discordcanary"),"DiscordCanary","Update");
+  Web(rules,"discord","Discord 网页资源缓存",P(roaming,"discord"),"Discord","Update");
   Web(rules,"slack","Slack 网页资源缓存",P(roaming,"Slack"),"slack");Web(rules,"zoom","Zoom 网页资源缓存",P(roaming,"Zoom"),"Zoom");
-  Web(rules,"taptap","TapTap 启动器网页缓存",P(roaming,"TapTap"),"TapTap");Web(rules,"neko","N.E.K.O 网页资源缓存",P(roaming,"N.E.K.O"),"N.E.K.O","neko");
-  Web(rules,"aclos","ACLOS 网页资源缓存",P(roaming,"ACLOS"),"ACLOS");Web(rules,"perfect-web","完美平台网页资源缓存",P(roaming,"perfectworldarena"),"perfectworldarena");
-  Web(rules,"ocs-web","OCS Desktop 网页资源缓存",P(roaming,"OCS Desktop"),"OCS Desktop");
   R(rules,"wechat-web","微信网页资源缓存","常用软件","微信内嵌页面的独立图片、脚本与图形缓存，限定 radium/web/profiles。","不会处理聊天数据库、附件、收藏、插件和小程序离线数据。微信运行时整项保留。",Profiles(P(roaming,"Tencent\\xwechat\\radium\\web\\profiles"),null,new[]{"Cache","Code Cache","GPUCache"}),1,true,"Weixin","WeChat");
   R(rules,"qq-web","QQ 网页资源缓存","常用软件","QQEX 账号目录中的独立 Cache、Code Cache 和 GPUCache。","不处理聊天记录、账号设置和 Service Worker 数据。QQ 运行时整项保留。",Profiles(P(roaming,"QQEX\\users"),null,new[]{"Cache","Code Cache","GPUCache"}),1,true,"QQ","QQNT");
-  Web(rules,"hoyoplay","米哈游启动器网页缓存",P(roaming,"miHoYo\\HYP\\1_1\\fedata"),"HYP","launcher","GenshinImpact","StarRail");
   R(rules,"teams-web","新版 Teams 网页缓存","常用软件","只识别 Teams 包中 EBWebView 的独立网页资源缓存。","保留会议、账号与聊天数据；Teams 运行时保留。",Profiles(P(local,"Packages"),"MSTeams_",new[]{"LocalCache\\Microsoft\\MSTeams\\EBWebView\\Default\\Cache","LocalCache\\Microsoft\\MSTeams\\EBWebView\\Default\\Code Cache"}),1,true,"ms-teams","Teams");
   R(rules,"widgets","Windows 小组件网页缓存","系统垃圾","Windows 小组件内嵌网页的图片和脚本缓存，限定已知包内目录。","小组件内容下次重新加载，不处理小组件配置或账户。",Profiles(P(local,"Packages"),"MicrosoftWindows.Client.WebExperience_",new[]{"LocalState\\EBWebView\\Default\\Cache","LocalState\\EBWebView\\Default\\Code Cache"}),1,true,"Widgets","WidgetService","msedgewebview2");
   R(rules,"wer","Windows 错误报告","系统垃圾","应用崩溃后的错误报告档案与等待发送的诊断资料。","删除会丢失这些历史诊断报告；保留 14 天内资料。通常需要管理员权限。",new[]{P(local,"Microsoft\\Windows\\WER\\ReportArchive"),P(local,"Microsoft\\Windows\\WER\\ReportQueue"),P(data,"Microsoft\\Windows\\WER\\ReportArchive"),P(data,"Microsoft\\Windows\\WER\\ReportQueue")},14,false,"WerFault","wermgr");
@@ -48,11 +44,9 @@ public static class ExtendedRules {
   R(rules,"netease-music","网易云音乐播放缓存","常用软件","CloudMusic 标准 Cache 目录中的播放缓存，不扫描下载目录。","部分音频、图片需重新缓存；请确认仍可重新下载。",new[]{P(local,"NetEase\\CloudMusic\\Cache")},14,false,"cloudmusic");
   R(rules,"nuget-http","NuGet HTTP 下载缓存","开发缓存","NuGet v3-cache 的 HTTP 下载缓存，不处理已安装依赖 packages。","后续恢复依赖可能需要重新下载；保留 7 天，开发工具运行时保留。",new[]{P(local,"NuGet\\v3-cache")},7,true,"dotnet","MSBuild","devenv");
   R(rules,"yarn","Yarn 下载缓存","开发缓存","Yarn 标准 Cache 目录内的依赖下载副本，不处理项目 node_modules。","后续安装依赖可能重新下载，私有包需要有效访问权限。",new[]{P(local,"Yarn\\Cache")},14,false,"node","yarn");
-  R(rules,"composer","Composer 下载缓存","开发缓存","Composer 的 cache/files 安装包副本。","后续安装可能需要联网和有效权限，保留 14 天内文件。",new[]{P(local,"Composer\\cache\\files")},14,false,"php","composer");
   R(rules,"gradle","Gradle 构建与下载缓存","开发缓存","用户 .gradle/caches 内的构建和依赖缓存。","清理后重新构建和下载可能耗时，离线构建受影响。Java、Gradle 或 Android Studio 运行时保留。",new[]{P(profile,".gradle\\caches")},30,false,"java","javaw","gradle","studio64");
   R(rules,"unity-build","Unity 构建缓存","开发缓存","Local/Unity/Caches 中的工具构建缓存，不扫描任何项目 Library 或 Assets。","后续构建可能变慢；请关闭 Unity 与 Unity Hub。",new[]{P(local,"Unity\\Caches")},14,false,"Unity","Unity Hub","bee_backend" );
   R(rules,"unreal-ddc","Unreal 派生数据缓存","开发缓存","明确的 DerivedDataCache 目录，不清理 Zen 数据库、项目或源资产。","着色器和资源派生结果需要重新生成，可能耗时；请关闭 Unreal Editor。",new[]{P(local,"UnrealEngine\\Common\\DerivedDataCache"),P(local,"UnrealEngine\\DerivedDataCache")},14,false,"UnrealEditor","ShaderCompileWorker");
-  R(rules,"vscode-insiders","VS Code Insiders 缓存","开发缓存","Insiders 的扩展下载和独立编译、图形缓存，保留 7 天。","保留设置、扩展、聊天、未保存文件与备份；缓存按需重新生成。",new[]{P(roaming,"Code - Insiders\\CachedExtensionVSIXs"),P(roaming,"Code - Insiders\\CachedData"),P(roaming,"Code - Insiders\\Cache"),P(roaming,"Code - Insiders\\Code Cache"),P(roaming,"Code - Insiders\\GPUCache")},7,true,"Code - Insiders","Code");
   var recent=R(rules,"recent-links","最近访问记录与文档入口","使用痕迹","Recent 顶层 .lnk 记录，只处理 7 天前的访问入口。","会减少文件管理器的最近访问记录，不会删除原文件。固定列表、跳转列表和其他子目录保留。",new[]{P(roaming,"Microsoft\\Windows\\Recent")},7,false);recent.Extensions=new[]{".lnk"};recent.OnlyTop=true;recent.Privacy=true;
   var shortcuts=R(rules,"broken-shortcuts","失效的桌面与开始菜单快捷方式","快捷方式","检查桌面和开始菜单的 .lnk，仅将目标在 C 盘、明确不存在且 7 天前的链接列为候选。","可能移除你仍想保留的入口。网络、其他盘、系统特殊链接和权限不足的目标不归类；删除前再次核对目标。",new[]{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),Environment.GetFolderPath(Environment.SpecialFolder.Programs),Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms)},7,false);shortcuts.Extensions=new[]{".lnk"};shortcuts.Shortcut=true;
   var registry=R(rules,"registry-audit","注册表安装信息检查","注册表检查","只读检查已安装软件信息，关联安装目录缺失也不能证明注册表项无用。","不删除注册表。清理收益通常很小，误删可能破坏软件、卸载或系统功能。",new string[0],0,false);registry.Protected=true;registry.InfoKind="registry";registry.Notice=true;

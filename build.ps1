@@ -1,4 +1,4 @@
-﻿param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
+param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $framework = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319'
@@ -38,6 +38,8 @@ $compilerArguments += (Join-Path $PSScriptRoot 'Winapp2Tests.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'BackupFolders.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'RecoveryTests.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'ScanModes.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'CommonSoftwareRules.cs')
+$compilerArguments += (Join-Path $PSScriptRoot 'CommonRulesTests.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'ApplicationLocations.cs')
 $compilerArguments += (Join-Path $PSScriptRoot 'RuleSourceAddresses.cs')
 $compilerArguments += "/resource:$(Join-Path $PSScriptRoot 'Clarity.ico'),ClearSpace.AppIcon.ico"

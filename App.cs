@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -78,7 +78,7 @@ public sealed partial class Controller {
   string[] hints={"临时文件 · 日志 · 转储","按软件分组的资源与媒体缓存","按浏览器分组的网页缓存","编辑器 · 依赖下载 · 编译缓存","软件与驱动更新下载资料","最近访问 · 搜索与运行历史","明确失效的本地快捷方式","失效路径 · 卸载记录 · 先备份","保留内容可自选，系统核心除外"};
   for(int i=0;i<Groups.Names.Length;i++)groups.Add(new GroupOption{Name=Groups.Names[i],Icon=icons[i],Description=hints[i]});Get<ItemsControl>("ScopeList").ItemsSource=groups;Get<ItemsControl>("ScanStages").ItemsSource=groups;
   riskFilter.ItemsSource=new[]{"全部风险","低风险","需确认 / 使用痕迹","保留 / 风险删除"};riskFilter.SelectedIndex=0;
-  RuleFactory=CreateScanRules;QuickRuleFactory=ScanModes.QuickRules;scanMode=Get<ComboBox>("ScanMode");scanMode.ItemsSource=new[]{"常规扫描 · 完整识别","快速扫描 · 内置规则"};scanMode.SelectedIndex=0;Get<ComboBox>("CleanPolicy").ItemsSource=new[]{"先备份清理（可恢复）","永久删除（不可恢复）"};Get<ComboBox>("CleanPolicy").SelectedIndex=0;Get<ComboBox>("CleanPolicy").SelectionChanged+=(s,e)=>UpdateRecoveryNote();Get<Button>("RuleCenterButton").Click+=(s,e)=>{if(!busy)RuleCenter.Show(Window,settings,LastDiscovery,()=>{UpdateRecoveryNote();UpdateDisk();Get<TextBlock>("StatusText").Text="设置已更新，重新扫描生效";});};
+  RuleFactory=CreateScanRules;QuickRuleFactory=ScanModes.QuickRules;scanMode=Get<ComboBox>("ScanMode");scanMode.ItemsSource=new[]{"常规扫描 · 完整识别","快速扫描 · 内置规则"};scanMode.SelectedIndex=1;Get<ComboBox>("CleanPolicy").ItemsSource=new[]{"先备份清理（可恢复）","永久删除（不可恢复）"};Get<ComboBox>("CleanPolicy").SelectedIndex=0;Get<ComboBox>("CleanPolicy").SelectionChanged+=(s,e)=>UpdateRecoveryNote();Get<Button>("RuleCenterButton").Click+=(s,e)=>{if(!busy)RuleCenter.Show(Window,settings,LastDiscovery,()=>{UpdateRecoveryNote();UpdateDisk();Get<TextBlock>("StatusText").Text="设置已更新，重新扫描生效";});};
   scan.Click+=(s,e)=>{if(busy){if(cancellation!=null)cancellation.Cancel();scan.IsEnabled=false;return;}if(phase=="results"){ShowReady();return;}LastOperation=ScanAsync();};
   systemOption=Get<CheckBox>("SystemCleanupOption");systemOption.Checked+=(s,e)=>UpdateSelection();systemOption.Unchecked+=(s,e)=>UpdateSelection();Get<Button>("OpenBackupButton").Click+=(s,e)=>{try{OpenBackupFolder(BackupFolders.Resolve(settings.RecoveryDirectory,lastResult==null?null:lastResult.FileBackupManifest));}catch(Exception ex){Get<TextBlock>("StatusText").Text="打开备份位置失败："+ex.Message;}};
   Get<Button>("DoneButton").Click+=(s,e)=>ShowReady();Get<Button>("CompleteBackupButton").Click+=(s,e)=>Get<Button>("OpenBackupButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));clean.Click+=(s,e)=>{LastOperation=CleanAsync();};simple.Click+=(s,e)=>SetMode(false);advancedButton.Click+=(s,e)=>SetMode(true);
@@ -194,6 +194,8 @@ public static class App {
  public static string FormatSize(long bytes){if(bytes>=1024L*1024*1024)return (bytes/(1024.0*1024*1024)).ToString("0.00")+" GB";if(bytes>=1024*1024)return (bytes/(1024.0*1024)).ToString("0.0")+" MB";if(bytes>=1024)return (bytes/1024.0).ToString("0.0")+" KB";return bytes+" B";}
  public static void WriteJson(string path,object data){File.WriteAllText(path,new JavaScriptSerializer{MaxJsonLength=Int32.MaxValue,RecursionLimit=100}.Serialize(data),new UTF8Encoding(false));}
  [STAThread]public static int Main(string[] args){try{
+  if(args.Length==2&&args[0]=="--common-rules-self-test")return CommonRulesTests.Run(args[1]);
+  if(args.Length==2&&args[0]=="--builtin-catalog"){var rules=RuleBook.Create();WriteJson(args[1],new{Version=ReleaseVersion.Display,RuleCount=rules.Count,QuickCount=rules.Count(ScanModes.IsQuickRule),Catalog=rules.Select(r=>new{r.Id,r.Title,Group=r.Group,r.Software,r.Part,r.Quick,r.Protected,r.ForceBackup,r.AllowManual,r.Privacy,r.InfoKind,r.Days,r.Source,r.Description,r.Impact})});return 0;}
   if(args.Length==2&&args[0]=="--self-test")return SelfTest.Run(args[1]);if(args.Length==2&&args[0]=="--v2-self-test")return V2Tests.Run(args[1]);
   if(args.Length==2&&args[0]=="--recovery-self-test")return RecoveryTests.Run(args[1]);
   if(args.Length==2&&args[0]=="--beta-self-test")return BetaTests.Run(args[1]);

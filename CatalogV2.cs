@@ -47,25 +47,15 @@ public static class CatalogV2 {
    if(r.Id.StartsWith("discord")){r.Quick=false;r.Impact="缓存清理可能影响离线内容与收藏动图；保留登录和聊天数据库。";}
    if(r.Id=="nvidia")r.Description="显卡着色器与编译缓存。";
   }
-  string[] channels={
-   "edge-beta|Edge Beta|Microsoft\\Edge Beta\\User Data|msedge","edge-dev|Edge Dev|Microsoft\\Edge Dev\\User Data|msedge","edge-canary|Edge Canary|Microsoft\\Edge SxS\\User Data|msedge",
-   "chrome-beta|Chrome Beta|Google\\Chrome Beta\\User Data|chrome","chrome-dev|Chrome Dev|Google\\Chrome Dev\\User Data|chrome","chrome-canary|Chrome Canary|Google\\Chrome SxS\\User Data|chrome",
-   "chromium|Chromium|Chromium\\User Data|chrome","vivaldi|Vivaldi|Vivaldi\\User Data|vivaldi","brave-beta|Brave Beta|BraveSoftware\\Brave-Browser-Beta\\User Data|brave","brave-nightly|Brave Nightly|BraveSoftware\\Brave-Browser-Nightly\\User Data|brave"
-  };
-  foreach(string spec in channels){var p=spec.Split('|');Browser(rules,p[0],p[1],P(local,p[2]),p[3]);}
   foreach(var p in new[]{new[]{"edge","Microsoft Edge","Microsoft\\Edge\\User Data","msedge"},new[]{"chrome","Google Chrome","Google\\Chrome\\User Data","chrome"},new[]{"brave","Brave","BraveSoftware\\Brave-Browser\\User Data","brave"},new[]{"quark","夸克","Quark\\User Data","Quark"}}){
    Dump(rules,p[0]+"-reports","网页缓存",p[1],new[]{P(local,p[2]+"\\Crashpad\\reports")},new[]{p[3]});var logs=Logs(rules,p[0]+"-diagnostic","网页缓存",p[1],new[]{P(local,p[2])},new[]{p[3]});logs.OnlyTop=true;logs.Extensions=new[]{".log"};
   }
-  foreach(string spec in new[]{"waterfox|Waterfox|Waterfox\\Profiles|waterfox","librewolf|LibreWolf|librewolf\\Profiles|librewolf","thunderbird|Thunderbird|Thunderbird\\Profiles|thunderbird"}){
-   var p=spec.Split('|');Add(rules,p[0]+"-cache","网页缓存",p[1],"网页资源缓存",Expand(P(local,p[2]),"*\\cache2"),7,true,ChromiumSource,new[]{p[3]},"独立的本地网页资源缓存。","保留邮件、密码、书签与配置；网页资源重新下载。");Dump(rules,p[0]+"-dumps","网页缓存",p[1],new[]{P(roaming,p[2].Replace("\\Profiles","")+"\\Crash Reports\\pending")},new[]{p[3]});
-  }
   var firefoxDump=Dump(rules,"firefox-reports","网页缓存","Firefox",new[]{P(roaming,"Mozilla\\Firefox\\Crash Reports\\pending"),P(roaming,"Mozilla\\Firefox\\Crash Reports\\submitted")},new[]{"firefox"});
-  foreach(string spec in new[]{"opera-local|Opera|Opera Software\\Opera Stable|opera","opera-gx-local|Opera GX|Opera Software\\Opera GX Stable|opera","opera-dev|Opera Developer|Opera Software\\Opera Developer|opera"}){
+  foreach(string spec in new[]{"opera-local|Opera|Opera Software\\Opera Stable|opera"}){
    var p=spec.Split('|');Add(rules,p[0],"网页缓存",p[1],"本地网页资源缓存",new[]{P(local,p[2]+"\\Cache"),P(local,p[2]+"\\Code Cache"),P(local,p[2]+"\\GPUCache")},7,true,ChromiumSource,new[]{p[3]},"独立的本地资源缓存。","访问页面时重新加载资源，保留浏览器配置。");
   }
   string[] electron={
-   "discord-ptb|Discord PTB|discordptb|DiscordPTB|chat","discord-development|Discord Development|discorddevelopment|DiscordDevelopment|chat",
-   "obsidian|Obsidian|obsidian|Obsidian|normal","signal|Signal|Signal|Signal|chat","postman|Postman|Postman|Postman|normal","insomnia|Insomnia|Insomnia|Insomnia|normal",
+   "obsidian|Obsidian|obsidian|Obsidian|normal","postman|Postman|Postman|Postman|normal",
    "notion|Notion|Notion|Notion|normal","github-desktop|GitHub Desktop|GitHub Desktop|GitHubDesktop|normal","figma|Figma|Figma|Figma|normal"
   };
   foreach(string spec in electron){var p=spec.Split('|');Electron(rules,p[0],p[1],P(roaming,p[2]),new[]{p[3]},p[4]=="chat");}
@@ -78,7 +68,7 @@ public static class CatalogV2 {
   Add(rules,"vlc-art","软件缓存","VLC","专辑封面缓存",new[]{P(roaming,"vlc\\art\\artistalbum")},14,false,"https://github.com/bleachbit/bleachbit/blob/master/cleaners/vlc.xml",new[]{"vlc"},"自动获取的专辑封面。","封面可能需要重新获取，保留媒体文件与播放列表。");
   var vlcDump=Dump(rules,"vlc-crash","软件缓存","VLC",new[]{P(roaming,"vlc\\crashdump")},new[]{"vlc"});vlcDump.Single=true;
   Logs(rules,"potplayer-log","软件缓存","PotPlayer",new[]{P(roaming,"Daum\\PotPlayer\\Log")},new[]{"PotPlayerMini","PotPlayerMini64"});
-  string[] products={"IntelliJIdea","IdeaIC","PyCharm","PyCharmCE","WebStorm","PhpStorm","CLion","Rider","GoLand","RubyMine","DataGrip","Aqua","DataSpell"};
+  string[] products={"IntelliJIdea","IdeaIC","PyCharm","PyCharmCE","WebStorm","CLion","Rider","GoLand"};
   foreach(string product in products){
    var owners=new[]{"idea64","pycharm64","webstorm64","phpstorm64","clion64","rider64","goland64","rubymine64","datagrip64","aqua64","dataspell64","java","javaw"};
    Add(rules,"jb-"+product.ToLowerInvariant()+"-cache","开发缓存",product,"索引缓存",Expand(P(local,"JetBrains"),product+"*\\caches").Concat(Expand(P(local,"JetBrains"),product+"*\\index")).ToArray(),30,false,JetBrainsSource,owners,"独立索引缓存；保留 LocalHistory、配置和插件。","重新建立项目索引可能耗时，开发工具运行时保留。");
@@ -89,7 +79,6 @@ public static class CatalogV2 {
   var cargo=Add(rules,"cargo-archives","开发缓存","Rust / Cargo","依赖下载压缩包",new[]{P(profile,".cargo\\registry\\cache")},14,false,"https://doc.rust-lang.org/cargo/guide/cargo-home.html",new[]{"cargo","rustc"},"已下载的 .crate 压缩包；保留 bin、registry/src 和项目。","后续构建可能需重新下载，离线使用受影响。");cargo.Extensions=new[]{".crate"};
   var gradleLogs=Logs(rules,"gradle-logs","开发缓存","Gradle",new[]{P(profile,".gradle\\daemon")},new[]{"java","javaw","gradle"});gradleLogs.Extensions=new[]{".log"};
   var npmRoaming=Add(rules,"npm-roaming","开发缓存","npm","旧版下载缓存",new[]{P(roaming,"npm-cache\\_cacache")},14,false,Community,new[]{"node","npm"},"旧版本 npm 的漫游下载缓存；保留已安装依赖。","后续安装可能需重新下载。");
-  var poetry=Add(rules,"poetry-cache","开发缓存","Poetry","依赖下载缓存",new[]{P(local,"pypoetry\\Cache")},14,false,Community,new[]{"python","pythonw","poetry"},"依赖下载缓存，保留项目与 Python 环境。","后续安装可能需要联网。");
   var go=Add(rules,"go-build","开发缓存","Go","编译缓存",new[]{P(local,"go-build")},14,false,"https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching",new[]{"go","compile","link"},"独立的 Go 编译缓存，不处理模块源代码。","后续编译可能变慢。");
   var conda=Add(rules,"conda-download","开发缓存","Conda","包下载压缩文件",new[]{P(profile,"anaconda3\\pkgs"),P(profile,"miniconda3\\pkgs"),P(local,"anaconda3\\pkgs"),P(local,"miniconda3\\pkgs")},30,false,"https://docs.conda.io/projects/conda/en/latest/commands/clean.html",new[]{"conda","python","pythonw"},"仅处理顶层 .conda、.bz2 下载压缩文件；保留解压包与环境。","后续安装可能需要重新下载。");conda.OnlyTop=true;conda.Extensions=new[]{".conda",".bz2"};
   var nugetOld=Add(rules,"nuget-legacy","开发缓存","NuGet","旧版下载缓存",new[]{P(local,"NuGet\\Cache")},14,false,"https://learn.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders",new[]{"dotnet","MSBuild","devenv"},"旧版 NuGet 下载缓存，不处理 global-packages。","恢复依赖时可能需要重新联网。");nugetOld.Extensions=new[]{".nupkg"};
