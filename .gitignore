@@ -1,0 +1,16 @@
+publisher-private/
+dist*/
+verification*/
+release-verification*/
+*report*.json
+*.exe
+*.zip
+*.csbackup
+*.bin
+*.log
+SHA256.txt
+验证结果.txt
+gh-config/
+signing-key.xml
+*.pfx
+*.p12
