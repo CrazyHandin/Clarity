@@ -12,7 +12,7 @@ $tag = 'beta0.{0:00}' -f $version.number
 
 The verification suites operate on generated fixtures and temporary test registry keys. They do not clean personal caches or run Windows Disk Cleanup. Packaging checks that the reports belong to the exact executable being packaged, then produces the portable ZIP, source ZIP, installer EXE, and `SHA256SUMS.txt`.
 
-The installer uses the current Windows account, supports upgrades and uninstall, and offers an optional desktop shortcut. It installs the application, runtime configuration, and one TXT user guide. It checks for .NET Framework 4.8. Uninstall removes installed program files and shortcuts; settings, backups, and unrelated files are preserved.
+The installer requests administrator permission and defaults to the native Program Files folder (normally `C:\Program Files\Clarity`, including on 64-bit Windows). The destination page remains available during upgrades. Browse opens the Windows folder picker with access to Desktop, Downloads, This PC, and other shell locations, then appends a Clarity subfolder if needed. It supports upgrades and uninstall and offers an optional desktop shortcut. It installs the application, runtime configuration, and one TXT user guide. It checks for .NET Framework 4.8. Uninstall removes installed program files and shortcuts; settings, backups, and unrelated files are preserved.
 
 The source archive includes only listed source, tests, resources, rules, scripts, installer configuration, and documentation. Private signing keys, account credentials, real scan reports, backup files, and build output are excluded.
 

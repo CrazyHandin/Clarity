@@ -20,11 +20,12 @@ AppPublisher=CraZyX
 AppPublisherURL=https://github.com/CrazyHandin/Clarity
 AppSupportURL=https://github.com/CrazyHandin/Clarity/issues
 AppUpdatesURL=https://github.com/CrazyHandin/Clarity/releases/latest
-DefaultDirName={localappdata}\Programs\Clarity
+DefaultDirName={code:DefaultInstallDir}
 DefaultGroupName=Clarity
 AllowNoIcons=yes
 DisableProgramGroupPage=no
-PrivilegesRequired=lowest
+DisableDirPage=no
+PrivilegesRequired=admin
 MinVersion=10.0
 OutputDir={#ReleaseOutput}
 OutputBaseFilename=Clarity-{#ReleaseTag}-setup
@@ -65,11 +66,52 @@ Filename: "{app}\Clarity.exe"; Description: "{cm:LaunchProgram,Clarity}"; Flags:
 
 [CustomMessages]
 english.NetRequired=Clarity requires .NET Framework 4.8 or later. Install it from https://dotnet.microsoft.com/download/dotnet-framework/net48, then run this installer again.
+english.SelectInstallFolder=Choose an installation location. Clarity will be installed in a Clarity subfolder.
 #ifdef IncludeChinese
 chinesesimplified.NetRequired=Clarity 需要 .NET Framework 4.8 或更高版本。请从 https://dotnet.microsoft.com/download/dotnet-framework/net48 安装后重试。
+chinesesimplified.SelectInstallFolder=请选择安装位置。程序将安装到该位置下的 Clarity 文件夹。
 #endif
 
 [Code]
+function DefaultInstallDir(Param: String): String;
+begin
+  // Use the native Program Files folder, including on 64-bit Windows.
+  if IsWin64 then
+    Result := ExpandConstant('{commonpf64}\Clarity')
+  else
+    Result := ExpandConstant('{commonpf32}\Clarity');
+end;
+
+procedure BrowseInstallFolder(Sender: TObject);
+var
+  SelectedDir, ParentDir: String;
+begin
+  SelectedDir := Trim(WizardForm.DirEdit.Text);
+  // The application subfolder may not exist yet. Open the nearest existing parent.
+  while (SelectedDir <> '') and not DirExists(SelectedDir) do begin
+    ParentDir := ExtractFileDir(RemoveBackslashUnlessRoot(SelectedDir));
+    if CompareText(ParentDir, SelectedDir) = 0 then
+      Break;
+    SelectedDir := ParentDir;
+  end;
+  if SelectedDir = '' then
+    SelectedDir := ExpandConstant('{userdesktop}');
+
+  // Windows provides Desktop, Downloads, This PC and other shell locations.
+  // Cancel leaves the installation path untouched.
+  if BrowseForFolder(CustomMessage('SelectInstallFolder'), SelectedDir, False) then begin
+    SelectedDir := RemoveBackslashUnlessRoot(SelectedDir);
+    if CompareText(ExtractFileName(SelectedDir), 'Clarity') <> 0 then
+      SelectedDir := AddBackslash(SelectedDir) + 'Clarity';
+    WizardForm.DirEdit.Text := SelectedDir;
+  end;
+end;
+
+procedure InitializeWizard;
+begin
+  WizardForm.DirBrowseButton.OnClick := @BrowseInstallFolder;
+end;
+
 function InitializeSetup: Boolean;
 begin
   Result := IsDotNetInstalled(net48, 0);

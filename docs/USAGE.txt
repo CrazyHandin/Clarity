@@ -4,7 +4,8 @@ by CraZyX
 
 运行要求
 Windows 10/11，.NET Framework 4.8 或更高版本。
-安装版支持当前用户安装、升级及卸载，桌面快捷方式可选。
+安装版默认安装到 C:\Program Files\Clarity，需要管理员权限，支持升级及卸载。
+点击“浏览”可使用 Windows 文件夹选择窗口找到桌面、下载和其他磁盘；桌面快捷方式可选。
 便携版解压后运行 Clarity.exe，请保留同目录的 Clarity.exe.config。
 
 开始清理
