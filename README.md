@@ -1,27 +1,30 @@
-# 澄净 · C 盘清理 beta0.08 — by CraZyX
+# 澄净 · C 盘清理 beta0.09 — by CraZyX
 
 [简体中文](README.md) | [English](README.en.md)
 
 
-澄净是一款 Windows 便携式 C 盘清理工具，结合应用识别、内置规则、Winapp2 规则库与深度识别，查找系统垃圾和软件缓存。提供低风险项目一键清理与高级自选两种方式，清理项目附带详细说明，清理前统一提示风险。
+澄净是一款 Windows 便携式 C 盘清理工具，结合应用识别、内置规则、Winapp2 规则库与未知缓存识别，查找系统垃圾和软件缓存。支持常规与快速扫描，提供低风险项目一键清理和高级自选两种方式，清理项目附带详细说明，选中风险项目时提示确认。
 
 默认先备份再清理，支持备份恢复、规则更新和离线导入，也可按需运行 Windows 自带磁盘清理。无需安装，可在不同电脑上使用。
 
 ## 开始使用
 
-1. 解压便携包，运行 ClearSpace.exe，保留 ClearSpace.exe.config。
-2. 选择分类；“深度识别未知缓存（高级自选）”默认启用，识别结果仍需在高级模式自行勾选。
-3. 点击唯一的“开始扫描”。应用发现阶段显示正在检查的来源，文件扫描阶段按已完成规则显示百分比及文件数。
-4. 扫描完成后才出现简洁与高级清理。顶部大字显示可处理总量；简洁菜单下显示一键条件总量。
-5. 分类 → 软件/浏览器 → 项目可分层展开；分类勾选联动子项，半选显示横线。可搜索、按风险筛选、仅选当前列表、只选低风险或清空。
+1. 解压便携包，运行 Clarity.exe，保留 Clarity.exe.config。中文名称为“澄净”。
+2. 选择扫描模式及分类。默认“常规扫描”保留原有应用发现、规则匹配与未知缓存识别；“快速扫描”只检查内置的一键清理规则，跳过扩展规则、应用指纹及复杂资料，扫描后仅提供简洁清理。
+3. 点击唯一的“开始扫描”。常规扫描先发现应用，文件扫描按已完成规则显示百分比及文件数。
+4. 常规扫描完成后出现简洁与高级清理；快速扫描只有简洁清理。顶部显示可处理总量，简洁菜单下显示一键条件总量。
+5. 分类 → 软件/浏览器 → 项目可分层展开。未知缓存集中在“软件缓存 → 软件名称 → 未知缓存”三级菜单，继续展开查看具体项目。分类勾选联动子项，半选显示横线，可搜索、筛选、仅选当前列表或只选低风险。
 6. 点击项目“说明”查看用途、影响、保留期、路径与应用指纹依据；说明按需显示。
-7. 底部默认“先备份清理（可恢复）”。备份至其他盘时可释放 C 盘对应空间；备份在 C 盘时，界面会提示清空备份后才释放空间。所有清理模式都会先弹出风险确认，逐项列出所选内容与影响；社区、未知缓存及风险删除始终先备份。
+7. 底部默认“先备份清理（可恢复）”。备份至其他盘时可释放 C 盘对应空间；备份在 C 盘时，清空备份后才释放对应空间。低风险一键清理直接执行；选中未知缓存、社区规则、个人资料、注册表或 Windows 系统清理等风险项目时弹出确认。社区、未知缓存及风险删除始终先备份。
 8. 点击“重新扫描”返回“准备清理 C 盘”页，保留分类选择；再次手动点击“开始扫描”才执行，没有独立的“扫描范围”入口。
-9. 系统目录权限不足时使用“管理员模式”，再手动扫描。
+9. 清理结束显示结果页，展示文件估算释放量、备份及跳过/失败情况；点击“完成”返回初始准备页，不自动扫描。
+10. 系统目录权限不足时使用“管理员模式”，再手动扫描。
 
 ## 新增应用发现与规则库
 
 “应用与规则”入口提供规则更新、已发现应用、便携目录、备份恢复。
+
+在“已发现应用”中选中应用后，可点击“打开应用文件位置”定位程序；程序不存在时尝试打开安装目录，无法确认路径时按钮禁用。此操作只打开资源管理器，不启动应用。
 
 应用发现读取当前用户/系统的卸载项、App Paths、开始菜单、运行进程与服务注册信息，记录应用名、发行商、安装目录及程序路径；检查可执行文件版本、产品名、公司名与数字签名。仅读取文件，不运行发现的程序，不修改安装信息、服务或快捷方式。
 
@@ -39,7 +42,7 @@ Winapp2 使用逐行解析，保留重复和编号指令，支持 OR 检测、�
 
 ## 启发式扫描
 
-默认启用，在有限范围的应用资料目录和明确选择的便携目录中寻找 Cache、GPUCache、Code Cache、Logs、Temp 等特征目录。读取目录全部文件，包括无扩展名、二进制和嵌套内容；普通候选保留最近 1 天及个人资料。
+常规扫描保留此功能，在有限范围的应用资料目录和明确选择的便携目录中寻找 Cache、GPUCache、Code Cache、Logs、Temp 等特征目录。读取目录全部文件，包括无扩展名、二进制和嵌套内容；普通候选保留最近 1 天及个人资料。快速扫描跳过未知缓存识别。
 
 文档/数据库文件头、敏感名称和最近修改的内容会分为“保留内容自选删除”，默认不选并标红风险，始终先备份。普通未知缓存也不能证明可重建，标记“疑似 · 需核对”，不进入一键清理。项目说明显示已读取数量、普通/保留候选、无法读取和链接/只读等信息；计划容量只统计所选候选。
 
@@ -74,6 +77,8 @@ Winapp2 使用逐行解析，保留重复和编号指令，支持 OR 检测、�
 
 “应用与规则 → 规则更新”默认选中 Winapp2.ini，已配置用户提供的官方仓库地址：https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp2.ini。点击“检查更新”下载并检查格式；可导入本地 .ini、导出原始规则、查看兼容报告和回退上一版。每 7 天自动检查为可选设置，默认关闭，始终不自动扫描或清理。
 
+Winapp2 地址固定；签名 JSON 地址独立保存，默认空，支持填写 HTTPS 地址或保存为空。切换来源保留 JSON 编辑内容，不会将 Winapp2 地址带入 JSON。
+
 Winapp2 为未签名社区文件，只从上述固定 HTTPS 地址下载，拒绝重定向、无效证书、超过 5 MB 的包、格式错误与日期版本降级；失败保留当前库。格式检查与 SHA-256 不等于发布者签名，界面不会宣称社区包签名已验证。它不会继承 Default 或节名星号来自动勾选项目。
 
 切换到“签名 JSON · 自定义规则”后仍执行原来的签名策略：云端只接受内置发布者签名的包，拒绝 HTTP、重定向、无效证书、未签名内容、过大包与自动降级；此来源的地址仍需自行配置。本地 JSON 可确认导入，未签名来源醒目标记。
@@ -96,20 +101,20 @@ Winapp2 为未签名社区文件，只从上述固定 HTTPS 地址下载，拒�
 
 ~~~powershell
 .\build.ps1 -OutputDirectory .\dist
-.\dist\ClearSpace.exe --self-test .\verification\files
-.\dist\ClearSpace.exe --v2-self-test .\verification\registry
-.\dist\ClearSpace.exe --v3-self-test .\verification\new-features
-.\dist\ClearSpace.exe --winapp2-self-test .\verification\winapp2
-.\dist\ClearSpace.exe --beta-self-test .\verification\beta
-.\dist\ClearSpace.exe --recovery-self-test .\verification\recovery
-.\dist\ClearSpace.exe --ui-self-test .\verification\ui
+.\dist\Clarity.exe --self-test .\verification\files
+.\dist\Clarity.exe --v2-self-test .\verification\registry
+.\dist\Clarity.exe --v3-self-test .\verification\new-features
+.\dist\Clarity.exe --winapp2-self-test .\verification\winapp2
+.\dist\Clarity.exe --beta-self-test .\verification\beta
+.\dist\Clarity.exe --recovery-self-test .\verification\recovery
+.\dist\Clarity.exe --ui-self-test .\verification\ui
 ~~~
 
 只读报告包含本地应用和路径，不应公开上传：
 
 ~~~powershell
-.\dist\ClearSpace.exe --scan-report .\scan-report.json
-.\dist\ClearSpace.exe --discovery-report .\deep-readonly-report.json
+.\dist\Clarity.exe --scan-report .\scan-report.json
+.\dist\Clarity.exe --discovery-report .\deep-readonly-report.json
 ~~~
 
 删除测试仅操作新建工作区模拟文件和随机命名的 HKCU 测试分支，不清理真实缓存或真实注册表候选。Winapp2 更新地址已配置；签名 JSON 来源仍可自行填写地址。系统清理测试仅使用模拟执行器，没有实际启动 cleanmgr 清理本机。结果详见“验证结果.txt”。
@@ -129,4 +134,4 @@ Winapp2 为未签名社区文件，只从上述固定 HTTPS 地址下载，拒�
 
 ## beta 版本规则
 
-软件显示、EXE 产品版本、更新请求标识与交付包名统一使用 beta0.xx，当前为 beta0.08；每次发布递增，至少保留两位编号。Windows 数值文件版本对应 0.8.0.0。唯一构建来源是 version.json，build.ps1 自动生成版本代码。此前七个版本按发布时间统一为 beta0.01～beta0.07，具体对应见“版本历史.md”。Winapp2 的日期版本及 JSON 规则库版本独立管理。
+软件显示、EXE 产品版本、更新请求标识与交付包名统一使用 beta0.xx，当前为 beta0.09；每次发布递增，至少保留两位编号。Windows 数值文件版本对应 0.9.0.0。英文程序文件名为 Clarity.exe，中文为“澄净”。唯一构建来源是 version.json，build.ps1 自动生成版本代码；历史对应见“版本历史.md”。Winapp2 的日期版本及 JSON 规则库版本独立管理。

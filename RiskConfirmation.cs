@@ -7,6 +7,7 @@ using System.Windows.Media;
 
 namespace ClearSpace {
 public static class RiskConfirmation {
+ public static bool Required(IList<Finding> chosen){return chosen.Any(f=>f.ManualOverride||f.Rule.Heuristic||f.Rule.ForceBackup||f.Rule.Privacy||f.Rule.Protected||!f.Rule.Quick||f.RegistryCandidates.Count>0||f.Rule.InfoKind=="system-disk-cleanup"||!String.IsNullOrWhiteSpace(f.Rule.Warning));}
  public static string ItemText(Finding f){
   string policy=f.Rule.InfoKind=="system-disk-cleanup"?"系统自动清理 · 永久删除":f.ManualOverride?"风险删除 · 强制先备份":f.Rule.Heuristic?"未知缓存 · 强制先备份":f.Rule.ForceBackup?"社区规则 · 强制先备份":f.Rule.Quick?"低风险缓存":"高级自选";
   string text=(f.Rule.Software??f.Rule.Title)+" · "+(f.Rule.Part??f.Rule.Title)+"\n"+policy+" · "+(f.Rule.InfoKind=="system-disk-cleanup"?"C 盘，容量由 Windows 计算":App.FormatSize(f.EligibleBytes)+(f.RegistryCandidates.Count>0?" / "+f.RegistryCandidates.Count+" 项注册表":""))+"\n"+f.Rule.Impact;

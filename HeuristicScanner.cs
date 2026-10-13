@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 namespace ClearSpace {
 public static class HeuristicScanner {
- public static Rule CacheRule(string id,string directory,string owner,string[] processes){return new Rule(id,"疑似缓存 · "+owner,"软件缓存","按缓存目录特征识别并读取目录全部文件，包括无扩展名、二进制与子目录内容。普通候选保留最近 1 天及个人资料；保留内容可在高级模式单独自选。","无法确认每个文件可重建；可能重置软件状态、丢失离线内容。默认不选，清理前核对路径，所有未知缓存强制先备份。",new[]{directory},1,false,processes){Software="未知缓存 · "+owner,Part=Path.GetFileName(directory)+"（疑似）",GroupOverride="软件缓存",Heuristic=true,Notice=true,AllowManual=true,ManualIgnoresPersonalNames=true,ExcludedNames=PathPolicy.SensitiveNames,Detection="启发式依据：缓存目录名与所在应用目录；读取全部文件并区分普通候选、需风险确认的保留内容与不可处理文件。\n无法确认可重建，不进入一键清理。"};}
+ public static Rule CacheRule(string id,string directory,string owner,string[] processes){return new Rule(id,"疑似缓存 · "+owner,"软件缓存","按缓存目录特征识别并读取目录全部文件，包括无扩展名、二进制与子目录内容。普通候选保留最近 1 天及个人资料；保留内容可在高级模式单独自选。","无法确认每个文件可重建；可能重置软件状态、丢失离线内容。默认不选，清理前核对路径，所有未知缓存强制先备份。",new[]{directory},1,false,processes){Software=owner,Part=Path.GetFileName(directory)+"（疑似）",GroupOverride="软件缓存",Heuristic=true,Notice=true,AllowManual=true,ManualIgnoresPersonalNames=true,ExcludedNames=PathPolicy.SensitiveNames,Detection="启发式依据：缓存目录名与所在应用目录；读取全部文件并区分普通候选、需风险确认的保留内容与不可处理文件。\n无法确认可重建，不进入一键清理。"};}
  public static bool LooksPersonal(string path){try{using(var stream=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read)){byte[] head=new byte[32];int n=stream.Read(head,0,head.Length);if(n<4)return false;string text=Encoding.ASCII.GetString(head,0,n);return text.StartsWith("%PDF")||text.StartsWith("SQLite format 3")||head[0]==0x50&&head[1]==0x4b||head[0]==0x4d&&head[1]==0x5a||head[0]==0x89&&head[1]==0x50||head[0]==0xff&&head[1]==0xd8||text.StartsWith("{\\rtf");}}catch{return true;}}
  public static List<Rule> Discover(DiscoveryResult discovery,IEnumerable<Rule> known,CancellationToken token,Action<string> status){
   var rules=new List<Rule>();var knownRoots=known.SelectMany(r=>r.Roots).Select(Engine.Normalize).ToList();var starts=new List<string>();string[] bases={Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)};

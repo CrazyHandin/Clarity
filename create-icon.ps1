@@ -1,4 +1,4 @@
-param([string]$OutputPath = (Join-Path $PSScriptRoot 'ClearSpace.ico'))
+﻿param([string]$OutputPath = (Join-Path $PSScriptRoot 'Clarity.ico'))
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 $iconImages = @()
