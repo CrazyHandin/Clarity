@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 using Microsoft.Win32.SafeHandles;
 
 namespace ClearSpace {
@@ -13,12 +14,14 @@ public sealed class Rule {
  public string Id, Title, Category, Description, Impact;
  public string InfoKind, GroupOverride, NamePrefix, Software, Part, Source; public bool OnlyTop, Shortcut, Privacy, Notice;
  public RegistryScope[] RegistryScopes;
+ public string[] ExcludedRoots,ExcludedNames;public string FileNameRegex,Detection;public bool Heuristic;
  public string[] Roots, Processes = new string[0], Extensions;
  public int Days; public bool Quick, Protected, Single;
  public Rule(string id, string title, string category, string description, string impact, string[] roots, int days, bool quick, params string[] processes) {
   Id=id; Title=title; Category=category; Description=description; Impact=impact; Roots=roots; Days=days; Quick=quick; Processes=processes;
  }
- public bool Accept(string path) { return (NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase)); }
+ public bool Excluded(string path){string full=Engine.Normalize(path);if((ExcludedRoots??new string[0]).Any(r=>full.Equals(Engine.Normalize(r),StringComparison.OrdinalIgnoreCase)||full.StartsWith(Engine.Normalize(r)+"\\",StringComparison.OrdinalIgnoreCase)))return true;foreach(string root in Roots){string normalized=Engine.Normalize(root);if(full.StartsWith(normalized+"\\",StringComparison.OrdinalIgnoreCase)){string relative=full.Substring(normalized.Length+1);if(relative.Split('\\').Any(p=>(ExcludedNames??new string[0]).Contains(p,StringComparer.OrdinalIgnoreCase)))return true;if((Heuristic||Id.StartsWith("library-"))&&PathPolicy.Sensitive(path,root))return true;}}return false;}
+ public bool Accept(string path) { try{return !Excluded(path)&&(NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)))&&(!Heuristic||!HeuristicScanner.LooksPersonal(path));}catch{return false;} }
  public string Group { get { return GroupOverride??Groups.ForCategory(Category); } }
 }
 public sealed class Snapshot {
@@ -35,6 +38,7 @@ public sealed class AuditItem { public string Rule, Path, Status, Reason; public
 public sealed class CleanResult {
  public long Bytes; public int Deleted, Skipped, Failed; public bool Cancelled;
  public int RegistryDeleted; public string RegistryBackupPath;
+ public string FileBackupManifest;public int BackupFiles;public long BackupBytes,EstimatedFreedBytes;
  public List<AuditItem> Items = new List<AuditItem>();
 }
 public sealed class ScanProgress {public int Completed,Total,Files,RegistryItems;public string Title,Group;public long FoundBytes;}
@@ -57,7 +61,9 @@ public sealed class Engine {
  static readonly object ProcessLock=new object(); static HashSet<string> ProcessNames=new HashSet<string>(StringComparer.OrdinalIgnoreCase); static DateTime ProcessSnapshotTime=DateTime.MinValue; static bool ProcessSnapshotValid;
  public readonly List<Rule> Rules; public Func<string[],bool> IsRunning;
  public Action<ScanProgress> LiveProgress; public string RegistryBackupDirectory; ScanProgress live; long baseBytes; int baseFiles,baseRegistry;DateTime lastPulse;
- public Engine(List<Rule> rules) { Rules=rules; IsRunning=OwnersRunning; }
+ public bool UseFileBackup;public string FileBackupDirectory;
+ public Engine(List<Rule> rules) { Rules=rules; IsRunning=OwnersRunning;FileBackupDirectory=FileRecovery.DefaultDirectory(); }
+ bool IsRecoveryPath(string path){try{string full=Normalize(path);foreach(string root in new[]{CleanerSettings.Root,FileBackupDirectory,RegistryBackupDirectory}){if(String.IsNullOrWhiteSpace(root))continue;string p=Normalize(root);if(full.Equals(p,StringComparison.OrdinalIgnoreCase)||full.StartsWith(p+"\\",StringComparison.OrdinalIgnoreCase))return true;}if(full.EndsWith(".csbackup",StringComparison.OrdinalIgnoreCase))return true;string directory=Directory.Exists(full)?full:Path.GetDirectoryName(full);return File.Exists(Path.Combine(directory,"files.csbackup"));}catch{return true;}}
  static void ResetProcessSnapshot() { lock(ProcessLock) { ProcessSnapshotTime=DateTime.MinValue; } }
  public static bool OwnersRunning(string[] owners) {
   if(owners.Length==0) return false;
@@ -91,6 +97,7 @@ public sealed class Engine {
  }
  void InspectFile(string path,Finding result,DateTime cutoff) {
   try {
+   if(IsRecoveryPath(path))return;
    var info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
    if(!result.Rule.Accept(path))return;
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
@@ -120,7 +127,7 @@ public sealed class Engine {
      foreach(var entry in new DirectoryInfo(current).GetFileSystemInfos()) {
       token.ThrowIfCancellationRequested();
       if((entry.Attributes&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
-      if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop)pending.Push(entry.FullName);}
+      if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop&&!rule.Excluded(entry.FullName)&&!IsRecoveryPath(entry.FullName))pending.Push(entry.FullName);}
       else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff);
      }
     } catch(OperationCanceledException) { throw; } catch { result.Unreadable++; }
@@ -134,11 +141,12 @@ public sealed class Engine {
   live=null;
   return results.OrderBy(f=>f.Rule.Protected).ThenByDescending(f=>f.TotalBytes).ToList();
  }
- bool DeleteSnapshot(Rule rule,Snapshot snapshot,out string reason) {
+ bool DeleteSnapshot(Rule rule,Snapshot snapshot,RecoverySession recovery,CancellationToken token,out string reason) {
+  if(IsRecoveryPath(snapshot.Path)){reason="文件位于软件配置或恢复备份范围";return false;}
   reason="";
   if(rule.Protected || !Rules.Contains(rule) || !InScope(rule,snapshot.Path) || !rule.Accept(snapshot.Path)) { reason="不在允许清理的范围"; return false; }
   if(!SafeAncestors(snapshot.Path)) { reason="路径已改变或包含链接"; return false; }
-  using(var handle=Native.CreateFile(snapshot.Path,0x10080,1,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
+  using(var handle=Native.CreateFile(snapshot.Path,recovery==null?0x10080u:0x10081u,1,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
    Native.INFO info;
    if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { reason="文件正在使用、无权限或已不存在"; return false; }
    if((info.Attributes&(Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { reason="链接、云端、只读或受保护文件"; return false; }
@@ -146,6 +154,7 @@ public sealed class Engine {
    if(info.Volume!=snapshot.Volume || info.IndexHigh!=snapshot.IndexHigh || info.IndexLow!=snapshot.IndexLow || info.Bytes!=snapshot.Bytes || info.Write.Value!=snapshot.Modified) { reason="扫描后文件发生变化，请重新扫描"; return false; }
    if(info.Write.Value>DateTime.UtcNow.AddDays(-rule.Days).ToFileTimeUtc()) { reason="文件最近仍在使用"; return false; }
    if(rule.Shortcut && (String.IsNullOrEmpty(snapshot.Condition)||!ShortcutAudit.ProvenMissingLocalTarget(snapshot.Condition))) {reason="快捷方式目标恢复或无法确认失效";return false;}
+   if(recovery!=null)recovery.Save(handle,rule,snapshot,token);token.ThrowIfCancellationRequested();
    var disposition=new Native.DISPOSITION { Delete=true };
    if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION)))) { reason="系统阻止删除（"+Marshal.GetLastWin32Error()+"）"; return false; }
   }
@@ -156,6 +165,7 @@ public sealed class Engine {
   ResetProcessSnapshot();var result=new CleanResult(); var selected=chosen.Where(f=>!f.Rule.Protected && (!quick||f.Rule.Quick)).ToList();
   int total=selected.Sum(f=>f.Candidates.Count), done=0;
   var registryChosen=selected.Where(f=>Rules.Contains(f.Rule)&&f.Rule.InfoKind=="registry-clean"&&!f.Rule.Quick).ToList();
+  RecoverySession recovery=null;if(selected.Any(f=>f.Candidates.Count>0&&(UseFileBackup||f.Rule.Heuristic))){recovery=new RecoverySession(FileBackupDirectory);result.FileBackupManifest=recovery.Manifest;}
   if(!quick&&registryChosen.Count>0){RegistryCleaner.Clean(registryChosen,RegistryBackupDirectory,token,result);}
   foreach(var finding in selected) {
    foreach(var file in finding.Candidates) {
@@ -164,9 +174,9 @@ public sealed class Engine {
     try {
      if(!Rules.Contains(finding.Rule)) reason="识别规则已变化";
      else if(IsRunning(finding.Rule.Processes)) reason="相关程序已启动，自动保留";
-     else removed=DeleteSnapshot(finding.Rule,file,out reason);
-    } catch(Exception e) { result.Failed++; reason=e.Message; }
-    if(removed) { result.Deleted++; result.Bytes+=file.Bytes; } else result.Skipped++;
+     else removed=DeleteSnapshot(finding.Rule,file,UseFileBackup||finding.Rule.Heuristic?recovery:null,token,out reason);
+    } catch(OperationCanceledException){result.Cancelled=true;return result;}catch(Exception e) { result.Failed++; reason=e.Message; }
+    if(removed) { result.Deleted++; result.Bytes+=file.Bytes;if(UseFileBackup||finding.Rule.Heuristic){result.BackupFiles++;result.BackupBytes+=file.Bytes;if(!String.Equals(Path.GetPathRoot(file.Path),Path.GetPathRoot(recovery.DirectoryPath),StringComparison.OrdinalIgnoreCase))result.EstimatedFreedBytes+=file.Bytes;}else result.EstimatedFreedBytes+=file.Bytes; } else result.Skipped++;
     result.Items.Add(new AuditItem { Rule=finding.Rule.Title,Path=file.Path,Status=removed?"已删除":"已跳过",Reason=reason,Bytes=removed?file.Bytes:0 });
     done++; if(progress!=null) progress(done,total,finding.Rule.Title);
    }

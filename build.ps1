@@ -26,10 +26,12 @@ $compilerArguments = @(
     "/reference:$(Join-Path $framework 'WPF\PresentationFramework.dll')",
     "/reference:$(Join-Path $framework 'WPF\PresentationCore.dll')",
     "/reference:$(Join-Path $framework 'WPF\WindowsBase.dll')",
-    '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll',
-    (Join-Path $PSScriptRoot 'Engine.cs'), (Join-Path $PSScriptRoot 'ExtendedRules.cs'), (Join-Path $PSScriptRoot 'CatalogV2.cs'), (Join-Path $PSScriptRoot 'RegistryCleaner.cs'), (Join-Path $PSScriptRoot 'App.cs'), (Join-Path $PSScriptRoot 'SelfTest.cs'), (Join-Path $PSScriptRoot 'V2Tests.cs')
+    '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll', '/reference:System.Security.dll', '/reference:System.Windows.Forms.dll',
+    (Join-Path $PSScriptRoot 'Engine.cs'), (Join-Path $PSScriptRoot 'ExtendedRules.cs'), (Join-Path $PSScriptRoot 'CatalogV2.cs'), (Join-Path $PSScriptRoot 'RegistryCleaner.cs'), (Join-Path $PSScriptRoot 'App.cs'), (Join-Path $PSScriptRoot 'SelfTest.cs'), (Join-Path $PSScriptRoot 'V2Tests.cs'), (Join-Path $PSScriptRoot 'ApplicationDiscovery.cs'), (Join-Path $PSScriptRoot 'RuleLibrary.cs'), (Join-Path $PSScriptRoot 'HeuristicScanner.cs'), (Join-Path $PSScriptRoot 'FileRecovery.cs'), (Join-Path $PSScriptRoot 'RuleCenter.cs')
 )
 if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'ClearSpace.ico')) { $compilerArguments += "/win32icon:$(Join-Path $PSScriptRoot 'ClearSpace.ico')" }
+$compilerArguments += (Join-Path $PSScriptRoot 'V3Tests.cs')
+foreach ($resourceName in @('rule-public-key.xml','BundledRules.signed.json')) {if (Test-Path -LiteralPath (Join-Path $PSScriptRoot $resourceName)) {$compilerArguments += "/resource:$(Join-Path $PSScriptRoot $resourceName),ClearSpace.$resourceName"}}
 $compilerArguments += $generatedVersion
 & $compiler @compilerArguments
 if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
