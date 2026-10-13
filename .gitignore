@@ -2,6 +2,7 @@ publisher-private/
 dist*/
 verification*/
 release-verification*/
+releases/
 *report*.json
 *.exe
 *.zip

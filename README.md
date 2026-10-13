@@ -2,9 +2,9 @@
 
 [简体中文](README.md) | [English](README.en.md)
 
-澄净是一款便携式 Windows C 盘清理工具，支持系统垃圾与软件缓存识别、低风险项目一键清理、高级自选及备份恢复。**by CraZyX**
+澄净是一款 Windows C 盘清理工具，提供安装版与便携版，支持系统垃圾与软件缓存识别、低风险项目一键清理、高级自选及备份恢复。**by CraZyX**
 
-[下载软件](https://github.com/CrazyHandin/Clarity/releases/tag/beta0.10) · [历史版本](https://github.com/CrazyHandin/Clarity/releases) · [更新记录](版本历史.md)
+[下载最新版](https://github.com/CrazyHandin/Clarity/releases/latest) · [历史版本](https://github.com/CrazyHandin/Clarity/releases) · [更新记录](docs/版本历史.md)
 
 ## 功能特色
 
@@ -15,9 +15,9 @@
 
 ## 使用方法
 
-需要 **Windows 10/11 与 .NET Framework 4.8**，无需安装。
+需要 **Windows 10/11 与 .NET Framework 4.8**。
 
-1. 下载并解压便携包，运行 `Clarity.exe`，保留同目录的 `Clarity.exe.config`。
+1. 下载 `setup.exe` 安装包并安装，或解压便携包运行 `Clarity.exe`，保留同目录的 `Clarity.exe.config`。
 2. 选择扫描模式，点击 **开始扫描**。打开软件不会自动扫描。
 3. 查看结果后清理；选中风险项目时会弹窗确认。清理结束点击 **完成**，返回初始界面。
 
@@ -52,4 +52,6 @@ Winapp2 规则数据库按 **CC BY-SA 4.0** 分发，详见[第三方说明](THI
 .\build.ps1 -OutputDirectory .\dist
 ```
 
-[常用软件规则](常用软件规则.md) · [清理规则一览](清理规则一览.md) · [规则库维护](规则库维护.md) · [Winapp2 使用说明](Winapp2-使用说明.md)
+源码目录：`src/`（界面、清理、规则、识别与恢复）、`tests/`（隔离测试）、`assets/`（图标与配置）、`rules/`（规则数据）、`installer/`（安装配置）、`scripts/`（辅助工具）、`docs/`（技术文档）。构建与打包入口保留在根目录，安装包构建与发布见[构建说明](docs/BUILD.md)。
+
+[常用软件规则](docs/常用软件规则.md) · [清理规则一览](docs/清理规则一览.md) · [规则库维护](docs/规则库维护.md) · [Winapp2 使用说明](docs/Winapp2-使用说明.md)

@@ -1,5 +1,6 @@
 param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
 $ErrorActionPreference = 'Stop'
+$OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $framework = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319'
 if (-not (Test-Path -LiteralPath (Join-Path $framework 'csc.exe'))) {
@@ -20,39 +21,38 @@ using System.Reflection;
 [assembly: AssemblyInformationalVersion("$releaseTag")]
 namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; } }
 "@
-[System.IO.File]::WriteAllText($generatedVersion,$versionSource,[System.Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText($generatedVersion,$versionSource,[Text.UTF8Encoding]::new($false))
 $compilerArguments = @(
-    '/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', '/utf8output',
-    '/codepage:65001', "/out:$exe", "/win32manifest:$(Join-Path $PSScriptRoot 'app.manifest')",
-    "/resource:$(Join-Path $PSScriptRoot 'Main.xaml'),ClearSpace.Main.xaml",
+    '/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', '/utf8output', '/codepage:65001',
+    "/out:$exe", "/win32manifest:$(Join-Path $PSScriptRoot 'assets/app.manifest')",
+    "/win32icon:$(Join-Path $PSScriptRoot 'assets/Clarity.ico')",
     "/reference:$(Join-Path $framework 'WPF\PresentationFramework.dll')",
     "/reference:$(Join-Path $framework 'WPF\PresentationCore.dll')",
     "/reference:$(Join-Path $framework 'WPF\WindowsBase.dll')",
-    '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll', '/reference:System.Security.dll', '/reference:System.Windows.Forms.dll',
-    (Join-Path $PSScriptRoot 'Engine.cs'), (Join-Path $PSScriptRoot 'ExtendedRules.cs'), (Join-Path $PSScriptRoot 'CatalogV2.cs'), (Join-Path $PSScriptRoot 'RegistryCleaner.cs'), (Join-Path $PSScriptRoot 'App.cs'), (Join-Path $PSScriptRoot 'SelfTest.cs'), (Join-Path $PSScriptRoot 'V2Tests.cs'), (Join-Path $PSScriptRoot 'ApplicationDiscovery.cs'), (Join-Path $PSScriptRoot 'RuleLibrary.cs'), (Join-Path $PSScriptRoot 'HeuristicScanner.cs'), (Join-Path $PSScriptRoot 'FileRecovery.cs'), (Join-Path $PSScriptRoot 'RuleCenter.cs')
+    '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll',
+    '/reference:System.Security.dll', '/reference:System.Windows.Forms.dll'
 )
-if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'Clarity.ico')) { $compilerArguments += "/win32icon:$(Join-Path $PSScriptRoot 'Clarity.ico')" }
-$compilerArguments += (Join-Path $PSScriptRoot 'V3Tests.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'Winapp2.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'Winapp2Tests.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'BackupFolders.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'RecoveryTests.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'ScanModes.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'CommonSoftwareRules.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'CommonRulesTests.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'ApplicationLocations.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'RuleSourceAddresses.cs')
-$compilerArguments += "/resource:$(Join-Path $PSScriptRoot 'Clarity.ico'),ClearSpace.AppIcon.ico"
-$compilerArguments += (Join-Path $PSScriptRoot 'UiTests.cs')
-$compilerArguments += $generatedVersion
-$compilerArguments += (Join-Path $PSScriptRoot 'SystemDiskCleanup.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'RiskConfirmation.cs')
-$compilerArguments += (Join-Path $PSScriptRoot 'BetaTests.cs')
-foreach ($resourceName in @('rule-public-key.xml','BundledRules.signed.json')) {if (Test-Path -LiteralPath (Join-Path $PSScriptRoot $resourceName)) {$compilerArguments += "/resource:$(Join-Path $PSScriptRoot $resourceName),ClearSpace.$resourceName"}}
-$compilerArguments += "/resource:$(Join-Path $PSScriptRoot 'Winapp2.ini'),ClearSpace.Winapp2.ini"
-& $compiler @compilerArguments
-if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
-Remove-Item -LiteralPath $generatedVersion -Force
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Clarity.exe.config') -Destination $OutputDirectory -Force
-Get-Item -LiteralPath $exe | Select-Object FullName, Length
-
+$resources = [ordered]@{
+    'src/UI/Main.xaml' = 'ClearSpace.Main.xaml'
+    'assets/Clarity.ico' = 'ClearSpace.AppIcon.ico'
+    'rules/rule-public-key.xml' = 'ClearSpace.rule-public-key.xml'
+    'rules/BundledRules.signed.json' = 'ClearSpace.BundledRules.signed.json'
+    'rules/Winapp2.ini' = 'ClearSpace.Winapp2.ini'
+}
+foreach ($resource in $resources.GetEnumerator()) {
+    $path = Join-Path $PSScriptRoot $resource.Key
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build resource: $($resource.Key)" }
+    $compilerArguments += "/resource:$path,$($resource.Value)"
+}
+$sourceRoots = @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests'))
+$sources = @(Get-ChildItem -LiteralPath $sourceRoots -Filter '*.cs' -Recurse -File | Where-Object { $_.FullName -ne $generatedVersion } | Sort-Object FullName)
+if ($sources.Count -eq 0) { throw 'No C# source files found.' }
+$compilerArguments += @($sources.FullName) + @($generatedVersion)
+try {
+    & $compiler @compilerArguments
+    if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
+} finally {
+    Remove-Item -LiteralPath $generatedVersion -Force
+}
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets/Clarity.exe.config') -Destination $OutputDirectory -Force
+Get-Item -LiteralPath $exe | Select-Object FullName,Length

@@ -1,7 +1,7 @@
 param(
  [Parameter(Mandatory=$true)][string]$RulesFile,
  [Parameter(Mandatory=$true)][string]$KeyFile,
- [string]$OutputFile=(Join-Path $PSScriptRoot 'rules.signed.json')
+ [string]$OutputFile=(Join-Path (Split-Path -Parent $PSScriptRoot) 'rules/rules.signed.json')
 )
 $ErrorActionPreference='Stop'
 $ruleText=[IO.File]::ReadAllText((Resolve-Path -LiteralPath $RulesFile).Path)

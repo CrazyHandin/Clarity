@@ -1,0 +1,42 @@
+﻿Clarity 使用说明
+by CraZyX
+项目与最新版：https://github.com/CrazyHandin/Clarity
+
+运行要求
+Windows 10/11，.NET Framework 4.8 或更高版本。
+安装版支持当前用户安装、升级及卸载，桌面快捷方式可选。
+便携版解压后运行 Clarity.exe，请保留同目录的 Clarity.exe.config。
+
+开始清理
+1. 打开软件不会自动扫描。选择模式后点击“开始扫描”。
+2. 快速扫描为默认，仅扫描内置的一键清理规则，使用简洁清理。
+3. 常规扫描包含应用发现、外部规则和未知缓存，可使用高级自选。
+4. 查看容量、项目说明和风险后清理。选中风险项目时弹窗确认。
+5. 清理结束点击“完成”返回初始界面，不会自动再次扫描。
+
+备份与恢复
+默认先备份，ClarityBackups 优先位于其他本地磁盘。
+在“应用与规则 → 备份与恢复”可修改目录、打开备份位置或恢复。
+恢复请选择对应批次的 files.csbackup，仅支持本机及本账户，不覆盖已有文件。
+恢复校验成功后清除对应备份；冲突、失败的内容继续保留。
+备份保存在 C 盘时，对应空间需要清除备份后才能释放。
+卸载程序会保留设置及备份。
+
+清理选择
+简洁清理只处理符合条件的低风险项目。清理缓存可能需要重新下载或使首次加载变慢。
+未知缓存、社区规则默认不选，仅供高级自选且始终先备份。
+请核对风险说明。占用、无权限或扫描后变化的文件会跳过。
+Windows 磁盘清理是默认关闭的独立选项，自动处理 C 盘并退出。
+系统磁盘清理不经过 Clarity 备份，可能无法恢复。
+
+规则更新
+“应用与规则”支持 Winapp2 INI、JSON 规则更新和离线导入。
+更新不上传应用列表、路径或扫描结果，不会自动扫描或删除。
+
+第三方规则说明
+内置 Winapp2.ini 来自 Winapp2 项目及其贡献者，快照版本 260915，文件未经修改。
+来源：https://github.com/MoscaDotTo/Winapp2
+规则文件：https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp2.ini
+许可：Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)。
+许可全文：https://creativecommons.org/licenses/by-sa/4.0/legalcode
+该许可适用于 Winapp2 规则数据库；Clarity 使用受限适配器与运行时安全过滤。

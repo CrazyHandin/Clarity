@@ -1,10 +1,10 @@
 # Clarity
 
-[简体中文](README.md) | **English**
+[Chinese](README.md) | **English**
 
-Clarity is a portable Windows C-drive cleaner with system junk and application cache detection, simple cleanup for eligible low-risk items, advanced selection, and backup restoration. **by CraZyX**
+Clarity is a Windows C-drive cleaner available as an installer or portable app, with system junk and application cache detection, simple cleanup for eligible low-risk items, advanced selection, and backup restoration. **by CraZyX**
 
-[Download](https://github.com/CrazyHandin/Clarity/releases/tag/beta0.10) · [All releases](https://github.com/CrazyHandin/Clarity/releases) · [Changelog](CHANGELOG.md)
+[Download latest](https://github.com/CrazyHandin/Clarity/releases/latest) · [All releases](https://github.com/CrazyHandin/Clarity/releases) · [Changelog](CHANGELOG.md)
 
 ## Features
 
@@ -15,11 +15,11 @@ Clarity is a portable Windows C-drive cleaner with system junk and application c
 
 ## Get started
 
-Requires **Windows 10/11 and .NET Framework 4.8**. No installation is needed. The application interface is in Simplified Chinese.
+Requires **Windows 10/11 and .NET Framework 4.8**. The application interface is in Simplified Chinese.
 
-1. Download and extract the portable package. Run `Clarity.exe` with `Clarity.exe.config` beside it.
-2. Choose a scan mode and click **开始扫描** (Start scan). Opening the app does not start scanning.
-3. Review the results and clean your selection. Risk items trigger confirmation. Click **完成** (Finish) on the results screen to return to the initial screen.
+1. Run the installer, or extract the portable package and run `Clarity.exe` with `Clarity.exe.config` beside it.
+2. Choose a scan mode and click **Start scan**. Opening the app does not start scanning.
+3. Review the results and clean your selection. Risk items trigger confirmation. Click **Finish** on the results screen to return to the initial screen.
 
 | Scan mode | Scope | Cleanup options |
 | --- | --- | --- |
@@ -52,4 +52,6 @@ Build the C# / WPF application with the .NET Framework compiler:
 .\build.ps1 -OutputDirectory .\dist
 ```
 
-Technical documentation (Chinese): [Application rules](常用软件规则.md) · [Cleanup catalog](清理规则一览.md) · [Rule maintenance](规则库维护.md) · [Winapp2 guide](Winapp2-使用说明.md)
+Source folders: `src/` (UI, cleaning, rules, discovery, recovery), `tests/` (isolated checks), `assets/` (icons and configuration), `rules/` (rule data), `installer/` (setup configuration), `scripts/` (tools), and `docs/` (technical documentation). See [build and release instructions](docs/BUILD.md) for installer packaging and publishing.
+
+Technical documentation (Chinese): [Application rules](docs/%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E8%A7%84%E5%88%99.md) · [Cleanup catalog](docs/%E6%B8%85%E7%90%86%E8%A7%84%E5%88%99%E4%B8%80%E8%A7%88.md) · [Rule maintenance](docs/%E8%A7%84%E5%88%99%E5%BA%93%E7%BB%B4%E6%8A%A4.md) · [Winapp2 guide](docs/Winapp2-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
