@@ -11,19 +11,22 @@ using Microsoft.Win32.SafeHandles;
 namespace ClearSpace {
 public sealed class Rule {
  public string Id, Title, Category, Description, Impact;
+ public string InfoKind, GroupOverride, NamePrefix; public bool OnlyTop, Shortcut, Privacy, Notice;
  public string[] Roots, Processes = new string[0], Extensions;
  public int Days; public bool Quick, Protected, Single;
  public Rule(string id, string title, string category, string description, string impact, string[] roots, int days, bool quick, params string[] processes) {
   Id=id; Title=title; Category=category; Description=description; Impact=impact; Roots=roots; Days=days; Quick=quick; Processes=processes;
  }
- public bool Accept(string path) { return Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase); }
+ public bool Accept(string path) { return (NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null || Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase)); }
+ public string Group { get { return GroupOverride??Groups.ForCategory(Category); } }
 }
 public sealed class Snapshot {
- public string Path; public long Bytes, Modified; public uint Volume, IndexHigh, IndexLow;
+ public string Path, Condition; public long Bytes, Modified; public uint Volume, IndexHigh, IndexLow;
 }
 public sealed class Finding {
  public Rule Rule; public long TotalBytes, EligibleBytes; public int Files, Unreadable, Recent, Links, Changed;
  public bool Running; public List<Snapshot> Candidates = new List<Snapshot>(); public List<string> Samples = new List<string>();
+ public int VirtualItems, SuspectedItems; public string Extra;
  public string Status { get { return Rule.Protected ? "保留" : Running ? "使用中 · 已保护" : EligibleBytes==0 ? "暂无可清理项" : Rule.Quick ? "建议清理" : "需自行确认"; } }
 }
 public sealed class AuditItem { public string Rule, Path, Status, Reason; public long Bytes; }
@@ -65,7 +68,7 @@ public sealed class Engine {
  public static string Normalize(string path) { return Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar); }
  public static bool InScope(Rule rule,string path) {
   string full; try { full=Normalize(path); } catch { return false; }
-  foreach(string r in rule.Roots) { string root=Normalize(r); if(rule.Single ? String.Equals(full,root,StringComparison.OrdinalIgnoreCase) : full.StartsWith(root+"\\",StringComparison.OrdinalIgnoreCase)) return true; }
+  foreach(string r in rule.Roots) { string root=Normalize(r); if(rule.Single ? String.Equals(full,root,StringComparison.OrdinalIgnoreCase) : rule.OnlyTop ? String.Equals(Path.GetDirectoryName(full),root,StringComparison.OrdinalIgnoreCase) : full.StartsWith(root+"\\",StringComparison.OrdinalIgnoreCase)) return true; }
   return false;
  }
  public static bool SafeAncestors(string path) {
@@ -75,7 +78,7 @@ public sealed class Engine {
   if(!SafeAncestors(path)) { result.Links++; return null; }
   using(var handle=Native.CreateFile(path,0x80,7,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
    Native.INFO info; if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { result.Unreadable++; return null; }
-   if((info.Attributes & (Native.UnsafeAttributes|0x10))!=0 || info.Links!=1) { result.Links++; return null; }
+   if((info.Attributes & (Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { result.Links++; return null; }
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(path),StringComparison.OrdinalIgnoreCase)) { result.Links++; return null; }
    if(info.Write.Value>cutoff.ToFileTimeUtc()) { result.Recent++; return null; }
    return new Snapshot { Path=Path.GetFullPath(path),Bytes=info.Bytes,Modified=info.Write.Value,Volume=info.Volume,IndexHigh=info.IndexHigh,IndexLow=info.IndexLow };
@@ -84,14 +87,17 @@ public sealed class Engine {
  void InspectFile(string path,Finding result,DateTime cutoff) {
   try {
    var info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
+   if(!result.Rule.Accept(path))return;
+   string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
    result.Files++; result.TotalBytes+=info.Length;
    if(result.Samples.Count<5) result.Samples.Add(path);
-   if(result.Rule.Protected || result.Running || !result.Rule.Accept(path)) return;
-   var snapshot=Capture(path,result,cutoff); if(snapshot!=null) { result.Candidates.Add(snapshot); result.EligibleBytes+=snapshot.Bytes; }
+   if(result.Rule.Protected || result.Running) return;
+   var snapshot=Capture(path,result,cutoff); if(snapshot!=null) {snapshot.Condition=condition; result.Candidates.Add(snapshot); result.EligibleBytes+=snapshot.Bytes; }
   } catch { result.Unreadable++; }
  }
  public Finding ScanRule(Rule rule,CancellationToken token) {
   var result=new Finding { Rule=rule,Running=!rule.Protected&&IsRunning(rule.Processes) };
+  if(rule.InfoKind=="registry") {RegistryAudit.Read(result,token);return result;}
   var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase); DateTime cutoff=DateTime.UtcNow.AddDays(-rule.Days);
   foreach(string rawRoot in rule.Roots) {
    token.ThrowIfCancellationRequested(); string root; try { root=Normalize(rawRoot); } catch { result.Unreadable++; continue; }
@@ -107,7 +113,7 @@ public sealed class Engine {
      foreach(var entry in new DirectoryInfo(current).GetFileSystemInfos()) {
       token.ThrowIfCancellationRequested();
       if((entry.Attributes&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
-      if((entry.Attributes&FileAttributes.Directory)!=0) pending.Push(entry.FullName);
+      if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop)pending.Push(entry.FullName);}
       else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff);
      }
     } catch(OperationCanceledException) { throw; } catch { result.Unreadable++; }
@@ -116,7 +122,7 @@ public sealed class Engine {
   return result;
  }
  public List<Finding> Scan(CancellationToken token,Action<int,int,string> progress) {
-  ResetProcessSnapshot();var results=new List<Finding>(); for(int i=0;i<Rules.Count;i++) { token.ThrowIfCancellationRequested(); if(progress!=null) progress(i,Rules.Count,Rules[i].Title); var f=ScanRule(Rules[i],token); if(f.Files>0 || f.Unreadable>0 || f.Links>0) results.Add(f); }
+  ResetProcessSnapshot();var results=new List<Finding>(); for(int i=0;i<Rules.Count;i++) { token.ThrowIfCancellationRequested(); if(progress!=null) progress(i,Rules.Count,Rules[i].Title); var f=ScanRule(Rules[i],token); if(f.Files>0 || f.Unreadable>0 || f.Links>0 || f.Rule.Notice) results.Add(f); }
   return results.OrderBy(f=>f.Rule.Protected).ThenByDescending(f=>f.TotalBytes).ToList();
  }
  bool DeleteSnapshot(Rule rule,Snapshot snapshot,out string reason) {
@@ -130,6 +136,7 @@ public sealed class Engine {
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(snapshot.Path),StringComparison.OrdinalIgnoreCase)) { reason="文件实际位置已改变"; return false; }
    if(info.Volume!=snapshot.Volume || info.IndexHigh!=snapshot.IndexHigh || info.IndexLow!=snapshot.IndexLow || info.Bytes!=snapshot.Bytes || info.Write.Value!=snapshot.Modified) { reason="扫描后文件发生变化，请重新扫描"; return false; }
    if(info.Write.Value>DateTime.UtcNow.AddDays(-rule.Days).ToFileTimeUtc()) { reason="文件最近仍在使用"; return false; }
+   if(rule.Shortcut && (String.IsNullOrEmpty(snapshot.Condition)||!ShortcutAudit.ProvenMissingLocalTarget(snapshot.Condition))) {reason="快捷方式目标恢复或无法确认失效";return false;}
    var disposition=new Native.DISPOSITION { Delete=true };
    if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION)))) { reason="系统阻止删除（"+Marshal.GetLastWin32Error()+"）"; return false; }
   }
@@ -197,6 +204,7 @@ public static class RuleBook {
   var office=Add(rules,"office","Office 更新资料（保留）","受保护资料","Office 的更新下载资料可能用于安装、修复或回退。无法仅凭目录判断为垃圾。","不提供直接删除。请使用 Office 和 Windows 的官方维护功能处理。",new[]{P(pf,"Microsoft Office\\Updates\\Download"),P(Environment.GetEnvironmentVariable("ProgramW6432")??pf,"Microsoft Office\\Updates\\Download"),P(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),"Microsoft Office\\Updates\\Download")},0,false); office.Protected=true;
   var support=Add(rules,"support","原厂驱动安装备份（保留）","受保护资料","电脑厂商预置的驱动和软件安装资料，可能用于恢复或重新安装。","不自动清理。备份到其他磁盘并确认恢复需求后，才适合另行处理。",new[]{Path.GetPathRoot(windows)+"eSupport"},0,false); support.Protected=true;
   foreach(string systemFile in new[]{"hiberfil.sys","pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,systemFile=="hiberfil.sys"?"休眠文件（保留）":"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
+  ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
   foreach(var rule in rules) rule.Roots=rule.Roots.Where(r=>String.Equals(Path.GetPathRoot(Path.GetFullPath(r)),TargetDrive,StringComparison.OrdinalIgnoreCase)).ToArray();
   return rules;
  }

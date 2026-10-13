@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -14,6 +15,11 @@ public static class SelfTest {
  static string FileAt(string relative,string content) { string path=Path.Combine(fixture,relative); Directory.CreateDirectory(Path.GetDirectoryName(path));File.WriteAllText(path,content);File.SetLastWriteTimeUtc(path,DateTime.UtcNow.AddDays(-30));return path; }
  static Rule RuleAt(string name,bool quick) { return new Rule(name,name,"test","test","test",new[]{Path.Combine(fixture,name)},7,quick); }
  static Engine TestEngine(params Rule[] rules) { var e=new Engine(rules.ToList()); e.IsRunning=names=>false;return e; }
+ static string LinkAt(string name,string target) {
+  string path=Path.Combine(fixture,name);Directory.CreateDirectory(Path.GetDirectoryName(path));object shell=null,link=null;
+  try{var type=Type.GetTypeFromProgID("WScript.Shell");shell=Activator.CreateInstance(type);link=type.InvokeMember("CreateShortcut",BindingFlags.InvokeMethod,null,shell,new object[]{path});link.GetType().InvokeMember("TargetPath",BindingFlags.SetProperty,null,link,new object[]{target});link.GetType().InvokeMember("Save",BindingFlags.InvokeMethod,null,link,null);File.SetLastWriteTimeUtc(path,DateTime.UtcNow.AddDays(-30));return path;}
+  finally{if(link!=null&&Marshal.IsComObject(link))Marshal.FinalReleaseComObject(link);if(shell!=null&&Marshal.IsComObject(shell))Marshal.FinalReleaseComObject(shell);}
+ }
  public static int Run(string outputDirectory) {
   Directory.CreateDirectory(outputDirectory); fixture=Path.Combine(Path.GetFullPath(outputDirectory),"isolated-fixture-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(fixture);
   try {
@@ -34,6 +40,16 @@ public static class SelfTest {
    var cancelled=RuleAt("cancelled",true);string cancelledFile=FileAt("cancelled\\keep.bin","keep");engine=TestEngine(cancelled);finding=engine.ScanRule(cancelled,CancellationToken.None);var stop=new CancellationTokenSource();stop.Cancel();result=engine.Clean(new[]{finding},true,stop.Token,null);Assert(result.Cancelled&&File.Exists(cancelledFile),"Cancelled cleanup retains unprocessed files");
    var single=RuleAt("single",false);single.Single=true;single.Roots=new[]{FileAt("single\\MEMORY.DMP","dump")};string adjacent=FileAt("single\\pagefile.sys","system");engine=TestEngine(single);finding=engine.ScanRule(single,CancellationToken.None);result=engine.Clean(new[]{finding},false,CancellationToken.None,null);Assert(result.Deleted==1&&File.Exists(adjacent),"Single-file cleanup cannot touch adjacent system files");
    var failedScope=RuleAt("unknown",true);FileAt("unknown\\keep.bin","keep");engine=TestEngine();finding=new Finding {Rule=failedScope};finding.Candidates.Add(new Snapshot {Path=Path.Combine(fixture,"unknown\\keep.bin")});result=engine.Clean(new[]{finding},false,CancellationToken.None,null);Assert(result.Deleted==0,"Unregistered rules cannot delete files");
+   var top=RuleAt("top-only",false);top.OnlyTop=true;top.Extensions=new[]{".db"};top.NamePrefix="thumbcache_";
+   string thumbnail=FileAt("top-only\\thumbcache_256.db","cache"),icon=FileAt("top-only\\iconcache.db","keep"),nested=FileAt("top-only\\nested\\thumbcache_256.db","keep"),otherType=FileAt("top-only\\thumbcache_notes.txt","keep");
+   engine=TestEngine(top);finding=engine.ScanRule(top,CancellationToken.None);Assert(finding.Candidates.Count==1&&finding.Candidates[0].Path==thumbnail,"Thumbnail rule requires approved filename and extension");Assert(!Engine.InScope(top,nested),"Top-level-only rule rejects nested file even at deletion boundary");result=engine.Clean(new[]{finding},false,CancellationToken.None,null);Assert(!File.Exists(thumbnail)&&File.Exists(icon)&&File.Exists(nested)&&File.Exists(otherType),"Thumbnail cleanup preserves icon database and nested data");
+   var notice=RuleAt("notice",false);notice.Protected=true;notice.Notice=true;engine=TestEngine(notice);Assert(engine.Scan(CancellationToken.None,null).Count==1,"Protected explanations remain visible when no files exist");
+   string windows=Environment.GetFolderPath(Environment.SpecialFolder.Windows),missing=Path.Combine(RuleBook.TargetDrive,"ClearSpace-Nonexistent-"+Guid.NewGuid().ToString("N"),"app.exe");
+   string otherDrive=String.Equals(RuleBook.TargetDrive,"Z:\\",StringComparison.OrdinalIgnoreCase)?"Y:\\":"Z:\\";
+   Assert(ShortcutAudit.ProvenMissingLocalTarget(missing)&&!ShortcutAudit.ProvenMissingLocalTarget(windows),"Shortcut audit distinguishes proved missing and existing local targets");Assert(!ShortcutAudit.ProvenMissingLocalTarget("\\\\nonexistent-server\\share\\app.exe")&&!ShortcutAudit.ProvenMissingLocalTarget("relative.exe")&&!ShortcutAudit.ProvenMissingLocalTarget(Path.Combine(otherDrive,"ClearSpace-Nonexistent-"+Guid.NewGuid().ToString("N"),"absent.exe")),"Shortcut audit excludes network, relative and other-drive targets");
+   var shortcut=RuleAt("shortcuts",false);shortcut.Shortcut=true;shortcut.Extensions=new[]{".lnk"};string invalid=LinkAt("shortcuts\\missing.lnk",missing),valid=LinkAt("shortcuts\\valid.lnk",windows);
+   engine=TestEngine(shortcut);finding=engine.ScanRule(shortcut,CancellationToken.None);Assert(finding.Candidates.Count==1&&finding.Candidates[0].Path==invalid&&finding.Candidates[0].Condition==missing,"Shortcut candidates require read-only verified missing targets");finding.Candidates[0].Condition=windows;result=engine.Clean(new[]{finding},false,CancellationToken.None,null);Assert(result.Deleted==0&&File.Exists(invalid),"Deletion rechecks shortcut target and retains restored or uncertain targets");finding=engine.ScanRule(shortcut,CancellationToken.None);result=engine.Clean(new[]{finding},false,CancellationToken.None,null);Assert(result.Deleted==1&&!File.Exists(invalid)&&File.Exists(valid),"Advanced shortcut cleanup removes only verified invalid fixture links");
+   var catalog=RuleBook.Create();Assert(catalog.Count>=60&&catalog.Select(r=>r.Group).Distinct().Count()==8,"Expanded catalog covers eight categories and at least sixty rules");Assert(catalog.Where(r=>r.InfoKind=="registry"||r.InfoKind=="storage").All(r=>r.Protected&&!r.Quick),"Registry and Windows-managed content cannot enter direct cleanup");Assert(catalog.Select(r=>r.Id).Distinct().Count()==catalog.Count,"Expanded rule identifiers are unique");
    File.WriteAllLines(Path.Combine(outputDirectory,"self-test-results.txt"),checks.Concat(new[]{"ALL "+checks.Count+" CHECKS PASSED","Only generated isolated fixtures were modified.","Fixture: "+fixture}));return 0;
   } catch(Exception ex) {File.WriteAllLines(Path.Combine(outputDirectory,"self-test-results.txt"),checks.Concat(new[]{ex.ToString(),"Fixture: "+fixture}));return 1;}
  }
