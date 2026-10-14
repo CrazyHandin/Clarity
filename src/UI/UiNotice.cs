@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 namespace ClearSpace {
 public sealed class UiNotice {
  readonly Border frame;readonly TextBlock text;CancellationTokenSource pending;
@@ -11,7 +12,16 @@ public sealed class UiNotice {
   if(String.IsNullOrWhiteSpace(message))return;
   var current=new CancellationTokenSource();var previous=pending;pending=current;if(previous!=null)previous.Cancel();
   text.Text=message;frame.Visibility=Visibility.Visible;UiMotion.Reveal(frame);
-  try{await Task.Delay(2000,current.Token);if(ReferenceEquals(pending,current)){frame.BeginAnimation(UIElement.OpacityProperty,null);frame.Visibility=Visibility.Collapsed;}}
+  try{
+   await Task.Delay(2000,current.Token);
+   if(ReferenceEquals(pending,current)){
+    if(UiMotion.GetEnabled(frame)){
+     frame.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(frame.Opacity,0,TimeSpan.FromMilliseconds(240)){EasingFunction=new QuadraticEase{EasingMode=EasingMode.EaseIn},FillBehavior=FillBehavior.HoldEnd},HandoffBehavior.SnapshotAndReplace);
+     await Task.Delay(240,current.Token);
+    }
+    if(ReferenceEquals(pending,current)){frame.Visibility=Visibility.Collapsed;frame.BeginAnimation(UIElement.OpacityProperty,null);frame.Opacity=1;}
+   }
+  }
   catch(OperationCanceledException){}
   finally{if(ReferenceEquals(pending,current))pending=null;current.Dispose();}
  }
