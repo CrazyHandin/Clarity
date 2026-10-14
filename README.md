@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | [English](README.en.md)
 
-澄净是一款 Windows C 盘清理工具，提供安装版与便携版，支持系统垃圾与软件缓存识别、低风险项目一键清理、高级自选及备份恢复。**by CraZyX**
+澄净是一款 Windows C 盘清理工具，提供安装版与便携版，支持系统垃圾与软件缓存识别、低风险项目一键清理、高级自选及备份恢复。
 
 [下载最新版](https://github.com/CrazyHandin/Clarity/releases/latest) · [历史版本](https://github.com/CrazyHandin/Clarity/releases) · [更新记录](docs/版本历史.md)
 
