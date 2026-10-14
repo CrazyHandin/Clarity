@@ -13,6 +13,8 @@ Windows 10/11，.NET Framework 4.8 或更高版本。
 普通权限清理失败或没有删除权限时，软件会询问是否以管理员身份重启。
 文件占用或安全软件拦截不一定能通过提权解决；重启后需手动扫描，不会自动继续删除。
 在“设置与备份”右上角可打开“关于 Clarity”。
+设置、关于与使用说明均在主窗口内切换。返回清理会保留扫描结果与勾选状态。
+关于页显示当前版本与 Beta 提示，可复制版本信息、阅读内置使用说明或第三方声明。
 
 开始清理
 1. 打开软件不会自动扫描。选择模式后点击“开始扫描”。
@@ -70,6 +72,8 @@ When standard-permission cleanup fails or access is denied, Clarity offers an ad
 Elevation may not resolve locked files or security software blocks. Restart does not resume deletion:
 scan again manually and review the results before cleaning.
 Open About Clarity from the top-right corner of Settings & Backups.
+Settings, About, and help use the same window. Back to cleanup preserves scan results and selections.
+About shows the current version and Beta notice, with version copying, an embedded guide, and third-party notices.
 Windows folder pickers and UAC prompts follow the Windows display language.
 
 Start cleaning

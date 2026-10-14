@@ -13,7 +13,7 @@ public sealed partial class Controller {
  static IEnumerable<TextBlock> LanguageLabels(DependencyObject node){var label=node as TextBlock;if(label!=null)yield return label;for(int i=0;i<VisualTreeHelper.GetChildrenCount(node);i++)foreach(var child in LanguageLabels(VisualTreeHelper.GetChild(node,i)))yield return child;}
  static void ExpandLanguageNodes(IEnumerable<CleanNode> nodes){foreach(var node in nodes){node.Expanded=true;ExpandLanguageNodes(node.Children);}}
  public async Task VerifyLanguages(string output,Action<bool,string> check){
-  UiText.SetLanguage("zh-CN");check(Window.Title==App.DisplayName&&!Window.Title.Contains("澄净")&&!Window.Title.Contains("CraZyX"),"Window names contain only Clarity and its version");
+  UiText.SetLanguage("zh-CN");check(Window.Title=="Clarity"&&!Window.Title.Contains("澄净")&&!Window.Title.Contains("CraZyX"),"The window caption contains only Clarity");
   check(Get<Button>("AdminButton")==null,"Administrator restart is absent from the main toolbar");
   check(scanMode.Items.Count==2&&scanMode.Items[0].ToString().StartsWith("快速")&&scanMode.Items[1].ToString().StartsWith("常规"),"Quick scanning precedes regular scanning");
   var scopes=groups.Select(g=>g.Name).ToArray();int mode=scanMode.SelectedIndex;object source=scanMode.ItemsSource;
@@ -28,15 +28,17 @@ public sealed partial class Controller {
   check(treeNodes.Single(n=>n.Title=="软件缓存").Children.SelectMany(n=>n.Children).Any(n=>n.Title=="未知缓存"),"English result rendering preserves canonical category and unknown-cache model names");
   ShowReady();
   int saves=0;string settingsFile=Path.Combine(output,"language-settings-fixture.json");var options=new CleanerSettings{Language="en",RecoveryDirectory=Path.Combine(output,"language-backups")};Exception error=null;
-  RuleCenter.Show(Window,options,null,()=>{},null,0,w=>{try{
-   var tabs=(TabControl)w.FindName("RulesTabs");check(tabs.SelectedItem==w.FindName("GeneralTab")&&w.Title==App.DisplayName,"Settings starts with General and uses the unified window name");
-   check(((TextBlock)w.FindName("Heading")).Text=="Settings & Backups","The settings heading is localized");App.Render(w,Path.Combine(output,"settings-english.png"));
-   tabs.SelectedItem=w.FindName("BackupTab");check(((Button)w.FindName("RestoreFiles")).Content.ToString()=="Restore file backup","Backup actions are localized");App.Render(w,Path.Combine(output,"backups-english.png"));
+  await WithSettings(options,null,w=>{try{
+   var tabs=(TabControl)w.FindName("RulesTabs");check(tabs.SelectedItem==w.FindName("GeneralTab")&&Window.Title==App.DisplayName,"Settings starts with General and uses the unified window name");
+   check(((TextBlock)w.FindName("Heading")).Text=="Settings & Backups","The settings heading is localized");App.Render(Window,Path.Combine(output,"settings-english.png"));
+   tabs.SelectedItem=w.FindName("BackupTab");check(((Button)w.FindName("RestoreFiles")).Content.ToString()=="Restore file backup","Backup actions are localized");App.Render(Window,Path.Combine(output,"backups-english.png"));
    var choice=(ComboBox)w.FindName("LanguageChoice");choice.SelectedIndex=0;check(saves==1&&options.Language=="zh-CN"&&UiText.Language=="zh-CN","Selecting Chinese saves and applies its language preference immediately");
    choice.SelectedIndex=1;check(saves==2&&new JavaScriptSerializer().Deserialize<CleanerSettings>(File.ReadAllText(settingsFile)).Language=="en","The English preference is persisted for the next launch");
-   tabs.SelectedItem=w.FindName("RulesTab");check(((Button)w.FindName("Check")).Content.ToString()=="Check for updates","Rule management actions are localized");App.Render(w,Path.Combine(output,"rules-english.png"));
-   About.Show(w,Path.Combine(output,"about-english.png"));
-  }catch(Exception ex){error=ex;}finally{w.Close();}},s=>{saves++;AtomicFile.Write(settingsFile,new JavaScriptSerializer().Serialize(s));});if(error!=null)throw error;
+   tabs.SelectedItem=w.FindName("RulesTab");check(((Button)w.FindName("Check")).Content.ToString()=="Check for updates","Rule management actions are localized");App.Render(Window,Path.Combine(output,"rules-english.png"));
+   OpenAbout();App.Render(Window,Path.Combine(output,"about-english.png"));((Button)pages.Last().FindName("UsageButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));check(((TextBox)pages.Last().FindName("DocumentText")).Text.StartsWith("English User Guide"),"The embedded usage entry follows the English interface language");App.Render(Window,Path.Combine(output,"guide-english.png"));BackPage();BackPage();
+  }catch(Exception ex){error=ex;}},s=>{saves++;AtomicFile.Write(settingsFile,new JavaScriptSerializer().Serialize(s));});if(error!=null)throw error;
+  var failedOptions=new CleanerSettings{Language="en"};int failedSaves=0;
+  await WithSettings(failedOptions,null,w=>{var choice=(ComboBox)w.FindName("LanguageChoice");choice.SelectedIndex=0;check(failedSaves==1&&choice.SelectedIndex==1&&failedOptions.Language=="en"&&UiText.Language=="en","A failed language save restores the visible choice and current language without retrying the write");},s=>{failedSaves++;throw new IOException("Fixture save failure");});
   UiText.SetLanguage("zh-CN");check(Get<Button>("ScanButton").Content.ToString()=="开始扫描"&&Get<TextBlock>("EnglishBrandName").Visibility==Visibility.Visible,"Switching back restores Chinese controls and branding without restarting");
   App.Render(Window,Path.Combine(output,"startup-chinese-restored.png"));check(LanguageLabels(Get<ItemsControl>("ScopeList")).Any(t=>t.Text=="系统垃圾"),"Switching back also restores Chinese data-bound scope cards");
   int prompts=0,elevations=0;var previousCheck=AdministratorState;var previousConfirm=ConfirmAdministrator;var previousElevate=ElevateAction;

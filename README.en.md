@@ -28,6 +28,8 @@ Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified 
 
 Administrator restart is under **Settings & Backups → General** and is also offered after failed or access-denied cleanup. Restarting does not automatically scan or continue deletion. Credits are in **About Clarity**.
 
+Settings, About, and the built-in user guide open inside the main window. Returning to cleanup preserves scan results and selections. About contains version information, a Beta notice, and third-party attribution.
+
 Simple cleanup handles only eligible low-risk items. Advanced cleanup allows individual selection and review. Unknown caches and community rules are unchecked by default, advanced-only, and always backed up.
 
 ## Backups and risks
