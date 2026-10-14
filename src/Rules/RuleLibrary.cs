@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,9 +11,9 @@ using System.Web.Script.Serialization;
 
 namespace ClearSpace {
 public sealed class CleanerSettings {
- public string UpdateUrl="",RecoveryDirectory="";public bool AutomaticUpdates,UseWinapp2=true;public string LastUpdateAttempt="",LastWinapp2Attempt="";public List<string> PortableDirectories=new List<string>();
+ public string UpdateUrl="",RecoveryDirectory="",Language="zh-CN";public bool AutomaticUpdates,UseWinapp2=true;public string LastUpdateAttempt="",LastWinapp2Attempt="";public List<string> PortableDirectories=new List<string>();
  public static string Root{get{return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"ClearSpace");}}
- public static CleanerSettings Load(){try{var s=new JavaScriptSerializer().Deserialize<CleanerSettings>(File.ReadAllText(Path.Combine(Root,"settings.json")))??new CleanerSettings();s.UpdateUrl=RuleSourceAddresses.Json(s.UpdateUrl);s.RecoveryDirectory=s.RecoveryDirectory??"";s.LastUpdateAttempt=s.LastUpdateAttempt??"";s.PortableDirectories=(s.PortableDirectories??new List<string>()).Where(p=>!String.IsNullOrWhiteSpace(p)&&Regex.IsMatch(p,"^[a-zA-Z]:\\\\")).Distinct(StringComparer.OrdinalIgnoreCase).Take(30).ToList();if(s.RecoveryDirectory.Length>0&&!Regex.IsMatch(s.RecoveryDirectory,"^[a-zA-Z]:\\\\"))s.RecoveryDirectory="";s.RecoveryDirectory=BackupFolders.UpgradeDefault(s.RecoveryDirectory);return s;}catch{return new CleanerSettings();}}
+ public static CleanerSettings Load(){try{var s=new JavaScriptSerializer().Deserialize<CleanerSettings>(File.ReadAllText(Path.Combine(Root,"settings.json")))??new CleanerSettings();s.Language=UiText.Normalize(s.Language);s.UpdateUrl=RuleSourceAddresses.Json(s.UpdateUrl);s.RecoveryDirectory=s.RecoveryDirectory??"";s.LastUpdateAttempt=s.LastUpdateAttempt??"";s.PortableDirectories=(s.PortableDirectories??new List<string>()).Where(p=>!String.IsNullOrWhiteSpace(p)&&Regex.IsMatch(p,"^[a-zA-Z]:\\\\")).Distinct(StringComparer.OrdinalIgnoreCase).Take(30).ToList();if(s.RecoveryDirectory.Length>0&&!Regex.IsMatch(s.RecoveryDirectory,"^[a-zA-Z]:\\\\"))s.RecoveryDirectory="";s.RecoveryDirectory=BackupFolders.UpgradeDefault(s.RecoveryDirectory);return s;}catch{return new CleanerSettings();}}
  public void Save(){AtomicFile.Write(Path.Combine(Root,"settings.json"),new JavaScriptSerializer().Serialize(this));}
 }
 public static class AtomicFile {

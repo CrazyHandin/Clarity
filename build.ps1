@@ -16,6 +16,7 @@ $generatedVersion = Join-Path $OutputDirectory 'ReleaseVersion.g.cs'
 $versionSource = @"
 using System.Reflection;
 [assembly: AssemblyProduct("Clarity")]
+[assembly: AssemblyTitle("Clarity $releaseTag")]
 [assembly: AssemblyVersion("$assemblyVersion")]
 [assembly: AssemblyFileVersion("$assemblyVersion")]
 [assembly: AssemblyInformationalVersion("$releaseTag")]
@@ -35,6 +36,7 @@ $compilerArguments = @(
 $resources = [ordered]@{
     'src/UI/Main.xaml' = 'ClearSpace.Main.xaml'
     'src/UI/Settings.xaml' = 'ClearSpace.Settings.xaml'
+    'src/UI/English.json' = 'ClearSpace.English.json'
     'assets/Clarity.ico' = 'ClearSpace.AppIcon.ico'
     'rules/rule-public-key.xml' = 'ClearSpace.rule-public-key.xml'
     'rules/BundledRules.signed.json' = 'ClearSpace.BundledRules.signed.json'

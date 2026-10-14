@@ -1,5 +1,4 @@
 Clarity 使用说明
-by CraZyX
 项目与最新版：https://github.com/CrazyHandin/Clarity
 
 运行要求
@@ -7,6 +6,13 @@ Windows 10/11，.NET Framework 4.8 或更高版本。
 安装版默认安装到 C:\Program Files\Clarity，需要管理员权限，支持升级及卸载。
 点击“浏览”可使用 Windows 文件夹选择窗口找到桌面、下载和其他磁盘；桌面快捷方式可选。
 便携版解压后运行 Clarity.exe，请保留同目录的 Clarity.exe.config。
+
+语言与管理员模式
+在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
+管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
+普通权限清理失败或没有删除权限时，软件会询问是否以管理员身份重启。
+文件占用或安全软件拦截不一定能通过提权解决；重启后需手动扫描，不会自动继续删除。
+在“设置与备份”右上角可打开“关于 Clarity”。
 
 开始清理
 1. 打开软件不会自动扫描。选择模式后点击“开始扫描”。
@@ -41,3 +47,68 @@ Windows 磁盘清理是默认关闭的独立选项，自动处理 C 盘并退出
 许可：Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)。
 许可全文：https://creativecommons.org/licenses/by-sa/4.0/legalcode
 该许可适用于 Winapp2 规则数据库；Clarity 使用受限适配器与运行时安全过滤。
+
+============================================================
+English User Guide
+============================================================
+
+Clarity
+Project and latest release: https://github.com/CrazyHandin/Clarity
+
+Requirements and installation
+Windows 10/11 with .NET Framework 4.8 or later.
+The installer defaults to C:\Program Files\Clarity and requires administrator permission.
+Browse opens the Windows folder picker, with access to Desktop, Downloads, and other drives.
+Upgrade and uninstall are supported; the desktop shortcut is optional.
+For the portable edition, extract the package and run Clarity.exe with Clarity.exe.config beside it.
+
+Language and administrator mode
+Open Settings & Backups > General to choose Simplified Chinese or English.
+Language changes are saved automatically and apply immediately.
+Administrator mode is in the same section. Restart requires approval of the Windows UAC prompt.
+When standard-permission cleanup fails or access is denied, Clarity offers an administrator restart.
+Elevation may not resolve locked files or security software blocks. Restart does not resume deletion:
+scan again manually and review the results before cleaning.
+Open About Clarity from the top-right corner of Settings & Backups.
+Windows folder pickers and UAC prompts follow the Windows display language.
+
+Start cleaning
+1. Opening Clarity does not start a scan. Choose a mode and click Start scan.
+2. Quick scan is the default and appears first. It checks built-in, one-click-eligible rules only.
+3. Regular scan appears below Quick scan. It includes app discovery, external rules, and unknown caches.
+4. Review sizes, explanations, and risks. Quick scan provides Simple cleanup; Regular scan also offers Advanced selection.
+5. Risk selections require confirmation. Eligible low-risk one-click cleanup does not show a risk prompt.
+6. Click Done on the completion screen to return to the initial screen without automatically scanning again.
+
+Backups and restoration
+Backup-first cleanup is the default. ClarityBackups preferably uses another local drive.
+Use Settings & Backups > Backup & Restore to change or open the backup location and restore files.
+Select a batch's files.csbackup index. Restoration requires the same computer and Windows account.
+Existing files are preserved. Verified restored copies are removed from the backup;
+conflicts and failed items remain available for later restoration.
+Backups stored on C: must be removed before their corresponding space is freed.
+Registry backup restoration and its folder shortcut are in the same section.
+Uninstall preserves application preferences and backups.
+
+Cleanup choices and risks
+Simple cleanup processes eligible low-risk items. Removed caches may need downloading or rebuilding.
+Unknown caches and community rules are unchecked by default, Advanced-only, and always backed up.
+Review risk explanations. In-use, inaccessible, linked, or changed files are skipped.
+Windows Disk Cleanup is a separate, unchecked option. It processes C: automatically and exits when finished.
+Its deletions bypass Clarity backups and may be irreversible.
+If security software reports a threat, pause installation or use and request vendor review.
+The interface changes do not establish that earlier Trojan/Ursnif detections have been resolved.
+
+Rule updates and privacy
+Settings & Backups > Rule Management supports Winapp2 INI, JSON updates, and offline imports.
+Rule-source changes apply after Save rule settings. Portable folder changes are saved automatically.
+Updates download rules without uploading app inventories, paths, or scan results.
+Updating rules does not automatically scan or delete files.
+
+Third-party rules
+The bundled, unmodified Winapp2.ini snapshot is version 260915, maintained by Winapp2 contributors.
+Project: https://github.com/MoscaDotTo/Winapp2
+Rule file: https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp2.ini
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+Full license: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+This license applies to the rule database. Clarity uses a restricted adapter and runtime safety filters.

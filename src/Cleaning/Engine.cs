@@ -39,9 +39,9 @@ public sealed class Finding {
  public List<RegistryEntry> RegistryCandidates=new List<RegistryEntry>();
  public string Status { get { return Rule.Protected ? "保留" : Running ? "使用中 · 已保护" : EligibleBytes==0 ? "暂无可清理项" : Rule.Quick ? "建议清理" : "需自行确认"; } }
 }
-public sealed class AuditItem { public string Rule, Path, Status, Reason; public long Bytes; }
+public sealed class AuditItem { public string Rule, Path, Status, Reason; public long Bytes;public int ErrorCode; }
 public sealed class CleanResult {
- public long Bytes; public int Deleted, Skipped, Failed; public bool Cancelled;
+ public long Bytes; public int Deleted, Skipped, Failed; public bool Cancelled;public int PermissionDenied;
  public int RegistryDeleted; public string RegistryBackupPath;
  public string FileBackupManifest;public int BackupFiles;public long BackupBytes,EstimatedFreedBytes;
  public List<AuditItem> Items = new List<AuditItem>();public bool SystemCleanupStarted,SystemCleanupCompleted;public string SystemCleanupMessage;
@@ -151,14 +151,15 @@ public sealed class Engine {
   foreach(var f in results){f.ManualCandidates.RemoveAll(s=>!paths.Add(s.Path));f.ManualBytes=f.ManualCandidates.Sum(s=>s.Bytes);}live=null;
   return results.OrderBy(f=>f.Rule.Protected).ThenByDescending(f=>f.TotalBytes).ToList();
  }
- bool DeleteSnapshot(Rule rule,Snapshot snapshot,bool manual,RecoverySession recovery,CancellationToken token,out string reason) {
+ bool DeleteSnapshot(Rule rule,Snapshot snapshot,bool manual,RecoverySession recovery,CancellationToken token,out string reason,out int errorCode) {
+  errorCode=0;
   if(IsRecoveryPath(snapshot.Path)){reason="文件位于软件配置或恢复备份范围";return false;}
   reason="";
   if(!Rules.Contains(rule)||!InScope(rule,snapshot.Path)||(manual?!rule.ManualAccept(snapshot.Path):rule.Protected||!rule.Accept(snapshot.Path))) { reason="不在允许清理的范围"; return false; }
   if(!SafeAncestors(snapshot.Path)) { reason="路径已改变或包含链接"; return false; }
   using(var handle=Native.CreateFile(snapshot.Path,recovery==null?0x10080u:0x10081u,1,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
    Native.INFO info;
-   if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { reason="文件正在使用、无权限或已不存在"; return false; }
+   if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { errorCode=Marshal.GetLastWin32Error();reason="文件正在使用、无权限或已不存在"; return false; }
    if((info.Attributes&(Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { reason="链接、云端、只读或受保护文件"; return false; }
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(snapshot.Path),StringComparison.OrdinalIgnoreCase)) { reason="文件实际位置已改变"; return false; }
    if(info.Volume!=snapshot.Volume || info.IndexHigh!=snapshot.IndexHigh || info.IndexLow!=snapshot.IndexLow || info.Bytes!=snapshot.Bytes || info.Write.Value!=snapshot.Modified) { reason="扫描后文件发生变化，请重新扫描"; return false; }
@@ -166,7 +167,7 @@ public sealed class Engine {
    if(rule.Shortcut && (String.IsNullOrEmpty(snapshot.Condition)||!ShortcutAudit.ProvenMissingLocalTarget(snapshot.Condition))) {reason="快捷方式目标恢复或无法确认失效";return false;}
    if(recovery!=null)recovery.Save(handle,rule,snapshot,token);token.ThrowIfCancellationRequested();
    var disposition=new Native.DISPOSITION { Delete=true };
-   if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION)))) { reason="系统阻止删除（"+Marshal.GetLastWin32Error()+"）"; return false; }
+   if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION)))) { errorCode=Marshal.GetLastWin32Error();reason="系统阻止删除（"+errorCode+"）"; return false; }
   }
   if(File.Exists(snapshot.Path)) { reason="系统尚未完成删除"; return false; }
   return true;
@@ -180,14 +181,15 @@ public sealed class Engine {
   foreach(var finding in selected) {
    foreach(var file in finding.Candidates) {
     if(token.IsCancellationRequested) { result.Cancelled=true; return result; }
-    string reason=""; bool removed=false;
+    string reason=""; bool removed=false;int errorCode=0;
     try {
      if(!Rules.Contains(finding.Rule)) reason="识别规则已变化";
      else if(IsRunning(finding.Rule.Processes)) reason="相关程序已启动，自动保留";
-     else removed=DeleteSnapshot(finding.Rule,file,finding.ManualOverride,UseFileBackup||finding.Rule.Heuristic||finding.Rule.ForceBackup||finding.ManualOverride?recovery:null,token,out reason);
-    } catch(OperationCanceledException){result.Cancelled=true;return result;}catch(Exception e) { result.Failed++; reason=e.Message; }
+     else removed=DeleteSnapshot(finding.Rule,file,finding.ManualOverride,UseFileBackup||finding.Rule.Heuristic||finding.Rule.ForceBackup||finding.ManualOverride?recovery:null,token,out reason,out errorCode);
+    } catch(OperationCanceledException){result.Cancelled=true;return result;}catch(UnauthorizedAccessException e){result.Failed++;errorCode=5;reason=e.Message;}catch(Exception e) { result.Failed++; reason=e.Message; }
+    if(errorCode==5)result.PermissionDenied++;
     if(removed) { result.Deleted++; result.Bytes+=file.Bytes;if(UseFileBackup||finding.Rule.Heuristic||finding.Rule.ForceBackup||finding.ManualOverride){result.BackupFiles++;result.BackupBytes+=file.Bytes;if(!String.Equals(Path.GetPathRoot(file.Path),Path.GetPathRoot(recovery.DirectoryPath),StringComparison.OrdinalIgnoreCase))result.EstimatedFreedBytes+=file.Bytes;}else result.EstimatedFreedBytes+=file.Bytes; } else result.Skipped++;
-    result.Items.Add(new AuditItem { Rule=finding.Rule.Title,Path=file.Path,Status=removed?"已删除":"已跳过",Reason=reason,Bytes=removed?file.Bytes:0 });
+    result.Items.Add(new AuditItem { Rule=finding.Rule.Title,Path=file.Path,Status=removed?"已删除":"已跳过",Reason=reason,Bytes=removed?file.Bytes:0,ErrorCode=errorCode });
     done++; if(progress!=null) progress(done,total,finding.Rule.Title);
    }
   }

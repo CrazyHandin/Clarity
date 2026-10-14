@@ -2,7 +2,7 @@
 
 [Chinese](README.md) | **English**
 
-Clarity is a Windows C-drive cleaner available as an installer or portable app, with system junk and application cache detection, simple cleanup for eligible low-risk items, advanced selection, and backup restoration. **by CraZyX**
+Clarity is a Windows C-drive cleaner available as an installer or portable app, with system junk and application cache detection, simple cleanup for eligible low-risk items, advanced selection, and backup restoration.
 
 [Download latest](https://github.com/CrazyHandin/Clarity/releases/latest) · [All releases](https://github.com/CrazyHandin/Clarity/releases) · [Changelog](CHANGELOG.md)
 
@@ -15,16 +15,18 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 
 ## Get started
 
-Requires **Windows 10/11 and .NET Framework 4.8**. The application interface is in Simplified Chinese.
+Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified Chinese under **Settings & Backups → General**. The included TXT guide contains Chinese instructions followed by the English guide.
 
 1. Run the installer, or extract the portable package and run `Clarity.exe` with `Clarity.exe.config` beside it.
 2. Choose a scan mode and click **Start scan**. Opening the app does not start scanning.
-3. Review the results and clean your selection. Risk items trigger confirmation. Click **Finish** on the results screen to return to the initial screen.
+3. Review the results and clean your selection. Risk items trigger confirmation. Click **Done** on the completion screen to return to the initial screen.
 
 | Scan mode | Scope | Cleanup options |
 | --- | --- | --- |
 | Quick (default) | Built-in rules eligible for simple cleanup; skips complex discovery | Simple cleanup |
 | Regular | Built-in rules, application discovery, external rules, and unknown caches | Simple / Advanced |
+
+Administrator restart is under **Settings & Backups → General** and is also offered after failed or access-denied cleanup. Restarting does not automatically scan or continue deletion. Credits are in **About Clarity**.
 
 Simple cleanup handles only eligible low-risk items. Advanced cleanup allows individual selection and review. Unknown caches and community rules are unchecked by default, advanced-only, and always backed up.
 
