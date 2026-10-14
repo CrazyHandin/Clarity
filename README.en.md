@@ -59,3 +59,9 @@ Build the C# / WPF application with the .NET Framework compiler:
 Source folders: `src/` (UI, cleaning, rules, discovery, recovery), `tests/` (isolated checks), `assets/` (icons and configuration), `rules/` (rule data), `installer/` (setup configuration), `scripts/` (tools), and `docs/` (technical documentation). See [build and release instructions](docs/BUILD.md) for installer packaging and publishing.
 
 Technical documentation (Chinese): [Application rules](docs/%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E8%A7%84%E5%88%99.md) · [Cleanup catalog](docs/%E6%B8%85%E7%90%86%E8%A7%84%E5%88%99%E4%B8%80%E8%A7%88.md) · [Rule maintenance](docs/%E8%A7%84%E5%88%99%E5%BA%93%E7%BB%B4%E6%8A%A4.md) · [Winapp2 guide](docs/Winapp2-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
+
+## License
+
+Clarity's own code, application, and documentation use the [MIT license](LICENSE.txt), allowing redistribution and commercial use under its conditions. Winapp2 rules retain their separate CC BY-SA 4.0 license.
+
+[Terms and cleanup notes](docs/TERMS.txt) are available from About, covering scanning, backups, restoration, and cleanup risks.

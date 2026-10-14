@@ -36,6 +36,7 @@ $publicFiles = [ordered]@{
     'docs/Winapp2-License.md' = 'docs/Winapp2-License.md'
     'docs/BUILD.md' = 'docs/BUILD.md'
     'docs/USAGE.txt' = '使用说明.txt'
+    'docs/TERMS.txt' = 'docs/TERMS.txt'; 'LICENSE.txt' = 'LICENSE.txt'
     'rules/Winapp2.ini' = 'rules/Winapp2.ini'; 'rules/ApplicationRules.template.json' = 'rules/ApplicationRules.template.json'
     'rules/BundledRules.signed.json' = 'rules/BundledRules.signed.json'; 'rules/rule-public-key.xml' = 'rules/rule-public-key.xml'
 }

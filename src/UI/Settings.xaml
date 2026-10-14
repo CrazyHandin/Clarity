@@ -38,7 +38,7 @@
        <TextBlock Text="管理员模式" FontSize="18" FontWeight="SemiBold"/>
        <TextBlock x:Name="PrivilegeState" Foreground="#A7BFCD" FontSize="14" Margin="0,12,0,14"/>
        <Button x:Name="AdminMode" Content="以管理员身份重新启动" HorizontalAlignment="Left" Background="#28524F" Foreground="#D7F6F2" BorderBrush="#39C5BB"/>
-       <TextBlock Text="重启后仍需手动扫描。清理失败或权限不足时，也会询问是否切换到管理员模式。" Foreground="#91AAB9" FontSize="14" TextWrapping="Wrap" Margin="0,14,0,0"/>
+       <TextBlock Text="重启后仍需手动扫描。" Foreground="#91AAB9" FontSize="14" TextWrapping="Wrap" Margin="0,14,0,0"/>
       </StackPanel>
      </Border>
     </StackPanel></ScrollViewer>
@@ -139,8 +139,8 @@
     </ScrollViewer>
    </TabItem>
   </TabControl>
-  <Border Grid.Row="2" Background="#1D3035" CornerRadius="9" Padding="12,10" Margin="0,14,0,0">
-   <TextBlock x:Name="Status" Text="选择上方分区管理设置。扫描仍从主界面手动开始。" Foreground="#ADDBD6" FontSize="14" TextWrapping="Wrap"/>
+  <Border x:Name="SettingsStatusFrame" Grid.Row="2" Visibility="Collapsed" Background="#1D3035" CornerRadius="9" Padding="12,10" Margin="0,14,0,0">
+   <TextBlock x:Name="Status" Text="" Foreground="#ADDBD6" FontSize="14" TextWrapping="Wrap"/>
   </Border>
  </Grid></Grid>
 </UserControl>

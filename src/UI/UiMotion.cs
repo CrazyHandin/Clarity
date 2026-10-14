@@ -9,10 +9,10 @@ public static class UiMotion {
  public static readonly DependencyProperty EnabledProperty=DependencyProperty.RegisterAttached("Enabled",typeof(bool),typeof(UiMotion),new FrameworkPropertyMetadata(true,FrameworkPropertyMetadataOptions.Inherits));
  public static bool GetEnabled(DependencyObject target){return (bool)target.GetValue(EnabledProperty)&&SystemParameters.ClientAreaAnimation;}
  public static void SetEnabled(DependencyObject target,bool value){target.SetValue(EnabledProperty,value);}
- public static void Reveal(FrameworkElement element){
+ public static void Reveal(FrameworkElement element,int milliseconds=180){
   if(element==null)return;var offset=new TranslateTransform();element.RenderTransform=offset;element.BeginAnimation(UIElement.OpacityProperty,null);element.Opacity=1;
   if(!GetEnabled(element))return;
-  var easing=new QuadraticEase{EasingMode=EasingMode.EaseOut};var duration=TimeSpan.FromMilliseconds(180);
+  var easing=new QuadraticEase{EasingMode=EasingMode.EaseOut};var duration=TimeSpan.FromMilliseconds(milliseconds);
   element.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(0,1,duration){EasingFunction=easing,FillBehavior=FillBehavior.Stop},HandoffBehavior.SnapshotAndReplace);
   offset.BeginAnimation(TranslateTransform.YProperty,new DoubleAnimation(8,0,duration){EasingFunction=easing,FillBehavior=FillBehavior.Stop},HandoffBehavior.SnapshotAndReplace);
  }

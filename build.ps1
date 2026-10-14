@@ -17,6 +17,7 @@ $versionSource = @"
 using System.Reflection;
 [assembly: AssemblyProduct("Clarity")]
 [assembly: AssemblyTitle("Clarity")]
+[assembly: AssemblyCopyright("Clarity © 2026 CraZyX")]
 [assembly: AssemblyVersion("$assemblyVersion")]
 [assembly: AssemblyFileVersion("$assemblyVersion")]
 [assembly: AssemblyInformationalVersion("$releaseTag")]
@@ -38,6 +39,8 @@ $resources = [ordered]@{
     'src/UI/Settings.xaml' = 'ClearSpace.Settings.xaml'
     'src/UI/English.json' = 'ClearSpace.English.json'
     'docs/USAGE.txt' = 'ClearSpace.Usage.txt'
+    'docs/TERMS.txt' = 'ClearSpace.Terms.txt'
+    'LICENSE.txt' = 'ClearSpace.MitLicense.txt'
     'THIRD_PARTY_NOTICES.md' = 'ClearSpace.ThirdParty.txt'
     'docs/Winapp2-License.md' = 'ClearSpace.Winapp2License.txt'
     'assets/Clarity.ico' = 'ClearSpace.AppIcon.ico'

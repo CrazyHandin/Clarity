@@ -61,3 +61,9 @@ Winapp2 规则数据库按 **CC BY-SA 4.0** 分发，详见[第三方说明](THI
 源码目录：`src/`（界面、清理、规则、识别与恢复）、`tests/`（隔离测试）、`assets/`（图标与配置）、`rules/`（规则数据）、`installer/`（安装配置）、`scripts/`（辅助工具）、`docs/`（技术文档）。构建与打包入口保留在根目录，安装包构建与发布见[构建说明](docs/BUILD.md)。
 
 [常用软件规则](docs/常用软件规则.md) · [清理规则一览](docs/清理规则一览.md) · [规则库维护](docs/规则库维护.md) · [Winapp2 使用说明](docs/Winapp2-使用说明.md)
+
+## 许可
+
+Clarity 自有代码、程序和文档采用 [MIT 许可](LICENSE.txt)，允许遵守许可条件的再分发与商业使用。Winapp2 规则仍按独立的 CC BY-SA 4.0 许可分发。
+
+关于页可阅读 [使用条款与清理说明](docs/TERMS.txt)，了解扫描、备份恢复和清理风险。

@@ -843,5 +843,17 @@
   "Winapp2 规则来源与许可信息": "Winapp2 rule origins and licensing",
   "源代码与反馈": "Source & feedback",
   "打开": "Open",
-  "使用说明": "User guide"
+  "使用说明": "User guide",
+  "请选择扫描范围": "Please select a scan scope",
+  "扫描模式": "Scan mode",
+  "重启后仍需手动扫描。": "Restart still requires manual scanning.",
+  "版权": "Copyright",
+  "本软件开源且完全免费，作者从未以任何形式出售。著作权由作者保留，本软件可依 MIT 许可自由使用。": "Clarity is open source and free. The author has never sold it. Copyright remains with the author; use is permitted under MIT.",
+  "MIT 允许保留版权与许可声明后的修改、再分发及商业使用；官方免费说明不限制第三方依许可收费。": "MIT permits modification, redistribution, and commercial use with the required notices. Free official builds do not prohibit third-party charges permitted by the license.",
+  "下列行为未获许可": "Actions outside the license",
+  "• 分发软件或实质部分时，去除或遗漏版权与 MIT 许可声明。": "• Distributing copies or substantial portions without the required copyright and MIT notices.",
+  "• 对 Winapp2 规则附加与其独立许可冲突的限制。": "• Imposing restrictions on Winapp2 rules that conflict with their own license.",
+  "使用条款": "Terms of use",
+  "MIT 授权、清理风险与备份恢复说明": "MIT licensing, cleanup risks, and backup restoration",
+  "版本信息已复制。": "Version information copied."
 }

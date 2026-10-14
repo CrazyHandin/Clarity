@@ -14,7 +14,8 @@ Windows 10/11，.NET Framework 4.8 或更高版本。
 文件占用或安全软件拦截不一定能通过提权解决；重启后需手动扫描，不会自动继续删除。
 在“设置与备份”右上角可打开“关于 Clarity”。
 设置、关于与使用说明均在主窗口内切换。返回清理会保留扫描结果与勾选状态。
-关于页显示当前版本与 Beta 提示，可复制版本信息、阅读内置使用说明或第三方声明。
+关于页显示当前版本、版权与 Beta 提示，可复制版本信息，阅读使用说明、使用条款或第三方声明。
+范围卡片的整个区域均可点击；扫描取消及设置保存等消息在窗口上部显示，两秒后自动消失。
 
 开始清理
 1. 打开软件不会自动扫描。选择模式后点击“开始扫描”。
@@ -50,6 +51,10 @@ Windows 磁盘清理是默认关闭的独立选项，自动处理 C 盘并退出
 许可全文：https://creativecommons.org/licenses/by-sa/4.0/legalcode
 该许可适用于 Winapp2 规则数据库；Clarity 使用受限适配器与运行时安全过滤。
 
+许可
+Clarity 自有内容使用 MIT 许可；Winapp2 规则独立使用 CC BY-SA 4.0。
+完整 MIT 许可附在本文英文说明末尾，也可在关于页的使用条款中阅读。
+
 ============================================================
 English User Guide
 ============================================================
@@ -73,7 +78,8 @@ Elevation may not resolve locked files or security software blocks. Restart does
 scan again manually and review the results before cleaning.
 Open About Clarity from the top-right corner of Settings & Backups.
 Settings, About, and help use the same window. Back to cleanup preserves scan results and selections.
-About shows the current version and Beta notice, with version copying, an embedded guide, and third-party notices.
+About contains version and copyright information, the Beta notice, version copying, the guide, terms, and third-party notices.
+Click anywhere on a scope card to select it. Scan cancellation and saved-setting messages appear at the top for two seconds.
 Windows folder pickers and UAC prompts follow the Windows display language.
 
 Start cleaning
@@ -116,3 +122,29 @@ Rule file: https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp2.i
 License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
 Full license: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 This license applies to the rule database. Clarity uses a restricted adapter and runtime safety filters.
+
+Clarity license
+Clarity's own materials are licensed under MIT. The Winapp2 rule database retains CC BY-SA 4.0.
+Terms are available from About. The following license applies to Clarity's own materials:
+
+MIT License
+
+Copyright (c) 2026 CraZyX
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

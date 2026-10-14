@@ -16,10 +16,10 @@ public sealed partial class Controller {
   Get<Button>("CloseWindow").Click+=(s,e)=>SystemCommands.CloseWindow(Window);
   Window.StateChanged+=(s,e)=>{Get<Button>("MaximizeWindow").Content=Window.WindowState==WindowState.Maximized?"\uE923":"\uE922";Get<Button>("MaximizeWindow").ToolTip=Window.WindowState==WindowState.Maximized?"还原窗口":"最大化";};
  }
- void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);Get<TextBlock>("StatusText").Text="设置已更新。";}
+ void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);}
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
-  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction());
+  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify);
   PushPage(settingsView.Root);
  }
  void PushPage(FrameworkElement page){pages.Add(page);ShowNavigationPage(page);}
@@ -32,7 +32,7 @@ public sealed partial class Controller {
   if(pages.Count>0){ShowNavigationPage(pages[pages.Count-1]);return;}
   var host=Get<ContentControl>("PageHost");host.Content=null;host.Visibility=Visibility.Collapsed;settingsView=null;Get<Grid>("MainLayout").Visibility=Visibility.Visible;UiText.Attach(Window);UiMotion.Reveal(Get<Grid>("MainLayout"));
  }
- void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),CopyVersion,OpenProject));}
+ void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify));}
  bool NavigationCanClose(){return settingsView==null||settingsView.TryLeave();}
 }
 }
