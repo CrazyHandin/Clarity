@@ -30,7 +30,7 @@ Simple cleanup handles only eligible low-risk items. Advanced cleanup allows ind
 
 ## Backups and risks
 
-The default backup folder is **ClarityBackups**, preferably on another local drive. Change it in the rules and recovery window. Backups stored on C: must be removed before their corresponding space is freed.
+The default backup folder is **ClarityBackups**, preferably on another local drive. Change it under Settings & Backups → Backup & Restore. Backups stored on C: must be removed before their corresponding space is freed.
 
 To restore, select the batch's `files.csbackup` index. Restoration requires the same computer and Windows account and does not overwrite existing files. Verified restored copies are removed from the backup; conflicts and failed items remain available.
 
@@ -40,7 +40,7 @@ Removing low-risk caches may require downloads or slow the next launch. Advanced
 
 ## Rules and privacy
 
-Update or import Winapp2 INI and JSON rules in the application and rules window. Updates fetch rule files without uploading application inventories, paths, or scan results, and do not automatically scan or clean.
+Update or import Winapp2 INI and JSON rules under Settings & Backups → Rule Management. Updates fetch rule files without uploading application inventories, paths, or scan results, and do not automatically scan or clean.
 
 The Winapp2 database is distributed under **CC BY-SA 4.0**. See [third-party notices](THIRD_PARTY_NOTICES.md).
 

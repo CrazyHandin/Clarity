@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| beta0.12 | Introduce a clearer Settings & Backups center, consolidate file and registry recovery, and apply rule-source changes only after saving. |
 | beta0.11 | Add an installable edition with upgrade and uninstall support; organize the source tree and improve the build and release workflow. |
 | beta0.10 | Default to quick scanning and expand curated cache rules for common applications, including WeChat, QQ, Adobe, VS Code, and WPS. |
 | beta0.09 | Introduce quick and regular scanning, improve advanced selection and risk confirmation, and add a cleanup completion screen. |

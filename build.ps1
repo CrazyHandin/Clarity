@@ -34,6 +34,7 @@ $compilerArguments = @(
 )
 $resources = [ordered]@{
     'src/UI/Main.xaml' = 'ClearSpace.Main.xaml'
+    'src/UI/Settings.xaml' = 'ClearSpace.Settings.xaml'
     'assets/Clarity.ico' = 'ClearSpace.AppIcon.ico'
     'rules/rule-public-key.xml' = 'ClearSpace.rule-public-key.xml'
     'rules/BundledRules.signed.json' = 'ClearSpace.BundledRules.signed.json'

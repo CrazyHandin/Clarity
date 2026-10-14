@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$OutputRoot = (Join-Path $PSScriptRoot 'releases'),
     [string]$VerificationDirectory = (Join-Path $PSScriptRoot 'release-verification'),
     [string]$InstallerCompiler
@@ -72,7 +72,7 @@ function Write-Archive([string]$ArchivePath,[string]$Base,[string[]]$Names) {
 $portable = Join-Path $OutputRoot "Clarity-$tag-portable.zip"
 $source = Join-Path $OutputRoot "Clarity-$tag-source.zip"
 $portableFiles = @('Clarity.exe') + @($publicFiles.Values) + @('VERIFICATION.txt','SHA256.txt')
-$sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
+$sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','src/UI/Settings.xaml','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
 # Include source code from the two source folders, and only explicitly listed
 # resources and documents. Local backups, signing keys, reports and build output stay out.
 foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests')) -Filter '*.cs' -File -Recurse | Sort-Object FullName)) {
