@@ -19,8 +19,8 @@ public sealed partial class Controller {
  void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);}
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
-  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify);
-  PushPage(settingsView.Root);
+  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess);
+  PushPage(settingsView.Root);RefreshUpdateBadges();
  }
  void PushPage(FrameworkElement page){pages.Add(page);ShowNavigationPage(page);}
  void ShowNavigationPage(FrameworkElement page){
@@ -32,7 +32,7 @@ public sealed partial class Controller {
   if(pages.Count>0){ShowNavigationPage(pages[pages.Count-1]);return;}
   var host=Get<ContentControl>("PageHost");host.Content=null;host.Visibility=Visibility.Collapsed;settingsView=null;Get<Grid>("MainLayout").Visibility=Visibility.Visible;UiText.Attach(Window);UiMotion.Reveal(Get<Grid>("MainLayout"));
  }
- void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify));}
+ void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify,OpenSoftwareUpdates));RefreshUpdateBadges();}
  bool NavigationCanClose(){return settingsView==null||settingsView.TryLeave();}
 }
 }

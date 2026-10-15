@@ -61,9 +61,13 @@ public static class FileRecovery {
    result.Pending=Read(full).Count;removeIndex=clearRestored&&result.Pending==0&&result.Failed==0;
    if(removeIndex){if(!Engine.SafeAncestors(full)||(File.GetAttributes(full)&FileAttributes.ReparsePoint)!=0)throw new IOException("备份索引位置发生变化");File.Delete(full);}
   }
-  if(removeIndex&&System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(root),"^[0-9]{8}-[0-9]{6}-[0-9a-f]{32}$")&&Engine.SafeAncestors(Path.Combine(root,"probe"))&&Directory.GetFileSystemEntries(root).Length==0)try{Directory.Delete(root,false);}catch(IOException){}
+  if(removeIndex)RemoveEmptyBatch(root);
   return result;
  }
- public static void Purge(string manifest){var entries=Read(manifest);string root=Path.GetDirectoryName(Path.GetFullPath(manifest));var files=entries.Select(e=>Path.Combine(root,e.Stored)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();foreach(string file in files){if(!File.Exists(file))continue;if(!Engine.SafeAncestors(file)||(File.GetAttributes(file)&FileAttributes.ReparsePoint)!=0)throw new IOException("备份位置包含链接");}foreach(string file in files)if(File.Exists(file))File.Delete(file);File.Delete(manifest);}
+ static void RemoveEmptyBatch(string root){
+  if(!System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(root),"^[0-9]{8}-[0-9]{6}-[0-9a-f]{32}$"))return;
+  for(int attempt=0;attempt<4;attempt++)try{if(!Directory.Exists(root)||!Engine.SafeAncestors(Path.Combine(root,"probe"))||Directory.GetFileSystemEntries(root).Length!=0)return;Directory.Delete(root,false);return;}catch(IOException){Thread.Sleep(40*(attempt+1));}catch(UnauthorizedAccessException){return;}
+ }
+ public static void Purge(string manifest){var entries=Read(manifest);string root=Path.GetDirectoryName(Path.GetFullPath(manifest));var files=entries.Select(e=>Path.Combine(root,e.Stored)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();foreach(string file in files){if(!File.Exists(file))continue;if(!Engine.SafeAncestors(file)||(File.GetAttributes(file)&FileAttributes.ReparsePoint)!=0)throw new IOException("备份位置包含链接");}foreach(string file in files)if(File.Exists(file))File.Delete(file);File.Delete(manifest);RemoveEmptyBatch(root);}
 }
 }

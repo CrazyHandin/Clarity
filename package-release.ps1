@@ -4,15 +4,16 @@ param(
     [string]$InstallerCompiler
 )
 $ErrorActionPreference = 'Stop'
-$version = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'version.json') -Raw | ConvertFrom-Json
-$tag = 'beta0.{0:00}' -f [int]$version.number
+$metadata = & (Join-Path $PSScriptRoot 'scripts/Get-ReleaseVersion.ps1')
+$tag = $metadata.Tag
+$prefix = $metadata.AssetPrefix
 $OutputRoot = [IO.Path]::GetFullPath($OutputRoot)
 $destination = Join-Path $OutputRoot "Clarity-$tag"
 $executable = Join-Path $destination 'Clarity.exe'
 if (-not (Test-Path -LiteralPath $executable)) { throw 'Build and verify the release executable in its destination before packaging.' }
 $hash = (Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash
 $proof = Get-Content -LiteralPath (Join-Path $VerificationDirectory 'verification.json') -Raw | ConvertFrom-Json
-if ($proof.Version -ne $tag -or $proof.ExecutableSHA256 -ne $hash) { throw 'Verification reports do not belong to this executable.' }
+if ($proof.Version -ne $metadata.FullVersion -or $proof.ExecutableSHA256 -ne $hash) { throw 'Verification reports do not belong to this executable.' }
 $suites = @{
     'self-test' = 'self-test-results.txt'; 'v2-self-test' = 'v2-test-results.txt';
     'v3-self-test' = 'v3-test-results.txt'; 'winapp2-self-test' = 'winapp2-test-results.txt';
@@ -35,6 +36,7 @@ $publicFiles = [ordered]@{
     'docs/规则库维护.md' = 'docs/规则库维护.md'; 'docs/Winapp2-使用说明.md' = 'docs/Winapp2-使用说明.md'
     'docs/Winapp2-License.md' = 'docs/Winapp2-License.md'
     'docs/BUILD.md' = 'docs/BUILD.md'
+    'docs/JSON规则填写说明.txt' = 'docs/JSON规则填写说明.txt'
     'docs/USAGE.txt' = '使用说明.txt'
     'docs/TERMS.txt' = 'docs/TERMS.txt'; 'LICENSE.txt' = 'LICENSE.txt'
     'rules/Winapp2.ini' = 'rules/Winapp2.ini'; 'rules/ApplicationRules.template.json' = 'rules/ApplicationRules.template.json'
@@ -70,8 +72,8 @@ function Write-Archive([string]$ArchivePath,[string]$Base,[string[]]$Names) {
         }
     } finally { $archive.Dispose(); $stream.Dispose() }
 }
-$portable = Join-Path $OutputRoot "Clarity-$tag-portable.zip"
-$source = Join-Path $OutputRoot "Clarity-$tag-source.zip"
+$portable = Join-Path $OutputRoot "$prefix-portable.zip"
+$source = Join-Path $OutputRoot "$prefix-source.zip"
 $portableFiles = @('Clarity.exe') + @($publicFiles.Values) + @('VERIFICATION.txt','SHA256.txt')
 $sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','src/UI/Settings.xaml','src/UI/English.json','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
 # Include source code from the two source folders, and only explicitly listed
@@ -79,14 +81,18 @@ $sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','
 foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests')) -Filter '*.cs' -File -Recurse | Sort-Object FullName)) {
     $sourceFiles += $file.FullName.Substring($PSScriptRoot.TrimEnd('\').Length + 1).Replace('\','/')
 }
+$sourceFiles += 'scripts/Get-ReleaseVersion.ps1'
 $sourceFiles = @($sourceFiles | Sort-Object -Unique)
 Write-Archive $portable $destination $portableFiles
 Write-Archive $source $PSScriptRoot $sourceFiles
 $installer = & (Join-Path $PSScriptRoot 'scripts/build-installer.ps1') -PortableArchive $portable -OutputDirectory $OutputRoot -CompilerPath $InstallerCompiler
-$installerPath = Join-Path $OutputRoot "Clarity-$tag-setup.exe"
+$installerPath = Join-Path $OutputRoot "$prefix-setup.exe"
 $manifestLines = foreach ($path in @($installerPath,$portable,$source)) {
     '{0}  {1}' -f (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant(),[IO.Path]::GetFileName($path)
 }
-$checksumFile = Join-Path $OutputRoot 'SHA256SUMS.txt'
+$checksumFile = Join-Path $OutputRoot $metadata.ChecksumFile
 [IO.File]::WriteAllText($checksumFile,($manifestLines -join "`n")+"`n",[Text.UTF8Encoding]::new($false))
+$artifacts = foreach ($path in @($installerPath,$portable)) { [ordered]@{Name=[IO.Path]::GetFileName($path);Size=(Get-Item -LiteralPath $path).Length;SHA256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()} }
+$updateManifest = [ordered]@{Schema=1;Version=$tag;Build=$metadata.Build;Artifacts=@($artifacts)}
+[IO.File]::WriteAllText((Join-Path $OutputRoot 'Clarity-update.json'),($updateManifest | ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 [pscustomobject]@{Version=$tag;Checks=$passed;Executable=$executable;SHA256=$hash;Portable=$portable;PortableFiles=$portableFiles.Count;Source=$source;SourceFiles=$sourceFiles.Count;Installer=$installerPath;Checksums=$checksumFile}

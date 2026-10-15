@@ -10,6 +10,12 @@
 #ifndef ReleaseOutput
   #error ReleaseOutput is required.
 #endif
+#ifndef ArtifactTag
+  #define ArtifactTag ReleaseTag
+#endif
+#ifndef InformationalVersion
+  #define InformationalVersion ReleaseTag
+#endif
 
 [Setup]
 AppId={{A58446CF-E0B8-4D66-97CA-71AE049410A8}
@@ -28,13 +34,13 @@ DisableDirPage=no
 PrivilegesRequired=admin
 MinVersion=10.0
 OutputDir={#ReleaseOutput}
-OutputBaseFilename=Clarity-{#ReleaseTag}-setup
+OutputBaseFilename=Clarity-{#ArtifactTag}-setup
 SetupIconFile=..\assets\Clarity.ico
 UninstallDisplayIcon={app}\Clarity.exe
 VersionInfoVersion={#NumericVersion}
 VersionInfoProductName=Clarity
 VersionInfoProductVersion={#NumericVersion}
-VersionInfoProductTextVersion={#ReleaseTag}
+VersionInfoProductTextVersion={#InformationalVersion}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern dynamic windows11
@@ -52,6 +58,9 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Dirs]
+Name: "{app}\Logs"; Permissions: users-modify
+
 [Files]
 Source: "{#PayloadDir}\Clarity.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\Clarity.exe.config"; DestDir: "{app}"; Flags: ignoreversion
@@ -63,6 +72,7 @@ Name: "{autodesktop}\Clarity"; Filename: "{app}\Clarity.exe"; WorkingDir: "{app}
 
 [Run]
 Filename: "{app}\Clarity.exe"; Description: "{cm:LaunchProgram,Clarity}"; Flags: nowait postinstall skipifsilent unchecked
+Filename: "{app}\Clarity.exe"; Flags: nowait runasoriginaluser; Check: RestartAfterUpdate
 
 [CustomMessages]
 english.NetRequired=Clarity requires .NET Framework 4.8 or later. Install it from https://dotnet.microsoft.com/download/dotnet-framework/net48, then run this installer again.
@@ -73,6 +83,11 @@ chinesesimplified.SelectInstallFolder=请选择安装位置。程序将安装到
 #endif
 
 [Code]
+function RestartAfterUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:CLARITYUPDATE|0}') = '1';
+end;
+
 function DefaultInstallDir(Param: String): String;
 begin
   // Use the native Program Files folder, including on 64-bit Windows.

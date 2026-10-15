@@ -8,10 +8,11 @@ if (-not (Test-Path -LiteralPath (Join-Path $framework 'csc.exe'))) {
 }
 $compiler = Join-Path $framework 'csc.exe'
 $exe = Join-Path $OutputDirectory 'Clarity.exe'
-$release = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'version.json') -Raw | ConvertFrom-Json
-if ($release.channel -ne 'beta' -or $release.number -lt 1 -or $release.number -gt 65535) { throw 'Invalid beta version definition.' }
-$assemblyVersion = '0.{0}.0.0' -f [int]$release.number
-$releaseTag = 'beta0.{0:00}' -f [int]$release.number
+$metadata = & (Join-Path $PSScriptRoot 'scripts/Get-ReleaseVersion.ps1')
+$assemblyVersion = $metadata.NumericVersion
+$releaseTag = $metadata.Tag
+$fullVersion = $metadata.FullVersion
+$buildNumber = $metadata.Build
 $generatedVersion = Join-Path $OutputDirectory 'ReleaseVersion.g.cs'
 $versionSource = @"
 using System.Reflection;
@@ -20,8 +21,8 @@ using System.Reflection;
 [assembly: AssemblyCopyright("Clarity © 2026 CraZyX")]
 [assembly: AssemblyVersion("$assemblyVersion")]
 [assembly: AssemblyFileVersion("$assemblyVersion")]
-[assembly: AssemblyInformationalVersion("$releaseTag")]
-namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; } }
+[assembly: AssemblyInformationalVersion("$fullVersion")]
+namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; public const int Build = $buildNumber; public const string FullVersion = "$fullVersion"; } }
 "@
 [IO.File]::WriteAllText($generatedVersion,$versionSource,[Text.UTF8Encoding]::new($false))
 $compilerArguments = @(
@@ -32,7 +33,7 @@ $compilerArguments = @(
     "/reference:$(Join-Path $framework 'WPF\PresentationCore.dll')",
     "/reference:$(Join-Path $framework 'WPF\WindowsBase.dll')",
     '/reference:System.Xaml.dll', '/reference:System.Core.dll', '/reference:System.Web.Extensions.dll',
-    '/reference:System.Security.dll', '/reference:System.Windows.Forms.dll'
+    '/reference:System.Security.dll', '/reference:System.Windows.Forms.dll', '/reference:System.IO.Compression.dll', '/reference:System.IO.Compression.FileSystem.dll'
 )
 $resources = [ordered]@{
     'src/UI/Main.xaml' = 'ClearSpace.Main.xaml'
@@ -40,6 +41,7 @@ $resources = [ordered]@{
     'src/UI/English.json' = 'ClearSpace.English.json'
     'docs/USAGE.txt' = 'ClearSpace.Usage.txt'
     'docs/TERMS.txt' = 'ClearSpace.Terms.txt'
+    'docs/JSON规则填写说明.txt' = 'ClearSpace.JsonGuide.txt'
     'LICENSE.txt' = 'ClearSpace.MitLicense.txt'
     'THIRD_PARTY_NOTICES.md' = 'ClearSpace.ThirdParty.txt'
     'docs/Winapp2-License.md' = 'ClearSpace.Winapp2License.txt'

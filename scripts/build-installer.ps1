@@ -5,9 +5,10 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$release = Get-Content -LiteralPath (Join-Path $root 'version.json') -Raw | ConvertFrom-Json
-$tag = 'beta0.{0:00}' -f [int]$release.number
-$numeric = '0.{0}.0.0' -f [int]$release.number
+$metadata = & (Join-Path $PSScriptRoot 'Get-ReleaseVersion.ps1')
+$tag = $metadata.Tag
+$numeric = $metadata.NumericVersion
+$prefix = $metadata.AssetPrefix
 $PortableArchive = (Resolve-Path -LiteralPath $PortableArchive).Path
 if (-not $OutputDirectory) { $OutputDirectory = Split-Path -Parent $PortableArchive }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
@@ -46,17 +47,17 @@ try {
     [IO.Compression.ZipFile]::ExtractToDirectory($PortableArchive,$stage)
     $exe = Join-Path $stage 'Clarity.exe'
     $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($exe)
-    if ($info.ProductVersion -ne $tag -or $info.FileVersion -ne $numeric) {
+    if ($info.ProductVersion -ne $metadata.FullVersion -or $info.FileVersion -ne $numeric) {
         throw 'Portable application version does not match version.json.'
     }
     $hashLine = (Get-Content -LiteralPath (Join-Path $stage 'SHA256.txt') -Raw).Trim()
     $actual = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
     if ($hashLine -ne "$actual  Clarity.exe") { throw 'Portable executable checksum mismatch.' }
-    $arguments = @('/Qp',"/DPayloadDir=$stage","/DReleaseTag=$tag","/DNumericVersion=$numeric","/DReleaseOutput=$OutputDirectory",(Join-Path $root 'installer/Clarity.iss'))
+    $arguments = @('/Qp',"/DPayloadDir=$stage","/DReleaseTag=$tag","/DArtifactTag=$($metadata.ArtifactTag)","/DInformationalVersion=$($metadata.FullVersion)","/DNumericVersion=$numeric","/DReleaseOutput=$OutputDirectory",(Join-Path $root 'installer/Clarity.iss'))
     if (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $CompilerPath) 'Languages/ChineseSimplified.isl')) { $arguments = @('/DIncludeChinese') + $arguments }
     $compilerOutput = @(& $CompilerPath @arguments)
     if ($LASTEXITCODE -ne 0) { throw ('Installer compilation failed: ' + ($compilerOutput -join ' ')) }
-    $installer = Join-Path $OutputDirectory "Clarity-$tag-setup.exe"
+    $installer = Join-Path $OutputDirectory "$prefix-setup.exe"
     if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'Installer output is missing.' }
     [pscustomobject]@{Version=$tag;Installer=$installer;SHA256=(Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash}
 } finally {

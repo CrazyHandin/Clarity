@@ -7,7 +7,8 @@ using System.Windows.Media;
 
 namespace ClearSpace {
 public static class RiskConfirmation {
- public static bool Required(IList<Finding> chosen){return chosen.Any(f=>f.ManualOverride||f.Rule.Heuristic||f.Rule.ForceBackup||f.Rule.Privacy||f.Rule.Protected||!f.Rule.Quick||f.RegistryCandidates.Count>0||f.Rule.InfoKind=="system-disk-cleanup"||!String.IsNullOrWhiteSpace(f.Rule.Warning));}
+ public static bool Risky(Finding f){return f.ManualOverride||f.Rule.Heuristic||f.Rule.ForceBackup||f.Rule.Privacy||f.Rule.Protected||!f.Rule.Quick||f.RegistryCandidates.Count>0||f.Rule.InfoKind=="system-disk-cleanup"||!String.IsNullOrWhiteSpace(f.Rule.Warning);}
+ public static bool Required(IList<Finding> chosen){return chosen.Any(Risky);}
  public static string ItemText(Finding f){
   string policy=f.Rule.InfoKind=="system-disk-cleanup"?"系统自动清理 · 永久删除":f.ManualOverride?"风险删除 · 强制先备份":f.Rule.Heuristic?"未知缓存 · 强制先备份":f.Rule.ForceBackup?"社区规则 · 强制先备份":f.Rule.Quick?"低风险缓存":"高级自选";
   string text=(f.Rule.Software??f.Rule.Title)+" · "+(f.Rule.Part??f.Rule.Title)+"\n"+policy+" · "+(f.Rule.InfoKind=="system-disk-cleanup"?"C 盘，容量由 Windows 计算":App.FormatSize(f.EligibleBytes)+(f.RegistryCandidates.Count>0?" / "+f.RegistryCandidates.Count+" 项注册表":""))+"\n"+f.Rule.Impact;
@@ -18,8 +19,9 @@ public static class RiskConfirmation {
   return text;
  }
  public static string Summary(IList<Finding> chosen,bool backed){return chosen.Count+" 个所选项目 · "+App.FormatSize(chosen.Sum(f=>f.EligibleBytes))+" 文件\n"+(backed?"普通文件先备份后删除。":"普通文件永久删除，无法通过澄净恢复。")+"社区、未知缓存及风险删除始终备份；注册表候选始终备份。\n占用、链接、无权限及扫描后变化的文件仍会跳过。Windows 系统清理不经过澄净备份。";}
- public static string Describe(IList<Finding> chosen,bool backed){return Summary(chosen,backed)+"\n\n"+String.Join("\n\n",chosen.Select(ItemText));}
+ public static string Describe(IList<Finding> chosen,bool backed){var risks=chosen.Where(Risky).ToList();return Summary(risks,backed)+"\n\n"+String.Join("\n\n",risks.Select(ItemText));}
  public static bool Show(Window owner,IList<Finding> chosen,bool backed,string preview=null,string backupPath=null){
+  chosen=chosen.Where(Risky).ToList();
   var window=new Window{Owner=owner,Title=App.DisplayName,Width=760,Height=640,MinWidth=620,MinHeight=460,WindowStartupLocation=WindowStartupLocation.CenterOwner,Background=App.Brush("#161D25"),Foreground=App.Brush("#DFEAF2"),FontFamily=new FontFamily("Microsoft YaHei UI"),ShowInTaskbar=false};
   window.Resources=owner.Resources;window.Width=Math.Min(window.Width,Math.Max(620,SystemParameters.WorkArea.Width-24));window.Height=Math.Min(window.Height,Math.Max(460,SystemParameters.WorkArea.Height-24));
   var surface=new Grid{Background=App.Brush("#161D25")};window.Content=surface;var grid=new Grid{Margin=new Thickness(24)};surface.Children.Add(grid);grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});grid.RowDefinitions.Add(new RowDefinition());grid.RowDefinitions.Add(new RowDefinition{Height=GridLength.Auto});

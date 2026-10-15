@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| beta0.20 | Added online software updates and internal build detection, automatic cleanup history, and improvements to backup recovery and rule management. |
 | beta0.15 | Fix full-card scope selection, add startup motion and timed top notifications, and introduce MIT licensing with Clarity-specific terms. |
 | beta0.14 | Move Settings, About, and help into the main window; unify the title bar and add interaction transitions with improved readability. |
 | beta0.13 | Add English UI and language preferences, an About screen, and administrator restart guidance; include a bilingual TXT user guide. |

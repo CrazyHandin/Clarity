@@ -1,0 +1,47 @@
+JSON 规则填写说明
+
+可复制下面的最小示例，保存为 UTF-8 编码的 .json 文件，然后在“规则管理 → 本地导入”中选择它。规则用于常规扫描的高级自选，不会加入快速扫描或自动勾选。
+
+{
+  "Schema": 1,
+  "Version": "1.0.0",
+  "Published": "2026-10-15",
+  "Rules": [{
+    "Id": "example-cache",
+    "Name": "Example App",
+    "Group": "软件缓存",
+    "Part": "资源缓存",
+    "MatchNames": ["Example App"],
+    "ExecutableNames": ["Example.exe"],
+    "Paths": ["%LOCALAPPDATA%\\Example App\\Cache"],
+    "ExcludeNames": ["settings.json", "accounts.db"],
+    "KeepDays": 14,
+    "Method": "files",
+    "Description": "已确认用途的资源缓存。",
+    "Impact": "缓存将重新生成，首次打开可能较慢。"
+  }]
+}
+
+字段
+Schema 固定为 1。Version 为规则包版本，Published 为发布日期。
+Id：仅用小写字母、数字和连字符，包内唯一。
+Name / Group / Part：软件名、分类和项目名。Group 可使用“软件缓存”“网页缓存”“开发缓存”。
+MatchNames / ExecutableNames / Publishers：应用指纹，填入实际应用名、程序文件名或发行商。需要先发现对应软件，规则才会生效。
+Paths：明确的缓存、临时或日志目录。支持 %LOCALAPPDATA%、%APPDATA%、%PROGRAMDATA%、%TEMP%、%EXEDIR%、%INSTALLDIR%、%PORTABLEROOT%。支持受限的单层 *；禁止绝对路径、..、**、脚本及任意命令。
+KeepDays：保留最近多少天的文件。建议至少 14 天。
+ExcludeNames / ExcludePaths：排除的文件名和目录模板。软件会额外保留账号、书签、聊天、数据库和设置等敏感内容。
+Extensions：可选扩展名列表，例如 [".log", ".tmp"]。FileNameRegex 为可选文件名正则。
+Method 可填 files 或 contents，均仅处理通过安全检查的候选文件，不删除扫描根目录。Description 说明用途，Impact 写清楚删除后影响；不可把未经验证的目录描述为无风险。
+
+导入与在线更新
+本地未签名 JSON 需要确认来源。在线地址必须是 HTTPS，且返回由发布者私钥签名的规则包；普通 JSON 的 HTTPS 地址不能代替签名。没有签名密钥时，使用本地导入。导入或更新后需要重新进行常规扫描。
+
+============================================================
+English JSON Rule Guide
+
+Save the example above as a UTF-8 .json file and use Rule management → Import locally. Custom rules appear only in regular scanning and advanced selection; they are never selected automatically.
+
+Schema is 1. Version and Published identify the rule pack. Id must be unique and use lowercase letters, digits and hyphens. Name, Group and Part describe the application and cache. The category values remain the Chinese canonical names shown in the example.
+MatchNames, ExecutableNames and Publishers match discovered application fingerprints. Paths must identify known cache, temporary or log directories. Supported variables: LOCALAPPDATA, APPDATA, PROGRAMDATA, TEMP, EXEDIR, INSTALLDIR and PORTABLEROOT. Absolute paths, traversal, recursive wildcards and commands are rejected.
+KeepDays retains recent files. ExcludeNames and ExcludePaths protect selected content in addition to the built-in sensitive-file exclusions. Extensions and FileNameRegex optionally restrict files. Method accepts files or contents; both process only candidates passing the safety filters and retain scan root directories. Description and Impact explain the purpose and cleanup consequences.
+Unsigned files require local-import confirmation. Online updates require HTTPS and a publisher-signed envelope, not an unsigned JSON document. Run a new regular scan after changing rules.

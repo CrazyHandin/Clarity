@@ -32,6 +32,11 @@ public static class UiMotion {
   var twinkle=new DoubleAnimationUsingKeyFrames{FillBehavior=FillBehavior.Stop};twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(0,KeyTime.FromTimeSpan(TimeSpan.Zero)));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(1,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(280))));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(0.35,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(460))));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(1,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(720))));sparkles.BeginAnimation(UIElement.OpacityProperty,twinkle);
  }
  public static void Tabs(TabControl tabs){tabs.SelectionChanged+=(s,e)=>{if(!ReferenceEquals(e.Source,tabs))return;tabs.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,new Action(()=>{tabs.ApplyTemplate();Reveal(tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement);}));};}
+ public static void Expander(Expander expander){
+  int revision=0;
+  Action<bool> resize=animate=>{expander.ApplyTemplate();var host=expander.Template.FindName("ExpandBody",expander)as FrameworkElement;var content=expander.Template.FindName("ExpandContent",expander)as FrameworkElement;if(host==null||content==null)return;int id=++revision;double from=host.ActualHeight;host.BeginAnimation(FrameworkElement.HeightProperty,null);content.Measure(new Size(Math.Max(1,expander.ActualWidth),Double.PositiveInfinity));double to=expander.IsExpanded?content.DesiredSize.Height:0;host.Height=to;if(!animate||!GetEnabled(expander)){if(expander.IsExpanded)host.Height=Double.NaN;return;}var motion=new DoubleAnimation(from,to,TimeSpan.FromMilliseconds(220)){EasingFunction=new QuadraticEase{EasingMode=EasingMode.EaseInOut},FillBehavior=FillBehavior.Stop};motion.Completed+=(s,e)=>{if(id!=revision)return;host.BeginAnimation(FrameworkElement.HeightProperty,null);host.Height=expander.IsExpanded?Double.NaN:0;};host.BeginAnimation(FrameworkElement.HeightProperty,motion);};
+  expander.Loaded+=(s,e)=>resize(false);expander.Expanded+=(s,e)=>resize(true);expander.Collapsed+=(s,e)=>resize(true);
+ }
 }
 public sealed partial class Controller {
  public void PrepareStartup(){

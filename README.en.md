@@ -12,6 +12,7 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 - **Clear cleanup choices:** Results grouped by category and application, with search, filters, group selection, and explanations of each item's purpose, impact, and risk.
 - **Application and rule discovery:** Application fingerprints, built-in rules, Winapp2, and unknown-cache detection, with portable application folders, rule updates, and offline import.
 - **Backup and restore:** Backup-first cleanup, shortcuts to backup locations, and automatic removal of backup copies after verified restoration.
+- **History and updates:** Automatically saved cleanup records with a direct shortcut in Settings, startup update checks, and online upgrades for installed and portable editions.
 
 ## Get started
 
@@ -29,6 +30,8 @@ Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified 
 Administrator restart is under **Settings & Backups → General** and is also offered after failed or access-denied cleanup. Restarting does not automatically scan or continue deletion. Credits are in **About Clarity**.
 
 Settings, About, and the built-in user guide open inside the main window. Returning to cleanup preserves scan results and selections. About contains version information, a Beta notice, and third-party attribution.
+
+Open **About → Software updates** to read the update summary and download an upgrade. New versions add red badges to Settings and About. The version and internal build number are shown in About.
 
 Simple cleanup handles only eligible low-risk items. Advanced cleanup allows individual selection and review. Unknown caches and community rules are unchecked by default, advanced-only, and always backed up.
 
