@@ -31,6 +31,11 @@ function Invoke-Gh([string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "GitHub command failed: $($Arguments[0])" }
     return $result
 }
+function Get-AssetBuild([string]$Name,[string]$ReleaseTag) {
+    if ($Name -cmatch ('^Clarity-'+[regex]::Escape($ReleaseTag)+'-build([0-9]{1,5})-(?:setup\.exe|portable\.zip|source\.zip)$')) { return [int]$Matches[1] }
+    if ($Name -cmatch '^SHA256SUMS-build([0-9]{1,5})\.txt$') { return [int]$Matches[1] }
+    return 0
+}
 $records = Invoke-Gh -Arguments @('api',"repos/$Repository/releases?per_page=100",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
 $record = @($records | Where-Object tag_name -eq $tag) | Select-Object -First 1
 if (-not $record) {
@@ -40,7 +45,7 @@ if (-not $record) {
     if (-not $record) { throw 'The release draft could not be located.' }
 }
 $maximum = 0
-foreach ($asset in $record.assets) { if ($asset.name -match ('^Clarity-'+[regex]::Escape($tag)+'-build([0-9]+)-')) { $maximum = [Math]::Max($maximum,[int]$Matches[1]) } }
+foreach ($asset in $record.assets) { $maximum = [Math]::Max($maximum,(Get-AssetBuild $asset.name $tag)) }
 if ($maximum -gt $metadata.Build) { throw 'A newer internal build is already published.' }
 foreach ($name in $immutable) {
     $old = @($record.assets | Where-Object name -eq $name)
@@ -70,4 +75,18 @@ if (-not $confirmed) { throw 'The published files did not match the build artifa
 Invoke-Gh -Arguments @('release','edit',$tag,'--repo',$Repository,'--draft=false','--prerelease=false','--latest=true') | Out-Null
 $latest = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/latest",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
 if ($latest.tag_name -ne $tag -or $latest.draft -or $latest.prerelease) { throw 'Latest release was not confirmed.' }
+# Retire older build files only after the new packages and current-build pointer are verified.
+$obsolete = @($record.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -lt $metadata.Build })
+foreach ($asset in $obsolete) {
+    Invoke-Gh -Arguments @('api','--method','DELETE',"repos/$Repository/releases/assets/$($asset.id)") | Out-Null
+}
+if ($obsolete.Count -gt 0) {
+    $remaining = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/$($record.id)",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
+    if (@($remaining.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -lt $metadata.Build }).Count -gt 0) { throw 'Older build attachments were not fully removed.' }
+    foreach ($name in $names) {
+        $before = @($record.assets | Where-Object name -eq $name)
+        $after = @($remaining.assets | Where-Object name -eq $name)
+        if ($after.Count -ne 1 -or $after[0].id -ne $before[0].id -or $after[0].digest -ne $before[0].digest) { throw "Current build asset changed during cleanup: $name" }
+    }
+}
 Write-Output $latest.html_url
