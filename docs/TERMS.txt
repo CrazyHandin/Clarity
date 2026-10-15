@@ -2,7 +2,7 @@ Clarity 使用条款与清理说明
 Clarity © 2026 CraZyX
 
 1. 软件与许可
-Clarity 是 Windows 磁盘清理工具，当前为 Beta 测试版。
+Clarity 是 Windows 磁盘清理工具。
 Clarity 自有代码、程序和文档按 MIT 许可发布，完整许可见 LICENSE.txt。
 本说明介绍软件行为与清理风险，不增加 MIT 许可之外的分发、商业使用或逆向工程限制。
 Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的 MIT 许可。
@@ -49,7 +49,7 @@ English Terms of Use
 Clarity © 2026 CraZyX
 
 1. Application and license
-Clarity is a Windows disk cleaner currently released as Beta software.
+Clarity is a Windows disk cleaner.
 Clarity's own code, application, and documentation are licensed under MIT. See LICENSE.txt for the full license.
 These notes explain behavior and cleanup risks. They add no restrictions on distribution, commercial use, or reverse engineering beyond MIT.
 The Winapp2 rule database is separately licensed under CC BY-SA 4.0, not Clarity's MIT license.

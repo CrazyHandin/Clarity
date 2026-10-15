@@ -41,8 +41,12 @@ public static class RegistryCleaner {
   if(s==null||(s.View!=RegistryView.Registry32&&s.View!=RegistryView.Registry64)||(s.Hive!=RegistryHive.CurrentUser&&s.Hive!=RegistryHive.LocalMachine))return false;
   string expected=s.Kind=="apppaths"?AppPaths:s.Kind=="uninstall"?Uninstall:s.Kind=="run"?RunHistory:s.Kind=="search"?SearchHistory:null;if(expected==null)return false;
   if(String.Equals(s.Path,expected,StringComparison.OrdinalIgnoreCase))return (s.Kind=="apppaths"||s.Kind=="uninstall"||s.Hive==RegistryHive.CurrentUser);
+#if CLARITY_TESTS
   string[] p=(s.Path??"").Split('\\');string tail=s.Kind=="apppaths"?"App Paths":s.Kind=="uninstall"?"Uninstall":s.Kind=="run"?"RunMRU":"WordWheelQuery";Guid id;
   return s.Hive==RegistryHive.CurrentUser&&p.Length==4&&p[0]=="Software"&&p[1]=="ClearSpace.Tests"&&Guid.TryParseExact(p[2],"N",out id)&&p[3]==tail;
+#else
+  return false;
+#endif
  }
  static bool InScope(RegistryEntry e){
   if(e==null||!Allowed(e.Scope)||String.IsNullOrWhiteSpace(e.KeyPath))return false;

@@ -29,7 +29,7 @@ public static class UiText {
  public static string Language {get{return language;}}
  public static bool English {get{return language=="en";}}
  public static string Normalize(string value){return !String.IsNullOrEmpty(value)&&value.StartsWith("en",StringComparison.OrdinalIgnoreCase)?"en":"zh-CN";}
- static Dictionary<string,string> Load(){using(var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("ClearSpace.English.json"))using(var reader=new StreamReader(stream)){return new JavaScriptSerializer{MaxJsonLength=4*1024*1024}.Deserialize<Dictionary<string,string>>(reader.ReadToEnd());}}
+ static Dictionary<string,string> Load(){using(var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("ClearSpace.English.json"))using(var reader=new StreamReader(stream)){var map=new JavaScriptSerializer{MaxJsonLength=4*1024*1024}.Deserialize<Dictionary<string,string>>(reader.ReadToEnd());if(!String.IsNullOrEmpty(ReleaseVersion.HighlightsChinese)&&!String.IsNullOrEmpty(ReleaseVersion.HighlightsEnglish))map[ReleaseVersion.HighlightsChinese]=ReleaseVersion.HighlightsEnglish;return map;}}
  public static string T(string value){
   if(!English||String.IsNullOrEmpty(value))return value;
   string exact;if(english.TryGetValue(value,out exact))return exact;

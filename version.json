@@ -1,9 +1,9 @@
 {
-  "channel": "beta",
-  "number": 20,
-  "build": 2,
+  "channel": "stable",
+  "version": "1.0",
+  "build": 1,
   "highlights": {
-    "zh-CN": "新增更新提示弹窗与加载反馈，修复检查更新时的 403 错误。",
-    "en": "Added update dialogs and loading feedback, and fixed HTTP 403 errors when checking for updates."
+    "zh-CN": "发布 1.0 正式版：修复规则打包引发的特定误报，加强规则完整性校验、软件更新与备份处理保护。",
+    "en": "Clarity 1.0: fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling."
   }
 }

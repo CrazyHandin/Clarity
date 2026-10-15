@@ -6,7 +6,6 @@ using System.Windows.Controls;
 namespace ClearSpace {
 public sealed partial class Controller {
  readonly List<FrameworkElement> pages=new List<FrameworkElement>();SettingsView settingsView;
- public Action<string> CopyVersion=Clipboard.SetText;
  public Action<string> OpenProject=url=>Process.Start(new ProcessStartInfo(url){UseShellExecute=true});
  void InitializeChrome(){
   UiMotion.SetEnabled(Window,SystemParameters.ClientAreaAnimation);
@@ -14,6 +13,7 @@ public sealed partial class Controller {
   Get<Button>("MinimizeWindow").Click+=(s,e)=>SystemCommands.MinimizeWindow(Window);
   Get<Button>("MaximizeWindow").Click+=(s,e)=>{if(Window.WindowState==WindowState.Maximized)SystemCommands.RestoreWindow(Window);else SystemCommands.MaximizeWindow(Window);};
   Get<Button>("CloseWindow").Click+=(s,e)=>SystemCommands.CloseWindow(Window);
+  UiMotion.CloseOnRequest(Window,Get<Grid>("WindowRoot"));
   Window.StateChanged+=(s,e)=>{Get<Button>("MaximizeWindow").Content=Window.WindowState==WindowState.Maximized?"\uE923":"\uE922";Get<Button>("MaximizeWindow").ToolTip=Window.WindowState==WindowState.Maximized?"还原窗口":"最大化";};
  }
  void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);}
@@ -32,7 +32,7 @@ public sealed partial class Controller {
   if(pages.Count>0){ShowNavigationPage(pages[pages.Count-1]);return;}
   var host=Get<ContentControl>("PageHost");host.Content=null;host.Visibility=Visibility.Collapsed;settingsView=null;Get<Grid>("MainLayout").Visibility=Visibility.Visible;UiText.Attach(Window);UiMotion.Reveal(Get<Grid>("MainLayout"));
  }
- void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify,()=>{LastSoftwareOperation=CheckSoftwareUpdatesAsync(true);},OpenReleaseNotes));RefreshUpdateBadges();RefreshAboutUpdateState();}
+ void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),OpenProject,()=>{LastSoftwareOperation=CheckSoftwareUpdatesAsync(true);},OpenReleaseNotes));RefreshUpdateBadges();RefreshAboutUpdateState();}
  bool NavigationCanClose(){return settingsView==null||settingsView.TryLeave();}
 }
 }

@@ -14,7 +14,16 @@ if (-not (Test-Path -LiteralPath $executable)) { throw 'Build and verify the rel
 $hash = (Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash
 $proof = Get-Content -LiteralPath (Join-Path $VerificationDirectory 'verification.json') -Raw | ConvertFrom-Json
 if ($proof.Version -ne $metadata.FullVersion -or $proof.ExecutableSHA256 -ne $hash) { throw 'Verification reports do not belong to this executable.' }
+$buildManifest = Join-Path $destination 'build-manifest.json'
+$build = Get-Content -LiteralPath $buildManifest -Raw | ConvertFrom-Json
+if ($proof.Schema -ne 2 -or -not $proof.TestHostIsolated -or $proof.BuildManifestSHA256 -ne (Get-FileHash -LiteralPath $buildManifest -Algorithm SHA256).Hash -or $build.ExecutableSHA256 -ne $hash -or $proof.TestHostSHA256 -ne $build.TestHost.SHA256) { throw 'Missing matching production/test-host verification.' }
+if (@($build.BundledFiles).Count -ne 1 -or $build.BundledFiles[0].Path -cne 'rules/Winapp2.ini' -or $proof.BundledRuleSHA256 -ne $build.BundledFiles[0].SHA256 -or (Get-FileHash -LiteralPath (Join-Path $destination 'rules/Winapp2.ini') -Algorithm SHA256).Hash -ne $proof.BundledRuleSHA256) { throw 'Bundled rules do not match verified content.' }
+foreach ($inputFile in $build.Inputs) {
+    $path = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot $inputFile.Path))
+    if (-not $path.StartsWith($PSScriptRoot.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $inputFile.SHA256) { throw "Source changed after verification: $($inputFile.Path)" }
+}
 $suites = @{
+    'production-self-test' = 'production-test-results.txt';
     'self-test' = 'self-test-results.txt'; 'v2-self-test' = 'v2-test-results.txt';
     'v3-self-test' = 'v3-test-results.txt'; 'winapp2-self-test' = 'winapp2-test-results.txt';
     'beta-self-test' = 'beta-test-results.txt'; 'recovery-self-test' = 'recovery-test-results.txt'; 'ui-self-test' = 'ui-test-results.txt'; 'common-rules-self-test' = 'common-rules-test-results.txt'
@@ -50,7 +59,8 @@ foreach ($entry in $publicFiles.GetEnumerator()) {
 $verification = @"
 Clarity $tag
 Verified: $([DateTime]::UtcNow.ToString('yyyy-MM-dd')) UTC
-$passed checks passed across eight isolated suites: cleaning, registry, rules, recovery, Winapp2, application caches and UI.
+$passed checks passed across nine isolated suites: production artifact structure, cleaning, registry, rules, recovery, Winapp2, application caches and UI.
+Functional tests ran in a separate test host built from the same recorded source inputs. Production artifact metadata and embedded resources were checked separately; its exact hash is bound to these reports. Test executables are not included in the portable or installer packages.
 Tests used generated fixtures and temporary registry keys. No personal cache files were deleted and Windows Disk Cleanup was simulated.
 The source archive uses an explicit public-file list; private keys, credentials, backups and real scan reports are excluded.
 "@

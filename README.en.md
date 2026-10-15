@@ -18,7 +18,7 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 
 Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified Chinese under **Settings & Backups → General**. The included TXT guide contains Chinese instructions followed by the English guide.
 
-1. Run the installer, or extract the portable package and run `Clarity.exe` with `Clarity.exe.config` beside it.
+1. Run the installer, or extract the complete portable package and run `Clarity.exe`, keeping `Clarity.exe.config` and the `rules` folder beside it.
 2. Choose a scan mode and click **Start scan**. Opening the app does not start scanning.
 3. Review the results and clean your selection. Risk items trigger confirmation. Click **Done** on the completion screen to return to the initial screen.
 
@@ -29,7 +29,7 @@ Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified 
 
 Administrator restart is under **Settings & Backups → General** and is also offered after failed or access-denied cleanup. Restarting does not automatically scan or continue deletion. Credits are in **About Clarity**.
 
-Settings, About, and the built-in user guide open inside the main window. Returning to cleanup preserves scan results and selections. About contains version information, a Beta notice, and third-party attribution.
+Settings, About, and the built-in user guide open inside the main window. Returning to cleanup preserves scan results and selections. About contains version information, software updates, and third-party attribution.
 
 Click **Check for software updates** in About. Available updates open in a small window with release notes and download progress. New versions add red badges to Settings and About. **What's new in this version** shows the current version's summary.
 

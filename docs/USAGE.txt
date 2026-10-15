@@ -5,7 +5,8 @@ Clarity 使用说明
 Windows 10/11，.NET Framework 4.8 或更高版本。
 安装版默认安装到 C:\Program Files\Clarity，需要管理员权限，支持升级及卸载。
 点击“浏览”可使用 Windows 文件夹选择窗口找到桌面、下载和其他磁盘；桌面快捷方式可选。
-便携版解压后运行 Clarity.exe，请保留同目录的 Clarity.exe.config。
+便携版请完整解压后运行 Clarity.exe，保留同目录的 Clarity.exe.config 和 rules 文件夹。
+Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快照的完整性。
 
 语言与管理员模式
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
@@ -14,7 +15,7 @@ Windows 10/11，.NET Framework 4.8 或更高版本。
 文件占用或安全软件拦截不一定能通过提权解决；重启后需手动扫描，不会自动继续删除。
 在“设置与备份”右上角可打开“关于 Clarity”。
 设置、关于与使用说明均在主窗口内切换。返回清理会保留扫描结果与勾选状态。
-关于页显示当前版本、内部构建号、更新概括及 Beta 提示，可复制版本信息并阅读使用说明。
+关于页显示当前版本、内部构建号及更新概括，并提供使用说明入口。
 范围卡片的整个区域均可点击；扫描取消及设置保存等消息在窗口上部显示，两秒后自动消失。
 
 开始清理
@@ -48,7 +49,7 @@ JSON 规则填写说明可在规则管理中直接打开。
 清理记录自动保存在软件目录的 Logs 文件夹；目录不可写时保存在当前用户设置目录的 Logs 中。
 在“设置与备份 → 常规设置”点击“打开清理记录”直接打开最近一次记录，也可打开记录文件夹。
 软件启动时检查 GitHub Release；发现新版本或内部构建时显示红点和带倒计时的顶部提示。
-在关于页点击“检查软件更新”，卡片下方显示加载条；无更新或检查失败时在窗口顶部提示。
+在关于页点击“检查软件更新”，更新卡片底部显示加载条；无更新或检查失败时在窗口顶部提示。
 有更新时弹出小窗口，显示更新说明和“下载并更新”按钮。下载时显示进度、百分比和文件大小，可取消。
 点击“本版更新内容”小按钮，可在弹窗中查看当前版本的更新概括。
 下载后核对 SHA-256，安装版自动升级并重启；便携版自动替换程序文件，失败时尝试恢复原文件。
@@ -78,7 +79,8 @@ Windows 10/11 with .NET Framework 4.8 or later.
 The installer defaults to C:\Program Files\Clarity and requires administrator permission.
 Browse opens the Windows folder picker, with access to Desktop, Downloads, and other drives.
 Upgrade and uninstall are supported; the desktop shortcut is optional.
-For the portable edition, extract the package and run Clarity.exe with Clarity.exe.config beside it.
+For the portable edition, extract the complete package and keep Clarity.exe.config and the rules folder beside Clarity.exe.
+The bundled Winapp2 snapshot is stored in rules\Winapp2.ini and its integrity is checked before use.
 
 Language and administrator mode
 Open Settings & Backups > General to choose Simplified Chinese or English.
@@ -89,7 +91,7 @@ Elevation may not resolve locked files or security software blocks. Restart does
 scan again manually and review the results before cleaning.
 Open About Clarity from the top-right corner of Settings & Backups.
 Settings, About, and help use the same window. Back to cleanup preserves scan results and selections.
-About contains the version, internal build, update summary, Beta notice, and user guide.
+About contains the version, internal build, update summary, and user guide.
 Click anywhere on a scope card to select it. Scan cancellation and saved-setting messages appear at the top for two seconds.
 Windows folder pickers and UAC prompts follow the Windows display language.
 
@@ -131,7 +133,7 @@ Cleanup history and software updates
 Cleanup history is saved automatically in the application's Logs folder, or the current user's settings folder if unwritable.
 Settings & Backups > General > Open cleanup history opens the most recent record. A folder shortcut is also available.
 Clarity checks GitHub Releases on startup. A new version or internal build adds red badges and a clickable countdown notification.
-Click Check for software updates in About. A loading bar appears below the card; no-update and error results use top notifications.
+Click Check for software updates in About. A loading bar appears along the bottom of the update card; no-update and error results use top notifications.
 Available updates open in a small window with notes and a Download and update button. Downloads show progress, percentage and byte totals, and can be cancelled.
 What's new in this version opens the current version's summary in a separate small window.
 Downloads are verified with SHA-256. Installed editions upgrade and restart; portable editions replace program files,

@@ -13,14 +13,20 @@ public sealed class SoftwareAsset {public string Name,Url,SHA256;public long Siz
 public sealed class SoftwareRelease {
  public string Version,Notes;public int Build;public List<SoftwareAsset> Assets=new List<SoftwareAsset>();
  public string Label{get{return Version+" · "+UiText.T("内部构建 ")+Build;}}
- public bool IsNewer(string version,int build){int remote=SoftwareUpdates.VersionNumber(Version),local=SoftwareUpdates.VersionNumber(version);return remote>local||remote==local&&Build>build;}
+ public bool IsNewer(string version,int build){long remote=SoftwareUpdates.VersionNumber(Version),local=SoftwareUpdates.VersionNumber(version);return remote>local||remote==local&&Build>build;}
 }
 public static class SoftwareUpdates {
  public const string Repository="CrazyHandin/Clarity",ReleasePage="https://github.com/CrazyHandin/Clarity/releases/latest";
  public const string LatestManifestUrl="https://github.com/"+Repository+"/releases/latest/download/Clarity-update.json";
  public const long MaxPackageBytes=180L*1024*1024;
  static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=2*1024*1024,RecursionLimit=32};
- public static int VersionNumber(string version){var m=Regex.Match(version??"","^beta0\\.([0-9]{2,5})$");int value;if(!m.Success||!Int32.TryParse(m.Groups[1].Value,out value)||value<1||value>65535)throw new InvalidDataException("不支持的软件版本编号");return value;}
+ public static long VersionNumber(string version){
+  var beta=Regex.Match(version??"",@"\Abeta0\.([0-9]{2,5})\z");int number;
+  if(beta.Success&&Int32.TryParse(beta.Groups[1].Value,out number)&&number>=1&&number<=65535)return number;
+  var stable=Regex.Match(version??"",@"\A([1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\z");int major,minor;
+  if(stable.Success&&Int32.TryParse(stable.Groups[1].Value,out major)&&Int32.TryParse(stable.Groups[2].Value,out minor)&&major<=65535&&minor<=65535)return ((long)major<<16)+minor;
+  throw new InvalidDataException("不支持的软件版本编号");
+ }
  public static Dictionary<string,object> Object(object value){var result=value as Dictionary<string,object>;if(result==null)throw new InvalidDataException("更新数据格式无效");return result;}
  static string Value(Dictionary<string,object> data,string key){return data.ContainsKey(key)?Convert.ToString(data[key],System.Globalization.CultureInfo.InvariantCulture):"";}
  public static string HashFile(string path){using(var file=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read))using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(file)).Replace("-","").ToLowerInvariant();}

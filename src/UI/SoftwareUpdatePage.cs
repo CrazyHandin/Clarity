@@ -23,7 +23,7 @@ public sealed partial class Controller {
  void RefreshAboutUpdateState(){foreach(var page in pages){var bar=page.FindName("AboutUpdateProgress")as ProgressBar;if(bar!=null)bar.Visibility=checkingSoftware?Visibility.Visible:Visibility.Collapsed;var check=page.FindName("SoftwareUpdateButton")as Button;if(check!=null)check.IsEnabled=!checkingSoftware&&!installingSoftware;}}
  public async Task CheckSoftwareUpdatesAsync(bool manual){
   if(checkingSoftware||installingSoftware)return;checkingSoftware=true;RefreshAboutUpdateState();var stop=new CancellationTokenSource();softwareCheckStop=stop;bool show=false;
-  try{softwareRelease=await Task.Run(()=>SoftwareCheck(stop.Token));if(stop.IsCancellationRequested)return;RefreshUpdateBadges();if(SoftwareAvailable){if(manual)show=true;else notice.Show(UiText.T("发现软件新版本：")+softwareRelease.Label,false,8,OpenSoftwareUpdates,true);}else if(manual)NotifySuccess("当前已是最新版本");}
+  try{softwareRelease=await Task.Run(()=>SoftwareCheck(stop.Token));if(stop.IsCancellationRequested)return;RefreshUpdateBadges();if(SoftwareAvailable){if(manual)show=true;else notice.Show(UiText.T("发现软件新版本：")+softwareRelease.Label+"\n"+UiText.T("点击下载更新"),false,8,OpenSoftwareUpdates,true);}else if(manual)NotifySuccess("当前已是最新版本");}
   catch(Exception ex){if(!stop.IsCancellationRequested&&manual)Notify("软件更新检查失败："+ex.Message);}
   finally{checkingSoftware=false;if(ReferenceEquals(softwareCheckStop,stop))softwareCheckStop=null;stop.Dispose();RefreshAboutUpdateState();}
   if(show)OpenSoftwareUpdates();

@@ -13,7 +13,7 @@ public sealed class SettingsView {public FrameworkElement Root;public Func<bool>
 public static class RuleCenter {
  public static SettingsView Create(Window owner,CleanerSettings settings,DiscoveryResult discovery,Action changed,Action back,Action about,Action<CleanerSettings> persist=null,Action<string> openLocation=null,Action restartAdministrator=null,Action<string> notify=null,Action jsonGuide=null,Action<string> success=null){
   UserControl w;
-  using(var resource=System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("ClearSpace.Settings.xaml"))w=(UserControl)XamlReader.Load(resource);
+  w=(UserControl)App.LoadView("ClearSpace.Settings.xaml");
   Action<string> message=value=>{((TextBlock)w.FindName("Status")).Text=value;((FrameworkElement)w.FindName("SettingsStatusFrame")).Visibility=Visibility.Collapsed;if(notify!=null)notify(value);};
   Action<string> progress=value=>{((TextBlock)w.FindName("Status")).Text=value;((FrameworkElement)w.FindName("SettingsStatusFrame")).Visibility=Visibility.Visible;};
   Action<string> saved=value=>{((TextBlock)w.FindName("Status")).Text=value;((FrameworkElement)w.FindName("SettingsStatusFrame")).Visibility=Visibility.Collapsed;if(success!=null)success(value);else if(notify!=null)notify(value);};

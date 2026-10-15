@@ -31,7 +31,10 @@ public static class RiskConfirmation {
   var stack=new StackPanel();foreach(var f in chosen){var label=new TextBlock{Text=ItemText(f),FontSize=13,TextWrapping=TextWrapping.Wrap,Foreground=App.Brush(f.ManualOverride||f.Rule.InfoKind=="system-disk-cleanup"?"#FFB4A9":f.Rule.Quick?"#C7E6E3":"#E4BE81")};stack.Children.Add(new Border{Child=label,Background=App.Brush("#202D37"),CornerRadius=new CornerRadius(9),Padding=new Thickness(14),Margin=new Thickness(0,0,8,9)});}
   var scroll=new ScrollViewer{Content=stack,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};Grid.SetRow(scroll,2);grid.Children.Add(scroll);
   var actions=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,18,0,0)};var cancel=new Button{Content="取消",IsCancel=true,Padding=new Thickness(25,11,25,11),Margin=new Thickness(0,0,12,0)};var confirm=new Button{Content="确认风险并清理",Padding=new Thickness(25,11,25,11),Background=App.Brush("#39C5BB"),Foreground=App.Brush("#083F3A"),FontWeight=FontWeights.SemiBold};cancel.Click+=(s,e)=>window.DialogResult=false;confirm.Click+=(s,e)=>window.DialogResult=true;actions.Children.Add(cancel);actions.Children.Add(confirm);Grid.SetRow(actions,3);grid.Children.Add(actions);
-  UiText.Attach(window);if(preview!=null){window.ShowInTaskbar=false;window.ShowActivated=false;window.WindowStartupLocation=WindowStartupLocation.Manual;window.Left=window.Top=-10000;window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle,new Action(()=>{App.Render(window,preview);window.DialogResult=false;}));}
+  UiText.Attach(window);
+#if CLARITY_TESTS
+  if(preview!=null){window.ShowInTaskbar=false;window.ShowActivated=false;window.WindowStartupLocation=WindowStartupLocation.Manual;window.Left=window.Top=-10000;window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle,new Action(()=>{App.Render(window,preview);window.DialogResult=false;}));}
+#endif
   return window.ShowDialog()==true;
  }
 }

@@ -53,6 +53,8 @@ try {
     $hashLine = (Get-Content -LiteralPath (Join-Path $stage 'SHA256.txt') -Raw).Trim()
     $actual = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
     if ($hashLine -ne "$actual  Clarity.exe") { throw 'Portable executable checksum mismatch.' }
+    $ruleFile = Join-Path $stage 'rules/Winapp2.ini'
+    if ((Get-FileHash -LiteralPath $ruleFile -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath (Join-Path $root 'rules/Winapp2.ini') -Algorithm SHA256).Hash) { throw 'Portable bundled rule checksum mismatch.' }
     $arguments = @('/Qp',"/DPayloadDir=$stage","/DReleaseTag=$tag","/DArtifactTag=$($metadata.ArtifactTag)","/DInformationalVersion=$($metadata.FullVersion)","/DNumericVersion=$numeric","/DReleaseOutput=$OutputDirectory",(Join-Path $root 'installer/Clarity.iss'))
     if (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $CompilerPath) 'Languages/ChineseSimplified.isl')) { $arguments = @('/DIncludeChinese') + $arguments }
     $compilerOutput = @(& $CompilerPath @arguments)

@@ -66,11 +66,15 @@ public sealed partial class Controller {
  public Func<CleanResult,bool> ConfirmAdministrator;public Action ElevateAction;public Func<bool> AdministratorState=App.IsAdmin;public Func<IList<Finding>,bool,bool> ConfirmCleanup;public Action<string> OpenBackupFolder=BackupFolders.Open;Rule systemRule=SystemDiskCleanup.CreateRule();Finding systemFinding;CheckBox systemOption;
  CleanerSettings settings=CleanerSettings.Load();bool quickScan;ComboBox scanMode;
  Engine engine=new Engine(new List<Rule>());List<GroupOption> groups=new List<GroupOption>();List<CleanNode> leaves=new List<CleanNode>(),treeNodes=new List<CleanNode>();
- bool busy,advanced,hasScanned,testMode;string phase="ready";int epoch;CancellationTokenSource cancellation;CleanResult lastResult;
+ bool busy,advanced,hasScanned;
+#if CLARITY_TESTS
+ bool testMode;
+#endif
+ string phase="ready";int epoch;CancellationTokenSource cancellation;CleanResult lastResult;
  Button scan,clean,simple,advancedButton,recommend,visibleSelect,unselect;
  TreeView tree;TextBox search;ComboBox riskFilter;ProgressBar progress;CleanNode detailNode;ScanProgress lastProgress;
  public Controller(){
-  using(var resource=Assembly.GetExecutingAssembly().GetManifestResourceStream("ClearSpace.Main.xaml"))Window=(Window)XamlReader.Load(resource);
+  Window=(Window)App.LoadView("ClearSpace.Main.xaml");
   notice=new UiNotice(Window);Window.Title=App.DisplayName;UiText.SetLanguage(settings.Language);var logo=App.LoadIcon();Window.Icon=logo;Get<Image>("BrandLogo").Source=logo;ConfirmCleanup=(items,backed)=>RiskConfirmation.Show(Window,items,backed,null,String.IsNullOrEmpty(settings.RecoveryDirectory)?FileRecovery.DefaultDirectory():settings.RecoveryDirectory);
   var area=SystemParameters.WorkArea;Window.MinWidth=Math.Min(Window.MinWidth,Math.Max(820,area.Width-24));Window.MinHeight=Math.Min(Window.MinHeight,Math.Max(580,area.Height-24));Window.Width=Math.Min(Window.Width,Math.Max(Window.MinWidth,area.Width-24));Window.Height=Math.Min(Window.Height,Math.Max(Window.MinHeight,area.Height-24));
   scan=Get<Button>("ScanButton");clean=Get<Button>("CleanButton");simple=Get<Button>("SimpleButton");advancedButton=Get<Button>("AdvancedButton");recommend=Get<Button>("RecommendButton");visibleSelect=Get<Button>("SelectVisibleButton");unselect=Get<Button>("UnselectButton");tree=Get<TreeView>("ResultsTree");search=Get<TextBox>("SearchBox");riskFilter=Get<ComboBox>("RiskFilter");progress=Get<ProgressBar>("Progress");
@@ -102,7 +106,9 @@ public sealed partial class Controller {
  public void EnableAutomaticRuleUpdates(){if(!settings.AutomaticUpdates||!settings.UseWinapp2&&String.IsNullOrWhiteSpace(settings.UpdateUrl))return;bool community=settings.UseWinapp2;string url=settings.UpdateUrl;DateTime previous;if(DateTime.TryParse(community?settings.LastWinapp2Attempt:settings.LastUpdateAttempt,out previous)&&(DateTime.UtcNow-previous.ToUniversalTime()).TotalDays<7)return;Window.Loaded+=async(s,e)=>{try{if(community)settings.LastWinapp2Attempt=DateTime.UtcNow.ToString("o");else settings.LastUpdateAttempt=DateTime.UtcNow.ToString("o");settings.Save();await Task.Run(()=>{if(community)new Winapp2Store().Update(CancellationToken.None);else new RuleStore().Update(url,CancellationToken.None);});if(!busy)Status("规则已更新，手动扫描后生效");}catch{if(!busy)Status("更新未应用，继续使用当前规则");}};}
  void UpdateRecoveryNote(){var control=Get<ComboBox>("CleanPolicy");if(control==null)return;string path=String.IsNullOrEmpty(settings.RecoveryDirectory)?FileRecovery.DefaultDirectory():settings.RecoveryDirectory;var note=Get<TextBlock>("RecoveryNote");note.ToolTip=path;bool same=String.Equals(Path.GetPathRoot(path),RuleBook.TargetDrive,StringComparison.OrdinalIgnoreCase);note.Text=control.SelectedIndex==1?"社区、未知及风险删除先备份":same?"备份在 C 盘；清空后释放空间":"备份至 "+Path.GetPathRoot(path);note.Foreground=App.Brush(same?"#F2B868":"#9DBAC8");}
  public T Get<T>(string name)where T:FrameworkElement{return (T)Window.FindName(name);}
+#if CLARITY_TESTS
  public void PreviewRules(string path,int tab){UiMotion.SetEnabled(Window,false);OpenSettings();var root=settingsView.Root;((TabControl)root.FindName("RulesTabs")).SelectedItem=root.FindName(tab==1?"ApplicationsTab":tab==2?"BackupTab":"RulesTab");App.Render(Window,path);}
+#endif
  static void ExpandAll(CleanNode n,bool value){n.Expanded=value;foreach(var c in n.Children)ExpandAll(c,value);}
  void SetAll(bool value){foreach(var n in leaves)n.Selected=value;}
  void ShowReady(){
@@ -116,7 +122,7 @@ public sealed partial class Controller {
  }
  void OnProgress(ScanProgress p,int id){
   if(id!=epoch||!busy||phase!="scan")return;lastProgress=p;progress.Value=p.Total==0?0:100.0*p.Completed/p.Total;Get<TextBlock>("PercentText").Text=((int)progress.Value)+"%";
-  Get<TextBlock>("ProgressLabel").Text="正在扫描 · "+p.Title;Get<TextBlock>("ProgressCount").Text=p.Completed+" / "+p.Total+" 条规则 · 已检查 "+p.Files+" 个文件";Get<TextBlock>("HeroCaption").Text="已发现可处理垃圾";Get<TextBlock>("HeroSizeText").Text=App.FormatSize(p.FoundBytes);Get<TextBlock>("HeroNote").Text=p.RegistryItems>0?"另有 "+p.RegistryItems+" 项注册表候选，需确认":"容量随扫描实时更新";
+  Get<TextBlock>("ProgressLabel").Text="正在扫描 · "+p.Title;Get<TextBlock>("ProgressCount").Text=p.Completed+" / "+p.Total+" 条规则 · 已检查 "+p.Files+" 个文件";Get<TextBlock>("HeroCaption").Text="已发现可处理垃圾";Get<TextBlock>("HeroSizeText").Text=App.FormatSize(p.FoundBytes);Get<TextBlock>("HeroNote").Text="容量随扫描实时更新";
   foreach(var g in groups){int total=engine.Rules.Count(r=>r.Group==g.Name),done=engine.Rules.Take(p.Completed).Count(r=>r.Group==g.Name);if(!g.Selected)g.State="未选择";else if(total>0&&done==total)g.State="完成 · "+done+" / "+total;else if(g.Name==p.Group)g.State="正在扫描 · "+p.Title;else g.State="等待扫描";}Status("");
  }
  public async Task ScanAsync(){
@@ -135,7 +141,7 @@ public sealed partial class Controller {
    else {if(!f.Rule.Protected||f.ManualCandidates.Count==0)leaves.Add(Leaf(f,f.Rule.Part??f.Rule.Title));if(f.ManualCandidates.Count>0&&!quickScan){var manual=new Finding{Rule=f.Rule,ManualOverride=true,Candidates=f.ManualCandidates.ToList(),EligibleBytes=f.ManualBytes,TotalBytes=f.ManualBytes,Files=f.ManualCandidates.Count,Running=f.Running,Samples=f.ManualCandidates.Take(5).Select(p=>p.Path).ToList(),Extra="原本保留内容；自选时绕过年龄与个人资料保留策略，始终先备份。"};leaves.Add(Leaf(manual,(f.Rule.Part??f.Rule.Title)+(f.Rule.Protected?" · 自选删除":" · 保留内容自选删除")));}}
   }
   phase="results";scan.Content="重新扫描";Get<FrameworkElement>("ScopePage").Visibility=Get<FrameworkElement>("ScanPage").Visibility=Get<FrameworkElement>("ProgressPanel").Visibility=Visibility.Collapsed;Get<FrameworkElement>("ResultPage").Visibility=Get<FrameworkElement>("FooterPanel").Visibility=Visibility.Visible;
-  Get<TextBlock>("HeroCaption").Text=quickScan?"可一键处理 · 内置低风险":"可选择处理（含风险项目）";Get<TextBlock>("HeroSizeText").Text=App.FormatSize(leaves.Sum(n=>n.Finding.EligibleBytes));int reg=leaves.Sum(n=>n.Finding.RegistryCandidates.Count);Get<TextBlock>("HeroNote").Text=reg>0?leaves.Count+" 个结果 · "+reg+" 项注册记录另行确认":leaves.Count+" 个识别结果";
+  var fileLeaves=leaves.Where(n=>n.Finding.Rule.InfoKind!="registry-clean"&&n.Finding.RegistryCandidates.Count==0).ToList();Get<TextBlock>("HeroCaption").Text=quickScan?"可一键处理 · 内置低风险":"可选择处理（含风险项目）";Get<TextBlock>("HeroSizeText").Text=App.FormatSize(fileLeaves.Sum(n=>n.Finding.EligibleBytes));Get<TextBlock>("HeroNote").Text=fileLeaves.Count+" 个识别结果";
   Get<TextBlock>("QuickMenuSize").Text="可一键处理 "+App.FormatSize(leaves.Where(n=>n.Finding.Rule.Quick&&!n.Finding.ManualOverride&&!n.Finding.Rule.Protected).Sum(n=>n.Finding.EligibleBytes));Get<TextBlock>("AdvancedMenuSize").Text="按分类、软件逐项选择";advancedButton.Visibility=quickScan?Visibility.Collapsed:Visibility.Visible;SetMode(advanced);UpdateDisk();
  }
  List<CleanNode> VisibleLeaves(){
@@ -147,12 +153,22 @@ public sealed partial class Controller {
  void RefreshTree(){
   if(tree==null||!hasScanned)return;var visible=VisibleLeaves();foreach(var n in leaves){n.ShowChecks=advanced;n.Depth=2;}treeNodes=new List<CleanNode>();
   foreach(string name in Groups.Names){var inGroup=visible.Where(n=>n.Finding.Rule.Group==name).ToList();if(inGroup.Count==0)continue;var root=new CleanNode{Title=name,Depth=0,Icon=groups.First(g=>g.Name==name).Icon,ShowChecks=advanced,Expanded=name=="软件缓存"||name=="网页缓存",Changed=UpdateSelection};
+   if(name=="保留项目"){
+    var community=inGroup.Where(n=>n.Finding.Rule.Source==Winapp2Store.Url&&(n.Finding.Rule.Category=="软件缓存"||n.Finding.Rule.Category=="网页缓存")).ToList();
+    foreach(var category in community.GroupBy(n=>n.Finding.Rule.Category).OrderBy(g=>g.Key=="软件缓存"?0:1)){
+     var apps=category.GroupBy(n=>n.Finding.Rule.Software??n.Finding.Rule.Title).OrderByDescending(a=>a.Sum(n=>n.Finding.EligibleBytes)).Select(app=>SoftwareNode(app,2)).ToList();root.Children.Add(new CleanNode{Title=category.Key,Depth=1,Children=apps,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection});
+    }
+    inGroup=inGroup.Except(community).ToList();
+   }
    foreach(var app in inGroup.GroupBy(n=>n.Finding.Rule.Software??n.Finding.Rule.Title).OrderByDescending(a=>a.Sum(n=>n.Finding.EligibleBytes))){
     if(name!="软件缓存"&&name!="网页缓存"&&name!="开发缓存"&&app.Count()==1){var leaf=app.First();leaf.Depth=1;root.Children.Add(leaf);}
-    else {var children=app.Where(n=>!n.Finding.Rule.Heuristic).ToList();var unknown=app.Where(n=>n.Finding.Rule.Heuristic).ToList();if(unknown.Count>0){foreach(var n in unknown)n.Depth=3;children.Add(new CleanNode{Title="未知缓存",Depth=2,Children=unknown,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection});}root.Children.Add(new CleanNode{Title=app.Key,Depth=1,Children=children,ShowChecks=advanced,Expanded=search.Text.Length>0||name=="注册表",Changed=UpdateSelection});}
+    else {var appNode=SoftwareNode(app,1);if(name=="注册表")appNode.Expanded=true;root.Children.Add(appNode);}
    }treeNodes.Add(root);
   }
   tree.ItemsSource=treeNodes;Get<TextBlock>("EmptyText").Visibility=visible.Count==0?Visibility.Visible:Visibility.Collapsed;Get<TextBlock>("ResultCount").Text=visible.Count+" 项";UpdateSelection();
+ }
+ CleanNode SoftwareNode(IGrouping<string,CleanNode> app,int depth){
+  var children=app.Where(n=>!n.Finding.Rule.Heuristic).ToList();foreach(var node in children)node.Depth=depth+1;var unknown=app.Where(n=>n.Finding.Rule.Heuristic).ToList();if(unknown.Count>0){foreach(var node in unknown)node.Depth=depth+2;children.Add(new CleanNode{Title="未知缓存",Depth=depth+1,Children=unknown,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection});}return new CleanNode{Title=app.Key,Depth=depth,Children=children,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection};
  }
  void SetMode(bool value){value=value&&!quickScan;advanced=value;simple.Background=App.Brush(value?"#202C36":"#254B49");simple.BorderBrush=App.Brush(value?"#33424E":"#39C5BB");advancedButton.Background=App.Brush(value?"#254B49":"#202C36");advancedButton.BorderBrush=App.Brush(value?"#39C5BB":"#33424E");Get<FrameworkElement>("AdvancedActions").Visibility=riskFilter.Visibility=value?Visibility.Visible:Visibility.Collapsed;Get<TextBlock>("ModeHint").Text=value?"需确认项目默认不选":quickScan?"快速扫描 · 内置低风险项目":"仅处理低风险缓存";RefreshTree();}
  List<Finding> Chosen(){var chosen=leaves.Where(n=>n.Selectable&&(advanced?n.Selected==true:n.Finding.Rule.Quick&&!n.Finding.ManualOverride&&!n.Finding.Rule.Protected)).Select(n=>n.Finding).ToList();if(systemOption!=null&&systemOption.IsChecked==true&&systemFinding!=null&&systemFinding.VirtualItems>0)chosen.Add(systemFinding);return chosen;}
@@ -164,13 +180,18 @@ public sealed partial class Controller {
   if(detailNode==null||detailNode.Finding==null)return;var f=detailNode.Finding;Get<FrameworkElement>("DetailPanel").Visibility=Visibility.Visible;Get<TextBlock>("DetailTitle").Text=f.Rule.Software+" · "+detailNode.Title;Get<TextBlock>("DetailImpact").Text=f.Rule.Description+"\n清理影响："+f.Rule.Impact+(f.ManualOverride?"\n风险删除：会处理原本保留的近期、个人或备份数据，可能导致账号注销、设置重置与记录丢失；始终先备份。":"");Get<TextBlock>("DetailRange").Text=(f.Rule.InfoKind=="registry-clean"?"本项可处理 "+f.RegistryCandidates.Count+" 项。"+f.Extra:(f.Rule.InfoKind=="system-disk-cleanup"?f.Extra:(f.ManualOverride?"自选风险删除，保留策略已解除":"普通候选保留最近 "+f.Rule.Days+" 天")+" · 已读取 "+f.Files+" 个文件 · "+f.Candidates.Count+" 个候选 · "+f.ManualCandidates.Count+" 个保留候选"+(f.Running?" · 使用中":f.Unreadable>0?" · "+f.Unreadable+" 项无法读取":"")+(f.Links>0?" · "+f.Links+" 项链接/只读/云端文件":"")))+(String.IsNullOrEmpty(f.Rule.Detection)?"":"\n识别依据："+f.Rule.Detection);
   Get<TextBox>("DetailPaths").Text=String.Join("\n",f.Rule.Roots.Concat(f.Samples.Take(2)));Get<Button>("OpenFolderButton").Content=f.Rule.InfoKind=="storage"?"Windows 存储设置":"打开位置";Get<Button>("OpenFolderButton").IsEnabled=f.Rule.InfoKind=="storage"||f.Rule.Roots.Length>0;
  }
+#if CLARITY_TESTS
  public void PreviewScan(){var catalog=DiscoveryCatalog.Build(settings,true,CancellationToken.None,null);LastDiscovery=catalog.Discovery;engine=new Engine(catalog.Rules);if(!String.IsNullOrEmpty(settings.RecoveryDirectory))engine.FileBackupDirectory=settings.RecoveryDirectory;Apply(engine.Scan(CancellationToken.None,null));Status("扫描完成");}
+#endif
  async Task CleanAsync(){
   if(busy||phase!="results")return;var chosen=Chosen();if(chosen.Count==0)return;
   bool backed=Get<ComboBox>("CleanPolicy").SelectedIndex==0;
   // Only selected projects with cleanup risks require the confirmation dialog.
   if(RiskConfirmation.Required(chosen)&&(ConfirmCleanup==null||!ConfirmCleanup(chosen,backed)))return;
-  bool quickMode=!advanced&&!chosen.Any(f=>f.Rule.InfoKind=="system-disk-cleanup");cancellation=new CancellationTokenSource();++epoch;SetBusy(true,"clean");engine.UseFileBackup=backed;engine.FileBackupDirectory=settings.RecoveryDirectory.Length>0?settings.RecoveryDirectory:FileRecovery.DefaultDirectory();engine.RegistryBackupDirectory=testMode?Path.Combine(engine.FileBackupDirectory,"registry-test-backups"):BackupDirectory();
+  bool quickMode=!advanced&&!chosen.Any(f=>f.Rule.InfoKind=="system-disk-cleanup");cancellation=new CancellationTokenSource();++epoch;SetBusy(true,"clean");engine.UseFileBackup=backed;engine.FileBackupDirectory=settings.RecoveryDirectory.Length>0?settings.RecoveryDirectory:FileRecovery.DefaultDirectory();engine.RegistryBackupDirectory=BackupDirectory();
+#if CLARITY_TESTS
+  if(testMode)engine.RegistryBackupDirectory=Path.Combine(engine.FileBackupDirectory,"registry-test-backups");
+#endif
   try{lastResult=await Task.Run(()=>engine.Clean(chosen,quickMode,cancellation.Token,(done,total,title)=>Window.Dispatcher.BeginInvoke(new Action(()=>{if(!busy||phase!="clean")return;progress.IsIndeterminate=done<0;progress.Value=total>0?100.0*done/total:0;Get<TextBlock>("PercentText").Text=done<0?"系统清理":((int)progress.Value)+"%";Get<TextBlock>("ProgressLabel").Text=done<0?title:"正在清理 · "+title;Get<TextBlock>("ProgressCount").Text=done<0?"由 Windows 处理，完成后自动关闭系统工具":done+" / "+total+" 个文件";}))));if(lastResult.SystemCleanupStarted)systemOption.IsChecked=false;SaveLog();var refreshed=await Task.Run(()=>engine.Scan(CancellationToken.None,null));Apply(refreshed);string result=(lastResult.Cancelled?"已停止":"清理完成")+" · 移出 "+App.FormatSize(lastResult.Bytes)+" · 估算释放 "+App.FormatSize(lastResult.EstimatedFreedBytes)+(lastResult.BackupFiles>0?" · 已备份":"")+(lastResult.RegistryDeleted>0?" / "+lastResult.RegistryDeleted+" 项注册表":"")+" · 跳过 "+lastResult.Skipped+" 项"+(lastResult.Failed>0?" · 失败 "+lastResult.Failed+" 项":"");if(lastResult.SystemCleanupStarted)result+=lastResult.SystemCleanupCompleted?" · 系统清理已结束":" · 系统清理未完成";Status(result);Get<TextBlock>("StatusText").ToolTip=lastResult.SystemCleanupMessage;ShowComplete();}
   catch(Exception ex){lastResult=new CleanResult{Failed=1,PermissionDenied=ex is UnauthorizedAccessException?1:0};Status("清理停止："+ex.Message);}finally{SetBusy(false,"");cancellation.Dispose();}OfferAdministrator(lastResult);
  }
@@ -182,20 +203,39 @@ public sealed partial class Controller {
   long remaining=leaves.Sum(n=>n.Finding.EligibleBytes);string note="跳过 "+lastResult.Skipped+" 项 · 失败 "+lastResult.Failed+" 项"+(remaining>0?" · 仍有 "+App.FormatSize(remaining)+" 可自选内容（含风险项目）":"");if(lastResult.BackupFiles>0&&lastResult.EstimatedFreedBytes==0)note+="\n备份与原文件在同一磁盘；清空备份后才释放对应空间。";if(lastResult.SystemCleanupStarted)note+="\n"+lastResult.SystemCleanupMessage;Get<TextBlock>("CompleteRemaining").Text=note;UpdateDisk();PlayCompletion();
  }
  static string BackupDirectory(){return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"ClearSpace","RegistryBackups");}
- void SaveLog(){if(testMode)return;try{CleaningHistory.Save(lastResult);}catch(Exception ex){Status("清理记录未保存："+ex.Message);}}
+ void SaveLog(){
+#if CLARITY_TESTS
+  if(testMode)return;
+#endif
+  try{CleaningHistory.Save(lastResult);}catch(Exception ex){Status("清理记录未保存："+ex.Message);}}
 
- void OpenFolder(){if(detailNode==null)return;var r=detailNode.Finding.Rule;try{if(r.InfoKind=="storage"){Process.Start(new ProcessStartInfo("ms-settings:storagesense"){UseShellExecute=true});return;}string target=r.Roots.FirstOrDefault(p=>Directory.Exists(p)||File.Exists(p));if(target!=null)Process.Start(new ProcessStartInfo("explorer.exe",File.Exists(target)?"/select,\""+target+"\"":"\""+target+"\""){UseShellExecute=true});}catch(Exception ex){Status(ex.Message);}}
+ void OpenFolder(){if(detailNode==null)return;var r=detailNode.Finding.Rule;try{if(r.InfoKind=="storage"){Process.Start(new ProcessStartInfo("ms-settings:storagesense"){UseShellExecute=true});return;}string target=r.Roots.FirstOrDefault(p=>Directory.Exists(p)||File.Exists(p));if(target!=null)Process.Start(new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"explorer.exe"),File.Exists(target)?"/select,\""+target+"\"":"\""+target+"\""){UseShellExecute=true});}catch(Exception ex){Status(ex.Message);}}
  void Elevate(){try{Process.Start(new ProcessStartInfo(Assembly.GetExecutingAssembly().Location){UseShellExecute=true,Verb="runas",WorkingDirectory=AppDomain.CurrentDomain.BaseDirectory});Window.Close();}catch{Status("仍以普通账户运行");}}
 }
 public static class App {
  public static string DisplayName{get{return "Clarity";}}
+ internal static object LoadView(string name){
+  var assembly=Assembly.GetExecutingAssembly();
+  using(var stream=assembly.GetManifestResourceStream(name)){
+   if(stream==null)throw new IOException("界面资源缺失："+name);
+   using(var reader=new StreamReader(stream)){
+    // Embedded views resolve their local controls from the assembly hosting them.
+    string xaml=reader.ReadToEnd().Replace("clr-namespace:ClearSpace;assembly=Clarity","clr-namespace:ClearSpace;assembly="+assembly.GetName().Name);
+    return XamlReader.Parse(xaml);
+   }
+  }
+ }
  public static BitmapSource LoadIcon(){using(var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("ClearSpace.AppIcon.ico")){if(stream==null)throw new IOException("程序图标资源缺失");var icon=BitmapDecoder.Create(stream,BitmapCreateOptions.PreservePixelFormat,BitmapCacheOption.OnLoad).Frames.OrderByDescending(f=>f.PixelWidth).First();icon.Freeze();return icon;}}
  public static Brush Brush(string color){return (Brush)new BrushConverter().ConvertFromString(color);}
  public static bool IsAdmin(){try{return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);}catch{return false;}}
  public static string FormatSize(long bytes){if(bytes>=1024L*1024*1024)return (bytes/(1024.0*1024*1024)).ToString("0.00")+" GB";if(bytes>=1024*1024)return (bytes/(1024.0*1024)).ToString("0.0")+" MB";if(bytes>=1024)return (bytes/1024.0).ToString("0.0")+" KB";return bytes+" B";}
+#if CLARITY_TESTS
  public static void WriteJson(string path,object data){File.WriteAllText(path,new JavaScriptSerializer{MaxJsonLength=Int32.MaxValue,RecursionLimit=100}.Serialize(data),new UTF8Encoding(false));}
+#endif
  [STAThread]public static int Main(string[] args){try{
   if(args.Length==2&&args[0]=="--apply-update")return UpdateLauncher.Apply(args[1]);
+#if CLARITY_TESTS
+  if(args.Length==3&&args[0]=="--production-self-test")return ProductionArtifactTests.Run(args[1],args[2]);
   if(args.Length==2&&args[0]=="--software-update-probe"){var release=SoftwareUpdates.Check(CancellationToken.None);WriteJson(args[1],new{release.Version,release.Build,release.Notes,Assets=release.Assets.Select(a=>new{a.Name,a.Size,a.Url,a.SHA256})});return 0;}
   if(args.Length==2&&args[0]=="--common-rules-self-test")return CommonRulesTests.Run(args[1]);
   if(args.Length==2&&args[0]=="--builtin-catalog"){var rules=RuleBook.Create();WriteJson(args[1],new{Version=ReleaseVersion.Display,RuleCount=rules.Count,QuickCount=rules.Count(ScanModes.IsQuickRule),Catalog=rules.Select(r=>new{r.Id,r.Title,Group=r.Group,r.Software,r.Part,r.Quick,r.Protected,r.ForceBackup,r.AllowManual,r.Privacy,r.InfoKind,r.Days,r.Source,r.Description,r.Impact})});return 0;}
@@ -208,17 +248,28 @@ public static class App {
   if(args.Length==2&&args[0]=="--winapp2-report"){var pack=new Winapp2Store().Current();var report=Winapp2Adapter.Analyze(pack,Winapp2Environment.Windows());File.WriteAllLines(args[1],new[]{"Winapp2 "+pack.Version+" / "+report.Summary,"SHA256 "+pack.Hash}.Concat(report.Lines),new UTF8Encoding(true));return 0;}
   if(args.Length==2&&args[0]=="--make-rule-template"){WriteJson(args[1],RuleStore.Defaults());return 0;}
   if(args.Length==2&&(args[0]=="--scan-report"||args[0]=="--discovery-report")){var catalog=DiscoveryCatalog.Build(CleanerSettings.Load(),true,CancellationToken.None,null);var rules=catalog.Rules;var findings=new Engine(rules).Scan(CancellationToken.None,null);WriteJson(args[1],new{ScannedAt=DateTime.Now.ToString("o"),RuleCount=rules.Count,RuleVersion=catalog.RuleVersion,Trust=catalog.Trust,Discovery=catalog.Discovery,Catalog=rules.Select(r=>new{r.Id,r.Title,Group=r.Group,r.Software,r.Part,r.Quick,r.Protected,r.Privacy,r.Heuristic,r.InfoKind,r.Days,r.Source,r.Description,r.Impact,r.Detection}),Findings=findings.Select(f=>new{f.Rule.Id,f.Rule.Title,Group=f.Rule.Group,f.Rule.Software,f.TotalBytes,f.EligibleBytes,f.ManualBytes,ManualFiles=f.ManualCandidates.Count,f.Files,f.Running,f.Unreadable,f.Recent,f.Rule.Protected,f.Rule.Heuristic,RegistryItems=f.RegistryCandidates.Count,f.Extra})});return 0;}
+#else
+  if(args.Length!=0)throw new ArgumentException("Unsupported launch arguments.");
+#endif
   var application=new Application{ShutdownMode=ShutdownMode.OnMainWindowClose};var c=new Controller();application.MainWindow=c.Window;
   if(args.Length==0){c.PrepareStartup();c.EnableAutomaticRuleUpdates();c.EnableAutomaticSoftwareUpdates();}
+#if CLARITY_TESTS
   if(args.Length==2&&args[0]=="--ui-self-test"){Directory.CreateDirectory(args[1]);Hide(c.Window);c.Window.Loaded+=async(s,e)=>{try{var tests=await c.VerifyUI(args[1]);File.WriteAllLines(Path.Combine(args[1],"ui-test-results.txt"),tests.Concat(new[]{"ALL "+tests.Count+" UI CHECKS PASSED"}));c.Window.Close();}catch(Exception ex){File.WriteAllText(Path.Combine(args[1],"ui-test-results.txt"),ex.ToString());application.Shutdown(1);}};}
   else if(args.Length==2&&args[0].StartsWith("--preview")){
    if(args[0]!="--preview-start"&&args[0]!="--preview-scanning")c.PreviewScan();if(args[0]=="--preview"||args[0]=="--preview-small"||args[0]=="--preview-registry")c.Get<Button>("AdvancedButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));if(args[0]=="--preview-small"){c.Window.Width=1080;c.Window.Height=740;}if(args[0]=="--preview-registry"){c.Get<TextBox>("SearchBox").Text="失效";c.Get<Button>("ExpandButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));}if(args[0]=="--preview-rescan")c.Get<Button>("ScanButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Hide(c.Window);
    if(args[0]=="--preview-scanning"){c.Window.Loaded+=async(s,e)=>{var task=c.ScanAsync();await Task.Delay(300);Render(c.Window,args[1]);c.Get<Button>("ScanButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await task;c.Window.Close();};}
    else c.Window.Loaded+=(s,e)=>c.Window.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle,new Action(()=>{if(args[0]=="--preview-rules"||args[0]=="--preview-apps"||args[0]=="--preview-recovery")c.PreviewRules(args[1],args[0]=="--preview-apps"?1:args[0]=="--preview-recovery"?2:0);else Render(c.Window,args[1]);c.Window.Close();}));
   }
+#endif
   application.Run(c.Window);return 0;
- }catch(Exception ex){if(args.Length>=2){try{File.WriteAllText(args[1]+".error.txt",ex.ToString());}catch{}}else UiText.Show("无法启动："+ex.Message,"澄净");return 1;}}
+ }catch(Exception ex){
+#if CLARITY_TESTS
+  if(args.Length>=2){try{File.WriteAllText(args[1]+".error.txt",ex.ToString());}catch{}}else
+#endif
+  UiText.Show("无法启动："+ex.Message,"澄净");return 1;}}
+#if CLARITY_TESTS
  static void Hide(Window w){w.ShowInTaskbar=false;w.ShowActivated=false;w.Left=-10000;w.Top=-10000;w.WindowStartupLocation=WindowStartupLocation.Manual;}
  public static void Render(Window w,string path){w.UpdateLayout();var surface=(FrameworkElement)w.Content;var bitmap=new RenderTargetBitmap((int)surface.ActualWidth,(int)surface.ActualHeight,96,96,PixelFormats.Pbgra32);bitmap.Render(surface);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using(var stream=File.Create(path))encoder.Save(stream);}
+#endif
 }
 }

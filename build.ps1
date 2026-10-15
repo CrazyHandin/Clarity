@@ -1,4 +1,4 @@
-param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'))
+param([string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'),[switch]$WithTests)
 $ErrorActionPreference = 'Stop'
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
@@ -13,6 +13,9 @@ $assemblyVersion = $metadata.NumericVersion
 $releaseTag = $metadata.Tag
 $fullVersion = $metadata.FullVersion
 $buildNumber = $metadata.Build
+$isBetaLiteral = $metadata.IsBeta.ToString().ToLowerInvariant()
+$winapp2 = Join-Path $PSScriptRoot 'rules/Winapp2.ini'
+$winapp2Hash = (Get-FileHash -LiteralPath $winapp2 -Algorithm SHA256).Hash.ToLowerInvariant()
 $highlightsChinese = ConvertTo-Json -InputObject ([string]$metadata.Highlights.'zh-CN') -Compress
 $highlightsEnglish = ConvertTo-Json -InputObject ([string]$metadata.Highlights.en) -Compress
 $generatedVersion = Join-Path $OutputDirectory 'ReleaseVersion.g.cs'
@@ -24,7 +27,7 @@ using System.Reflection;
 [assembly: AssemblyVersion("$assemblyVersion")]
 [assembly: AssemblyFileVersion("$assemblyVersion")]
 [assembly: AssemblyInformationalVersion("$fullVersion")]
-namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; public const int Build = $buildNumber; public const string FullVersion = "$fullVersion"; public const string HighlightsChinese = $highlightsChinese; public const string HighlightsEnglish = $highlightsEnglish; } }
+namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; public const bool IsBeta = $isBetaLiteral; public const int Build = $buildNumber; public const string FullVersion = "$fullVersion"; public const string HighlightsChinese = $highlightsChinese; public const string HighlightsEnglish = $highlightsEnglish; public const string Winapp2SHA256 = "$winapp2Hash"; } }
 "@
 [IO.File]::WriteAllText($generatedVersion,$versionSource,[Text.UTF8Encoding]::new($false))
 $compilerArguments = @(
@@ -50,22 +53,51 @@ $resources = [ordered]@{
     'assets/Clarity.ico' = 'ClearSpace.AppIcon.ico'
     'rules/rule-public-key.xml' = 'ClearSpace.rule-public-key.xml'
     'rules/BundledRules.signed.json' = 'ClearSpace.BundledRules.signed.json'
-    'rules/Winapp2.ini' = 'ClearSpace.Winapp2.ini'
 }
 foreach ($resource in $resources.GetEnumerator()) {
     $path = Join-Path $PSScriptRoot $resource.Key
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build resource: $($resource.Key)" }
     $compilerArguments += "/resource:$path,$($resource.Value)"
 }
-$sourceRoots = @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests'))
-$sources = @(Get-ChildItem -LiteralPath $sourceRoots -Filter '*.cs' -Recurse -File | Where-Object { $_.FullName -ne $generatedVersion } | Sort-Object FullName)
+$sources = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'src') -Filter '*.cs' -Recurse -File | Sort-Object FullName)
+$testSources = @()
+if ($WithTests) { $testSources = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'tests') -Filter '*.cs' -Recurse -File | Sort-Object FullName) }
 if ($sources.Count -eq 0) { throw 'No C# source files found.' }
-$compilerArguments += @($sources.FullName) + @($generatedVersion)
+$inputPaths = @($sources.FullName) + @($testSources.FullName) + @($resources.Keys | ForEach-Object { Join-Path $PSScriptRoot $_ }) + @('build.ps1','version.json','scripts/Get-ReleaseVersion.ps1','assets/app.manifest','assets/Clarity.ico','assets/Clarity.exe.config','rules/Winapp2.ini' | ForEach-Object { Join-Path $PSScriptRoot $_ })
+$inputPaths = @($inputPaths | Where-Object { $_ })
+function Get-BuildInputs {
+    foreach ($path in ($inputPaths | Sort-Object -Unique)) {
+        [ordered]@{Path=$path.Substring($PSScriptRoot.TrimEnd('\').Length+1).Replace('\','/');SHA256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash}
+    }
+}
+$inputsBefore = @(Get-BuildInputs)
+$productionArguments = $compilerArguments + @($sources.FullName) + @($generatedVersion)
+$testExe = Join-Path $OutputDirectory '_verification/Clarity.Tests.exe'
+function Copy-BundledRules([string]$Base) {
+    $directory = Join-Path $Base 'rules'
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $target = Join-Path $directory 'Winapp2.ini'
+    Copy-Item -LiteralPath $winapp2 -Destination $target -Force
+    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $winapp2Hash) { throw 'Bundled rule file changed during compilation.' }
+}
 try {
-    & $compiler @compilerArguments
+    & $compiler @productionArguments
     if ($LASTEXITCODE -ne 0) { throw 'Compilation failed.' }
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets/Clarity.exe.config') -Destination ($exe+'.config') -Force
+    Copy-BundledRules $OutputDirectory
+    if ($WithTests) {
+        New-Item -ItemType Directory -Path (Split-Path -Parent $testExe) -Force | Out-Null
+        $testArguments = @($compilerArguments | Where-Object { -not $_.StartsWith('/out:',[StringComparison]::OrdinalIgnoreCase) }) + @("/out:$testExe",'/define:CLARITY_TESTS') + @($sources.FullName) + @($testSources.FullName) + @($generatedVersion)
+        & $compiler @testArguments
+        if ($LASTEXITCODE -ne 0) { throw 'Test-host compilation failed.' }
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets/Clarity.exe.config') -Destination ($testExe+'.config') -Force
+        Copy-BundledRules (Split-Path -Parent $testExe)
+    }
+    if (($inputsBefore | ConvertTo-Json -Depth 3 -Compress) -cne (@(Get-BuildInputs) | ConvertTo-Json -Depth 3 -Compress)) { throw 'Source inputs changed during compilation.' }
+    $proof = [ordered]@{Schema=1;Version=$fullVersion;CompilerSHA256=(Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash;ExecutableSHA256=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash;Inputs=$inputsBefore;BundledFiles=@([ordered]@{Path='rules/Winapp2.ini';SHA256=$winapp2Hash});TestHost=$null}
+    if ($WithTests) { $proof.TestHost=[ordered]@{Path='_verification/Clarity.Tests.exe';SHA256=(Get-FileHash -LiteralPath $testExe -Algorithm SHA256).Hash;Define='CLARITY_TESTS'} }
+    [IO.File]::WriteAllText((Join-Path $OutputDirectory 'build-manifest.json'),($proof | ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 } finally {
     Remove-Item -LiteralPath $generatedVersion -Force
 }
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets/Clarity.exe.config') -Destination $OutputDirectory -Force
 Get-Item -LiteralPath $exe | Select-Object FullName,Length

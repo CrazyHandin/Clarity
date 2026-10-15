@@ -37,8 +37,7 @@ public static class FileRecovery {
  public static int Restore(string manifest,bool clearRestored){var result=RestoreDetailed(manifest,clearRestored);if(result.Failed>0)throw new IOException(String.Join("；",result.Errors.Take(3)));return result.Restored;}
  public static RestoreResult RestoreDetailed(string manifest,bool clearRestored){
   string full=Path.GetFullPath(manifest),root=Path.GetDirectoryName(full);var result=new RestoreResult();bool removeIndex=false;
-  if(!Engine.SafeAncestors(full))throw new IOException("备份位置包含链接");string lockPath=Path.Combine(root,"recovery.csbackup.lock");if(File.Exists(lockPath)&&(File.GetAttributes(lockPath)&FileAttributes.ReparsePoint)!=0)throw new IOException("备份锁文件包含链接");
-  using(var gate=new FileStream(lockPath,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None,4096,FileOptions.DeleteOnClose)){
+  using(var gate=OpenBatchLock(full)){
    var entries=Read(full);PrepareJournal(full);foreach(var e in entries){try{
     if(!e.Restored&&(File.Exists(e.Original)||Directory.Exists(e.Original))){result.Skipped++;continue;}
     string stored=Path.Combine(root,e.Stored);if(e.Restored&&!OriginalMatches(e)){result.Skipped++;continue;}
@@ -68,6 +67,21 @@ public static class FileRecovery {
   if(!System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(root),"^[0-9]{8}-[0-9]{6}-[0-9a-f]{32}$"))return;
   for(int attempt=0;attempt<4;attempt++)try{if(!Directory.Exists(root)||!Engine.SafeAncestors(Path.Combine(root,"probe"))||Directory.GetFileSystemEntries(root).Length!=0)return;Directory.Delete(root,false);return;}catch(IOException){Thread.Sleep(40*(attempt+1));}catch(UnauthorizedAccessException){return;}
  }
- public static void Purge(string manifest){var entries=Read(manifest);string root=Path.GetDirectoryName(Path.GetFullPath(manifest));var files=entries.Select(e=>Path.Combine(root,e.Stored)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();foreach(string file in files){if(!File.Exists(file))continue;if(!Engine.SafeAncestors(file)||(File.GetAttributes(file)&FileAttributes.ReparsePoint)!=0)throw new IOException("备份位置包含链接");}foreach(string file in files)if(File.Exists(file))File.Delete(file);File.Delete(manifest);RemoveEmptyBatch(root);}
+ internal static SafeFileHandle OpenBatchLock(string manifest){
+  if(!Engine.SafeAncestors(manifest))throw new IOException("备份位置包含链接");string path=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(manifest)),"recovery.csbackup.lock");
+  var handle=Native.CreateFile(path,0xC0010080u,0,IntPtr.Zero,4,0x200000,IntPtr.Zero);
+  try{Native.INFO info;if(handle.IsInvalid||!Native.GetFileInformationByHandle(handle,out info)||(info.Attributes&(Native.UnsafeAttributes|0x10|1))!=0||info.Links!=1||info.Bytes!=0||!Engine.Normalize(Native.FinalPath(handle)).Equals(Engine.Normalize(path),StringComparison.OrdinalIgnoreCase))throw new IOException("备份正在处理中，或锁文件位置无法验证");var disposition=new Native.DISPOSITION{Delete=true};if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION))))throw new IOException("无法安全锁定备份");return handle;}catch{handle.Dispose();throw;}
+ }
+ static void DeleteOwnedBackup(string file,bool missingAllowed){
+  if(!Engine.SafeAncestors(file))throw new IOException("备份位置包含链接");using(var handle=Native.CreateFile(file,0x10080u,1,IntPtr.Zero,3,0x200000,IntPtr.Zero)){
+   if(handle.IsInvalid){int error=Marshal.GetLastWin32Error();if(missingAllowed&&(error==2||error==3))return;throw new IOException("无法清除备份文件（"+error+"）");}
+   Native.INFO info;if(!Native.GetFileInformationByHandle(handle,out info)||(info.Attributes&(Native.UnsafeAttributes|0x10|1))!=0||info.Links!=1||!Engine.Normalize(Native.FinalPath(handle)).Equals(Engine.Normalize(file),StringComparison.OrdinalIgnoreCase))throw new IOException("备份文件包含链接或位置发生变化");var disposition=new Native.DISPOSITION{Delete=true};if(!Native.SetFileInformationByHandle(handle,4,ref disposition,(uint)Marshal.SizeOf(typeof(Native.DISPOSITION))))throw new IOException("备份文件占用或无删除权限");
+  }
+ }
+ public static void Purge(string manifest){
+  string full=Path.GetFullPath(manifest),root=Path.GetDirectoryName(full);using(var gate=OpenBatchLock(full)){
+   var entries=Read(full);PrepareJournal(full);foreach(var entry in entries){DeleteOwnedBackup(Path.Combine(root,entry.Stored),true);entry.Removed=true;AppendState(full,entry);}DeleteOwnedBackup(full,false);
+  }RemoveEmptyBatch(root);
+ }
 }
 }

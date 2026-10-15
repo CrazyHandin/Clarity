@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shell;
 namespace ClearSpace {
 public sealed class SoftwareUpdateView {
  public Window Window;public ProgressBar Progress;public TextBlock ProgressText,State;public Button Install,Cancel,Later;
@@ -10,10 +11,11 @@ public static class UpdateDialogs {
  static TextBlock Text(string value,int size=15){return new TextBlock{Text=value,FontSize=size,Foreground=App.Brush("#DFEAF2"),TextWrapping=TextWrapping.Wrap,LineHeight=size+9};}
  static void Name(Window window,FrameworkElement element,string name){element.Name=name;window.RegisterName(name,element);}
  static Window Create(Window owner,string title,out Grid body){
-  var window=new Window{Owner=owner,Title=UiText.T(title),Icon=owner.Icon,Width=660,Height=470,MinWidth=520,MinHeight=360,WindowStyle=WindowStyle.None,ResizeMode=ResizeMode.CanResize,WindowStartupLocation=WindowStartupLocation.CenterOwner,ShowInTaskbar=false,Background=App.Brush("#161D25"),Foreground=App.Brush("#DFEAF2"),FontFamily=owner.FontFamily,FontSize=14,Resources=owner.Resources};
+  var window=new Window{Owner=owner,Title=UiText.T(title),Icon=owner.Icon,Width=660,Height=470,MinWidth=520,MinHeight=360,WindowStyle=WindowStyle.None,ResizeMode=ResizeMode.CanResize,WindowStartupLocation=WindowStartupLocation.CenterOwner,ShowInTaskbar=false,Background=App.Brush("#161D25"),Foreground=App.Brush("#DFEAF2"),FontFamily=owner.FontFamily,FontSize=14,Resources=owner.Resources,UseLayoutRounding=true};
+  WindowChrome.SetWindowChrome(window,new WindowChrome{CaptionHeight=52,ResizeBorderThickness=new Thickness(6),GlassFrameThickness=new Thickness(0),CornerRadius=new CornerRadius(10),UseAeroCaptionButtons=false});
   window.Width=Math.Min(window.Width,Math.Max(520,SystemParameters.WorkArea.Width-32));window.Height=Math.Min(window.Height,Math.Max(360,SystemParameters.WorkArea.Height-40));NameScope.SetNameScope(window,new NameScope());UiMotion.SetEnabled(window,UiMotion.GetEnabled(owner));
   var surface=new Grid();surface.RowDefinitions.Add(new RowDefinition{Height=new GridLength(52)});surface.RowDefinitions.Add(new RowDefinition());window.Content=new Border{Background=App.Brush("#161D25"),BorderBrush=App.Brush("#405563"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(10),Child=surface};
-  var caption=new Grid{Background=App.Brush("#1D2A34")};caption.ColumnDefinitions.Add(new ColumnDefinition());caption.ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});var heading=Text(title,17);heading.Margin=new Thickness(20,0,0,0);heading.VerticalAlignment=VerticalAlignment.Center;caption.Children.Add(heading);var close=new Button{Content="×",FontSize=22,Width=50,Background=System.Windows.Media.Brushes.Transparent,BorderThickness=new Thickness(0),Padding=new Thickness(0)};Name(window,close,"DialogClose");close.Click+=(s,e)=>window.Close();Grid.SetColumn(close,1);caption.Children.Add(close);caption.MouseLeftButtonDown+=(s,e)=>{if(e.ChangedButton==MouseButton.Left)window.DragMove();};surface.Children.Add(caption);
+  var caption=new Grid{Background=App.Brush("#1D2A34")};Name(window,caption,"DialogCaption");caption.ColumnDefinitions.Add(new ColumnDefinition());caption.ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});var heading=Text(title,17);heading.Margin=new Thickness(20,0,0,0);heading.VerticalAlignment=VerticalAlignment.Center;caption.Children.Add(heading);var close=new Button{Content="×",FontSize=22,Width=50,Background=System.Windows.Media.Brushes.Transparent,BorderThickness=new Thickness(0),Padding=new Thickness(0)};WindowChrome.SetIsHitTestVisibleInChrome(close,true);Name(window,close,"DialogClose");close.Click+=(s,e)=>window.Close();Grid.SetColumn(close,1);caption.Children.Add(close);surface.Children.Add(caption);
   body=new Grid{Margin=new Thickness(24,20,24,22)};Grid.SetRow(body,1);surface.Children.Add(body);var reveal=body;window.ContentRendered+=(s,e)=>UiMotion.Reveal(reveal,180,6);return window;
  }
  public static Window Highlights(Window owner){

@@ -65,6 +65,7 @@ Name: "{app}\Logs"; Permissions: users-modify
 Source: "{#PayloadDir}\Clarity.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\Clarity.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\使用说明.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\rules\Winapp2.ini"; DestDir: "{app}\rules"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Clarity"; Filename: "{app}\Clarity.exe"; WorkingDir: "{app}"
