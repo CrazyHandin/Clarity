@@ -30,6 +30,5 @@ public sealed partial class Controller {
  UiNotice notice;
  void Status(string message){Get<TextBlock>("StatusText").Text=message;if(notice!=null)notice.Show(message);}
  public void Notify(string message){if(notice!=null)notice.Show(message);}
- public void PlayStartup(){UiMotion.Reveal(Get<Grid>("MainLayout"),280);}
 }
 }
