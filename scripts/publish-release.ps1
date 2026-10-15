@@ -35,7 +35,9 @@ $records = Invoke-Gh -Arguments @('api',"repos/$Repository/releases?per_page=100
 $record = @($records | Where-Object tag_name -eq $tag) | Select-Object -First 1
 if (-not $record) {
     Invoke-Gh -Arguments @('release','create',$tag,'--repo',$Repository,'--verify-tag','--draft','--title',"Clarity $tag",'--notes-file',$NotesFile) | Out-Null
-    $record = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/tags/$tag") | Out-String | ConvertFrom-Json
+    $records = Invoke-Gh -Arguments @('api',"repos/$Repository/releases?per_page=100",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
+    $record = @($records | Where-Object tag_name -eq $tag) | Select-Object -First 1
+    if (-not $record) { throw 'The release draft could not be located.' }
 }
 $maximum = 0
 foreach ($asset in $record.assets) { if ($asset.name -match ('^Clarity-'+[regex]::Escape($tag)+'-build([0-9]+)-')) { $maximum = [Math]::Max($maximum,[int]$Matches[1]) } }
@@ -53,7 +55,7 @@ foreach ($name in $immutable) {
 Invoke-Gh -Arguments @('release','upload',$tag,(Join-Path $OutputRoot 'Clarity-update.json'),'--clobber','--repo',$Repository) | Out-Null
 $confirmed = $false
 for ($attempt=0; $attempt -lt 6; $attempt++) {
-    $record = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/tags/$tag",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
+    $record = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/$($record.id)",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
     $confirmed = $true
     foreach ($name in $names) {
         $asset = @($record.assets | Where-Object name -eq $name)
