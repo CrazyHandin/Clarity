@@ -1,5 +1,9 @@
 {
   "channel": "beta",
   "number": 20,
-  "build": 1
+  "build": 2,
+  "highlights": {
+    "zh-CN": "新增更新提示弹窗与加载反馈，修复检查更新时的 403 错误。",
+    "en": "Added update dialogs and loading feedback, and fixed HTTP 403 errors when checking for updates."
+  }
 }

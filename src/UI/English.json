@@ -883,5 +883,14 @@
   "更新来自 CrazyHandin/Clarity 的 GitHub Release。下载后核对 SHA-256；安装版自动升级，便携版自动替换程序文件并重新启动。": "Updates come from GitHub Releases in CrazyHandin/Clarity. Downloads are verified with SHA-256. Installed editions upgrade automatically; portable editions replace program files and restart.",
   "打开记录文件夹": "Open history folder",
   "本版更新": "What's new",
-  "新增软件在线更新与内部构建识别；清理记录改为自动保存，并完善备份恢复与规则管理。": "Added online software updates and internal build detection, automatic cleanup history, and improvements to backup recovery and rule management."
+  "新增软件在线更新与内部构建识别；清理记录改为自动保存，并完善备份恢复与规则管理。": "Added online software updates and internal build detection, automatic cleanup history, and improvements to backup recovery and rule management.",
+  "本版更新内容": "What's new in this version",
+  "发现新版本": "New version available",
+  "稍后": "Later",
+  "正在取消下载…": "Cancelling download…",
+  "更新服务器拒绝访问，请稍后重试或检查网络连接（HTTP 403）。": "The update server refused access. Try again later or check your connection (HTTP 403).",
+  "更新请求过于频繁，请稍后重试（HTTP 429）。": "Too many update requests. Try again later (HTTP 429).",
+  "暂未找到软件更新，请稍后重试（HTTP 404）。": "The software update is not available yet. Try again later (HTTP 404).",
+  "无法连接更新服务器，请稍后重试。": "Cannot connect to the update server. Try again later.",
+  "新增更新提示弹窗与加载反馈，修复检查更新时的 403 错误。": "Added update dialogs and loading feedback, and fixed HTTP 403 errors when checking for updates."
 }

@@ -13,6 +13,8 @@ $assemblyVersion = $metadata.NumericVersion
 $releaseTag = $metadata.Tag
 $fullVersion = $metadata.FullVersion
 $buildNumber = $metadata.Build
+$highlightsChinese = ConvertTo-Json -InputObject ([string]$metadata.Highlights.'zh-CN') -Compress
+$highlightsEnglish = ConvertTo-Json -InputObject ([string]$metadata.Highlights.en) -Compress
 $generatedVersion = Join-Path $OutputDirectory 'ReleaseVersion.g.cs'
 $versionSource = @"
 using System.Reflection;
@@ -22,7 +24,7 @@ using System.Reflection;
 [assembly: AssemblyVersion("$assemblyVersion")]
 [assembly: AssemblyFileVersion("$assemblyVersion")]
 [assembly: AssemblyInformationalVersion("$fullVersion")]
-namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; public const int Build = $buildNumber; public const string FullVersion = "$fullVersion"; } }
+namespace ClearSpace { public static class ReleaseVersion { public const string Display = "$releaseTag"; public const int Build = $buildNumber; public const string FullVersion = "$fullVersion"; public const string HighlightsChinese = $highlightsChinese; public const string HighlightsEnglish = $highlightsEnglish; } }
 "@
 [IO.File]::WriteAllText($generatedVersion,$versionSource,[Text.UTF8Encoding]::new($false))
 $compilerArguments = @(

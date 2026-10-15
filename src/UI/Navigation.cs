@@ -32,7 +32,7 @@ public sealed partial class Controller {
   if(pages.Count>0){ShowNavigationPage(pages[pages.Count-1]);return;}
   var host=Get<ContentControl>("PageHost");host.Content=null;host.Visibility=Visibility.Collapsed;settingsView=null;Get<Grid>("MainLayout").Visibility=Visibility.Visible;UiText.Attach(Window);UiMotion.Reveal(Get<Grid>("MainLayout"));
  }
- void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify,OpenSoftwareUpdates));RefreshUpdateBadges();}
+ void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),CopyVersion,OpenProject,Notify,()=>{LastSoftwareOperation=CheckSoftwareUpdatesAsync(true);},OpenReleaseNotes));RefreshUpdateBadges();RefreshAboutUpdateState();}
  bool NavigationCanClose(){return settingsView==null||settingsView.TryLeave();}
 }
 }

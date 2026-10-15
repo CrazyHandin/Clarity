@@ -196,6 +196,7 @@ public static class App {
  public static void WriteJson(string path,object data){File.WriteAllText(path,new JavaScriptSerializer{MaxJsonLength=Int32.MaxValue,RecursionLimit=100}.Serialize(data),new UTF8Encoding(false));}
  [STAThread]public static int Main(string[] args){try{
   if(args.Length==2&&args[0]=="--apply-update")return UpdateLauncher.Apply(args[1]);
+  if(args.Length==2&&args[0]=="--software-update-probe"){var release=SoftwareUpdates.Check(CancellationToken.None);WriteJson(args[1],new{release.Version,release.Build,release.Notes,Assets=release.Assets.Select(a=>new{a.Name,a.Size,a.Url,a.SHA256})});return 0;}
   if(args.Length==2&&args[0]=="--common-rules-self-test")return CommonRulesTests.Run(args[1]);
   if(args.Length==2&&args[0]=="--builtin-catalog"){var rules=RuleBook.Create();WriteJson(args[1],new{Version=ReleaseVersion.Display,RuleCount=rules.Count,QuickCount=rules.Count(ScanModes.IsQuickRule),Catalog=rules.Select(r=>new{r.Id,r.Title,Group=r.Group,r.Software,r.Part,r.Quick,r.Protected,r.ForceBackup,r.AllowManual,r.Privacy,r.InfoKind,r.Days,r.Source,r.Description,r.Impact})});return 0;}
   if(args.Length==2&&args[0]=="--self-test")return SelfTest.Run(args[1]);if(args.Length==2&&args[0]=="--v2-self-test")return V2Tests.Run(args[1]);

@@ -31,7 +31,7 @@ Administrator restart is under **Settings & Backups → General** and is also of
 
 Settings, About, and the built-in user guide open inside the main window. Returning to cleanup preserves scan results and selections. About contains version information, a Beta notice, and third-party attribution.
 
-Open **About → Software updates** to read the update summary and download an upgrade. New versions add red badges to Settings and About. The version and internal build number are shown in About.
+Click **Check for software updates** in About. Available updates open in a small window with release notes and download progress. New versions add red badges to Settings and About. **What's new in this version** shows the current version's summary.
 
 Simple cleanup handles only eligible low-risk items. Advanced cleanup allows individual selection and review. Unknown caches and community rules are unchecked by default, advanced-only, and always backed up.
 

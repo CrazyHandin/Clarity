@@ -8,6 +8,7 @@ $artifactTag = if ($build -gt 0) { "$tag-build$build" } else { $tag }
 [pscustomobject]@{
     Tag = $tag
     Build = $build
+    Highlights = $definition.highlights
     FullVersion = $(if ($build -gt 0) { "$tag+build.$build" } else { $tag })
     NumericVersion = '0.{0}.{1}.0' -f [int]$definition.number,$build
     ArtifactTag = $artifactTag

@@ -93,6 +93,6 @@ $manifestLines = foreach ($path in @($installerPath,$portable,$source)) {
 $checksumFile = Join-Path $OutputRoot $metadata.ChecksumFile
 [IO.File]::WriteAllText($checksumFile,($manifestLines -join "`n")+"`n",[Text.UTF8Encoding]::new($false))
 $artifacts = foreach ($path in @($installerPath,$portable)) { [ordered]@{Name=[IO.Path]::GetFileName($path);Size=(Get-Item -LiteralPath $path).Length;SHA256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()} }
-$updateManifest = [ordered]@{Schema=1;Version=$tag;Build=$metadata.Build;Artifacts=@($artifacts)}
+$updateManifest = [ordered]@{Schema=1;Version=$tag;Build=$metadata.Build;Highlights=$metadata.Highlights;Artifacts=@($artifacts)}
 [IO.File]::WriteAllText((Join-Path $OutputRoot 'Clarity-update.json'),($updateManifest | ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 [pscustomobject]@{Version=$tag;Checks=$passed;Executable=$executable;SHA256=$hash;Portable=$portable;PortableFiles=$portableFiles.Count;Source=$source;SourceFiles=$sourceFiles.Count;Installer=$installerPath;Checksums=$checksumFile}

@@ -32,7 +32,8 @@ public sealed partial class Controller {
    check(Get<ContentControl>("PageHost").Content==root&&tabs.SelectedItem==root.FindName("BackupTab")&&((TextBox)root.FindName("RecoveryPath")).Text==draft,"Returning from About preserves the selected settings section and unsaved location draft");BackPage();
    check(pages.Count==0&&ReferenceEquals(engine,originalEngine)&&ReferenceEquals(leaves,originalLeaves)&&phase=="results"&&hasScanned&&Chosen().SequenceEqual(before),"Returning to cleanup preserves scan results and exact selected findings without rescanning");
    UiMotion.SetEnabled(Window,true);OpenSettings(options,null,s=>{});OpenAbout();BackPage();BackPage();await Task.Delay(240);
-   check(Get<Grid>("MainLayout").Opacity==1&&Get<Grid>("MainLayout").Visibility==Visibility.Visible&&Application.Current.Windows.Count==windows&&Chosen().SequenceEqual(before),"Rapid animated navigation settles on the correct page without losing selection");
+   for(int frame=0;frame<50&&Get<Grid>("MainLayout").Opacity!=1;frame++)await Task.Delay(20);
+   check(Get<Grid>("MainLayout").Opacity==1&&Get<Grid>("MainLayout").Visibility==Visibility.Visible&&Application.Current.Windows.Count==windows&&Chosen().SequenceEqual(before),"Rapid animated navigation settles on the correct page without losing selection; opacity="+Get<Grid>("MainLayout").Opacity+", windows="+Application.Current.Windows.Count+"/"+windows);
   }finally{CopyVersion=savedCopy;OpenProject=savedProject;UiMotion.SetEnabled(Window,false);while(pages.Count>0)BackPage();}
   UiText.SetLanguage("en");search.Text="Media cache";check(VisibleLeaves().Count>0&&VisibleLeaves().All(n=>n.Title=="媒体缓存"),"English item searches match displayed translations while preserving canonical rule names");search.Text="";UiText.SetLanguage("zh-CN");ShowReady();
  }

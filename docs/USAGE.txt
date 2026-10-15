@@ -48,7 +48,9 @@ JSON 规则填写说明可在规则管理中直接打开。
 清理记录自动保存在软件目录的 Logs 文件夹；目录不可写时保存在当前用户设置目录的 Logs 中。
 在“设置与备份 → 常规设置”点击“打开清理记录”直接打开最近一次记录，也可打开记录文件夹。
 软件启动时检查 GitHub Release；发现新版本或内部构建时显示红点和带倒计时的顶部提示。
-点击提示，或进入“关于 → 软件更新”，查看更新概括并选择“下载并更新”。
+在关于页点击“检查软件更新”，卡片下方显示加载条；无更新或检查失败时在窗口顶部提示。
+有更新时弹出小窗口，显示更新说明和“下载并更新”按钮。下载时显示进度、百分比和文件大小，可取消。
+点击“本版更新内容”小按钮，可在弹窗中查看当前版本的更新概括。
 下载后核对 SHA-256，安装版自动升级并重启；便携版自动替换程序文件，失败时尝试恢复原文件。
 下载可取消，检查更新不自动扫描或清理；更新及安装可能需要联网与 Windows 权限确认。
 
@@ -129,7 +131,9 @@ Cleanup history and software updates
 Cleanup history is saved automatically in the application's Logs folder, or the current user's settings folder if unwritable.
 Settings & Backups > General > Open cleanup history opens the most recent record. A folder shortcut is also available.
 Clarity checks GitHub Releases on startup. A new version or internal build adds red badges and a clickable countdown notification.
-Click the notification, or open About > Software updates, to read the summary and choose Download and update.
+Click Check for software updates in About. A loading bar appears below the card; no-update and error results use top notifications.
+Available updates open in a small window with notes and a Download and update button. Downloads show progress, percentage and byte totals, and can be cancelled.
+What's new in this version opens the current version's summary in a separate small window.
 Downloads are verified with SHA-256. Installed editions upgrade and restart; portable editions replace program files,
 with rollback attempted if replacement fails. Downloads can be cancelled. Checking for updates does not scan or clean files.
 Updates require a network connection and may require Windows permission approval.
