@@ -10,10 +10,11 @@ if ($isBeta) {
     $major = 0
     $minor = [int]$definition.number
 } elseif ($definition.channel -ceq 'stable') {
-    if ([string]$definition.version -cnotmatch '\A([1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\z') { throw 'Invalid stable version.' }
+    if ([string]$definition.version -cnotmatch '\A([1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\z') { throw 'Invalid stable version; expected major.minor.patch.' }
     $major = [int]$Matches[1]
     $minor = [int]$Matches[2]
-    if ($major -gt 65535 -or $minor -gt 65535) { throw 'Invalid stable version.' }
+    $patch = [int]$Matches[3]
+    if ($major -gt 65535 -or $minor -gt 65535 -or $patch -gt 65535) { throw 'Invalid stable version.' }
     $tag = [string]$definition.version
 } else { throw 'Invalid release channel.' }
 $artifactTag = if ($build -gt 0) { "$tag-build$build" } else { $tag }
@@ -23,7 +24,7 @@ $artifactTag = if ($build -gt 0) { "$tag-build$build" } else { $tag }
     Build = $build
     Highlights = $definition.highlights
     FullVersion = $(if ($build -gt 0) { "$tag+build.$build" } else { $tag })
-    NumericVersion = '{0}.{1}.{2}.0' -f $major,$minor,$build
+    NumericVersion = $(if ($isBeta) { '0.{0}.{1}.0' -f $minor,$build } else { '{0}.{1}.{2}.{3}' -f $major,$minor,$patch,$build })
     ArtifactTag = $artifactTag
     AssetPrefix = "Clarity-$artifactTag"
     ChecksumFile = $(if ($build -gt 0) { "SHA256SUMS-build$build.txt" } else { 'SHA256SUMS.txt' })

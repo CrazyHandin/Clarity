@@ -22,9 +22,10 @@ public static class SoftwareUpdates {
  static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=2*1024*1024,RecursionLimit=32};
  public static long VersionNumber(string version){
   var beta=Regex.Match(version??"",@"\Abeta0\.([0-9]{2,5})\z");int number;
-  if(beta.Success&&Int32.TryParse(beta.Groups[1].Value,out number)&&number>=1&&number<=65535)return number;
-  var stable=Regex.Match(version??"",@"\A([1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\z");int major,minor;
-  if(stable.Success&&Int32.TryParse(stable.Groups[1].Value,out major)&&Int32.TryParse(stable.Groups[2].Value,out minor)&&major<=65535&&minor<=65535)return ((long)major<<16)+minor;
+  if(beta.Success&&Int32.TryParse(beta.Groups[1].Value,out number)&&number>=1&&number<=65535)return (long)number<<16;
+  // Accept the historical major.minor label as patch zero when comparing old releases.
+  var stable=Regex.Match(version??"",@"\A([1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})(?:\.(0|[1-9][0-9]{0,4}))?\z");int major,minor,patch;
+  if(stable.Success&&Int32.TryParse(stable.Groups[1].Value,out major)&&Int32.TryParse(stable.Groups[2].Value,out minor)&&Int32.TryParse(stable.Groups[3].Success?stable.Groups[3].Value:"0",out patch)&&major<=65535&&minor<=65535&&patch<=65535)return ((long)major<<32)+((long)minor<<16)+patch;
   throw new InvalidDataException("不支持的软件版本编号");
  }
  public static Dictionary<string,object> Object(object value){var result=value as Dictionary<string,object>;if(result==null)throw new InvalidDataException("更新数据格式无效");return result;}

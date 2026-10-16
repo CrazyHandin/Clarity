@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.0",
+  "version": "1.0.0",
   "build": 1,
   "highlights": {
-    "zh-CN": "发布 1.0 正式版：修复规则打包引发的特定误报，加强规则完整性校验、软件更新与备份处理保护。",
-    "en": "Clarity 1.0: fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling."
+    "zh-CN": "发布 1.0.0 正式版：修复规则打包引发的特定误报，加强规则完整性校验、软件更新与备份处理保护。",
+    "en": "Clarity 1.0.0: fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling."
   }
 }
