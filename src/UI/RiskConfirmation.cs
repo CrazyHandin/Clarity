@@ -10,7 +10,7 @@ public static class RiskConfirmation {
  public static bool Risky(Finding f){return f.ManualOverride||f.Rule.Heuristic||f.Rule.ForceBackup||f.Rule.Privacy||f.Rule.Protected||!f.Rule.Quick||f.RegistryCandidates.Count>0||f.Rule.InfoKind=="system-disk-cleanup"||!String.IsNullOrWhiteSpace(f.Rule.Warning);}
  public static bool Required(IList<Finding> chosen){return chosen.Any(Risky);}
  public static string ItemText(Finding f){
-  string policy=f.Rule.InfoKind=="system-disk-cleanup"?"系统自动清理 · 永久删除":f.ManualOverride?"风险删除 · 强制先备份":f.Rule.Heuristic?"未知缓存 · 强制先备份":f.Rule.ForceBackup?"社区规则 · 强制先备份":f.Rule.Quick?"低风险缓存":"高级自选";
+  string policy=f.Rule.InfoKind=="disable-hibernation"?"关闭 Windows 休眠 · 不经过备份":f.Rule.InfoKind=="system-disk-cleanup"?"系统自动清理 · 永久删除":f.ManualOverride?"风险删除 · 强制先备份":f.Rule.Heuristic?"未知缓存 · 强制先备份":f.Rule.ForceBackup?"社区规则 · 强制先备份":f.Rule.Quick?"低风险缓存":"高级自选";
   string text=(f.Rule.Software??f.Rule.Title)+" · "+(f.Rule.Part??f.Rule.Title)+"\n"+policy+" · "+(f.Rule.InfoKind=="system-disk-cleanup"?"C 盘，容量由 Windows 计算":App.FormatSize(f.EligibleBytes)+(f.RegistryCandidates.Count>0?" / "+f.RegistryCandidates.Count+" 项注册表":""))+"\n"+f.Rule.Impact;
   if(f.ManualOverride)text+="\n已选择处理原本保留的内容，将绕过文件年龄和个人资料保留策略；可能丢失设置、账号登录、历史、离线文件或恢复资料。只对扫描所列文件操作，先完成备份。";
   if(f.Rule.Heuristic)text+="\n未知软件未验证可重建，需自行核对用途。";

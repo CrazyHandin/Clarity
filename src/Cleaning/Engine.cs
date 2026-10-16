@@ -44,7 +44,7 @@ public sealed class CleanResult {
  public long Bytes; public int Deleted, Skipped, Failed; public bool Cancelled;public int PermissionDenied;
  public int RegistryDeleted; public string RegistryBackupPath;
  public string FileBackupManifest;public int BackupFiles;public long BackupBytes,EstimatedFreedBytes;
- public List<AuditItem> Items = new List<AuditItem>();public bool SystemCleanupStarted,SystemCleanupCompleted;public string SystemCleanupMessage;
+ public List<AuditItem> Items = new List<AuditItem>();public bool SystemCleanupStarted,SystemCleanupCompleted,HibernationDisabled;public string SystemCleanupMessage;
 }
 public sealed class ScanProgress {public int Completed,Total,Files,RegistryItems;public string Title,Group;public long FoundBytes;}
 public static class Native {
@@ -67,7 +67,7 @@ public sealed class Engine {
  public readonly List<Rule> Rules; public Func<string[],bool> IsRunning;
  public Action<ScanProgress> LiveProgress; public string RegistryBackupDirectory; ScanProgress live; long baseBytes; int baseFiles,baseRegistry;DateTime lastPulse;
  public bool UseFileBackup;public string FileBackupDirectory;
- public Func<CancellationToken,Action<string>,SystemCleanupResult> RunSystemCleanup=SystemDiskCleanup.Run;
+ public Func<CancellationToken,Action<string>,SystemCleanupResult> RunSystemCleanup=SystemDiskCleanup.Run,DisableHibernation=Hibernation.Disable;
  public Engine(List<Rule> rules) { Rules=rules; IsRunning=OwnersRunning;FileBackupDirectory=FileRecovery.DefaultDirectory(); }
  bool IsRecoveryPath(string path){try{string full=Normalize(path);foreach(string root in new[]{CleanerSettings.Root,FileBackupDirectory,RegistryBackupDirectory,CleaningHistory.DirectoryPath,Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Logs")}){if(String.IsNullOrWhiteSpace(root))continue;string p=Normalize(root);if(full.Equals(p,StringComparison.OrdinalIgnoreCase)||full.StartsWith(p+"\\",StringComparison.OrdinalIgnoreCase))return true;}if(full.EndsWith(".csbackup",StringComparison.OrdinalIgnoreCase))return true;string directory=Directory.Exists(full)?full:Path.GetDirectoryName(full);return File.Exists(Path.Combine(directory,"files.csbackup"));}catch{return true;}}
  static void ResetProcessSnapshot() { lock(ProcessLock) { ProcessSnapshotTime=DateTime.MinValue; } }
@@ -103,7 +103,7 @@ public sealed class Engine {
  }
  void InspectFile(string path,Finding result,DateTime cutoff) {
   try {
-   if(IsRecoveryPath(path))return;
+   if(ScanPolicy.Excluded(path)||IsRecoveryPath(path))return;
    var info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
    if(!result.Rule.MatchesPattern(path))return;
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
@@ -118,13 +118,17 @@ public sealed class Engine {
  }
  void Pulse(Finding f,bool force){if(LiveProgress==null||live==null)return;if(!force&&(DateTime.UtcNow-lastPulse).TotalMilliseconds<160)return;lastPulse=DateTime.UtcNow;LiveProgress(new ScanProgress{Completed=live.Completed,Total=live.Total,Title=live.Title,Group=live.Group,FoundBytes=baseBytes+f.EligibleBytes,Files=baseFiles+f.Files,RegistryItems=baseRegistry+f.RegistryCandidates.Count});}
  public Finding ScanRule(Rule rule,CancellationToken token) {
-  var result=new Finding { Rule=rule,Running=(!rule.Protected||rule.AllowManual)&&IsRunning(rule.Processes) };
+  if(rule.InfoKind=="disable-hibernation")return Hibernation.Inspect(rule);
+  var result=new Finding { Rule=rule };
+  if(rule.Roots.Length>0&&rule.Roots.All(ScanPolicy.Excluded)){result.Blocked=rule.Roots.Length;result.Extra="Windows 系统目录不参与扫描";return result;}
+  result.Running=(!rule.Protected||rule.AllowManual)&&IsRunning(rule.Processes);
   if(rule.InfoKind=="system-disk-cleanup"){result.VirtualItems=SystemDiskCleanup.Available?1:0;result.Extra=result.VirtualItems>0?"由 Windows 估算；默认不选，处理后自动退出":"当前系统未找到 cleanmgr.exe";return result;}
   if(rule.InfoKind=="registry-clean") {RegistryCleaner.Scan(rule,result,token);return result;}
   if(rule.InfoKind=="registry") {RegistryAudit.Read(result,token);return result;}
   var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase); DateTime cutoff=DateTime.UtcNow.AddDays(-rule.Days);
   foreach(string rawRoot in rule.Roots) {
    token.ThrowIfCancellationRequested(); string root; try { root=Normalize(rawRoot); } catch { result.Unreadable++; continue; }
+   if(ScanPolicy.Excluded(root)){result.Blocked++;continue;}
    if(!seen.Add(root)) continue;
    if(rule.Single) { if(File.Exists(root)) InspectFile(root,result,cutoff); continue; }
    if(!Directory.Exists(root)) continue;
@@ -133,9 +137,11 @@ public sealed class Engine {
    while(pending.Count>0) {
     token.ThrowIfCancellationRequested(); string current=pending.Pop();
     try {
+     if(ScanPolicy.Excluded(current))continue;
      if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
      foreach(var entry in new DirectoryInfo(current).GetFileSystemInfos()) {
       token.ThrowIfCancellationRequested();
+      if(ScanPolicy.Excluded(entry.FullName))continue;
       if((entry.Attributes&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
       if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop&&(!rule.Excluded(entry.FullName)||rule.AllowManual&&!rule.ExplicitExcluded(entry.FullName,true))&&!IsRecoveryPath(entry.FullName))pending.Push(entry.FullName);}
       else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff);
@@ -153,6 +159,7 @@ public sealed class Engine {
  }
  bool DeleteSnapshot(Rule rule,Snapshot snapshot,bool manual,RecoverySession recovery,CancellationToken token,out string reason,out int errorCode) {
   errorCode=0;
+  if(ScanPolicy.Excluded(snapshot.Path)){reason="Windows 系统目录不参与清理";return false;}
   if(IsRecoveryPath(snapshot.Path)){reason="文件位于软件配置或恢复备份范围";return false;}
   reason="";
   if(!Rules.Contains(rule)||!InScope(rule,snapshot.Path)||(manual?!rule.ManualAccept(snapshot.Path):rule.Protected||!rule.Accept(snapshot.Path))) { reason="不在允许清理的范围"; return false; }
@@ -177,7 +184,7 @@ public sealed class Engine {
   int total=selected.Sum(f=>f.Candidates.Count), done=0;
   var registryChosen=selected.Where(f=>Rules.Contains(f.Rule)&&f.Rule.InfoKind=="registry-clean"&&!f.Rule.Quick).ToList();
   RecoverySession recovery=null;if(selected.Any(f=>f.Candidates.Count>0&&(UseFileBackup||f.Rule.Heuristic||f.Rule.ForceBackup||f.ManualOverride))){recovery=new RecoverySession(FileBackupDirectory);result.FileBackupManifest=recovery.Manifest;}
-  if(!quick&&registryChosen.Count>0){RegistryCleaner.Clean(registryChosen,RegistryBackupDirectory,token,result);}
+  if(!quick&&registryChosen.Count>0){try{RegistryCleaner.Clean(registryChosen,RegistryBackupDirectory,token,result);}catch(OperationCanceledException){result.Cancelled=true;return result;}catch(Exception ex){result.Failed++;if(ex is UnauthorizedAccessException)result.PermissionDenied++;foreach(var f in registryChosen)foreach(var e in f.RegistryCandidates)if(!result.Items.Any(i=>i.Path==RegistryCleaner.Label(e)))result.Items.Add(new AuditItem{Rule=f.Rule.Title,Path=RegistryCleaner.Label(e),Status="清理失败",Reason=ex.Message});}}
   foreach(var finding in selected) {
    foreach(var file in finding.Candidates) {
     if(token.IsCancellationRequested) { result.Cancelled=true; return result; }
@@ -193,7 +200,12 @@ public sealed class Engine {
     done++; if(progress!=null) progress(done,total,finding.Rule.Title);
    }
   }
-  if(!quick&&!token.IsCancellationRequested&&selected.Any(f=>f.Rule.InfoKind=="system-disk-cleanup"&&f.VirtualItems>0)){result.SystemCleanupStarted=true;try{var system=RunSystemCleanup(token,title=>{if(progress!=null)progress(-1,0,title);});result.SystemCleanupCompleted=system.Completed;result.SystemCleanupMessage=system.Message;if(!system.Completed)result.Failed++;result.Items.Add(new AuditItem{Rule="Windows 磁盘清理",Path="C:\\",Status=system.Completed?"系统清理完成":"系统清理未完成",Reason=system.Message});}catch(Exception ex){result.Failed++;result.SystemCleanupMessage=ex.Message;}}
+  if(!quick)foreach(var f in selected.Where(f=>f.Rule.InfoKind=="disable-hibernation"&&f.VirtualItems>0)){
+   if(token.IsCancellationRequested){result.Cancelled=true;return result;}
+   try{var action=DisableHibernation(token,title=>{if(progress!=null)progress(-1,0,title);});if(action.Completed){result.HibernationDisabled=true;result.Bytes+=action.Bytes;result.EstimatedFreedBytes+=action.Bytes;if(action.Bytes>0)result.Deleted++;}else result.Failed++;result.Items.Add(new AuditItem{Rule=f.Rule.Title,Path=Hibernation.FilePath,Status=action.Completed?"已删除":"清理失败",Reason=action.Message,Bytes=action.Bytes});}
+   catch(OperationCanceledException){result.Cancelled=true;return result;}catch(Exception ex){result.Failed++;int code=ex is UnauthorizedAccessException?5:0;if(code==5)result.PermissionDenied++;result.Items.Add(new AuditItem{Rule=f.Rule.Title,Path=Hibernation.FilePath,Status="清理失败",Reason=ex.Message,ErrorCode=code});}
+  }
+  if(!quick&&!token.IsCancellationRequested&&selected.Any(f=>f.Rule.InfoKind=="system-disk-cleanup"&&f.VirtualItems>0)){result.SystemCleanupStarted=true;try{var system=RunSystemCleanup(token,title=>{if(progress!=null)progress(-1,0,title);});result.SystemCleanupCompleted=system.Completed;result.SystemCleanupMessage=system.Message;if(!system.Completed)result.Failed++;result.Items.Add(new AuditItem{Rule="Windows 磁盘清理",Path="C:\\",Status=system.Completed?"系统清理完成":"系统清理未完成",Reason=system.Message});}catch(Exception ex){result.Failed++;result.SystemCleanupMessage=ex.Message;result.Items.Add(new AuditItem{Rule="Windows 磁盘清理",Path="C:\\",Status="系统清理未完成",Reason=ex.Message});}}
   if(token.IsCancellationRequested)result.Cancelled=true;return result;
  }
 }
@@ -236,15 +248,16 @@ public static class RuleBook {
   }
   var driver=Add(rules,"driver-download","NVIDIA 驱动下载资料","更新资料","NVIDIA App 下载的驱动安装资料，限定 ota-artifacts 目录。仅识别 14 天前的安装包。","确认驱动已安装成功且不需本地备份后再选。不要在驱动更新期间清理。通常需要管理员权限。",new[]{P(programData,"NVIDIA Corporation\\NVIDIA App\\UpdateFramework\\ota-artifacts")},14,false,"NVIDIA App","setup","msiexec"); driver.Extensions=new[]{".exe",".zip",".cab",".msi"};
   var office=Add(rules,"office","Office 更新资料（保留）","受保护资料","Office 的更新下载资料可能用于安装、修复或回退。无法仅凭目录判断为垃圾。","删除可能影响安装、修复或回退。默认保留；高级自选需确认更新已完成并强制备份。",new[]{P(pf,"Microsoft Office\\Updates\\Download"),P(Environment.GetEnvironmentVariable("ProgramW6432")??pf,"Microsoft Office\\Updates\\Download"),P(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),"Microsoft Office\\Updates\\Download")},0,false); office.Protected=true;
-  var support=Add(rules,"support","原厂驱动安装备份（保留）","受保护资料","电脑厂商预置的驱动和软件安装资料，可能用于恢复或重新安装。","删除会失去原厂驱动的本地重新安装资料；默认保留，高级风险自选必须先备份。",new[]{Path.GetPathRoot(windows)+"eSupport"},0,false); support.Protected=true;
-  foreach(string systemFile in new[]{"hiberfil.sys","pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,systemFile=="hiberfil.sys"?"休眠文件（保留）":"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
+  rules.Add(Hibernation.CreateRule());
+  foreach(string systemFile in new[]{"pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
   ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
   CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
   CommonSoftwareRules.Add(rules,local,roaming,profile,programData);
   foreach(var rule in rules)if(rule.Roots.Length>0&&String.IsNullOrEmpty(rule.InfoKind)&&!rule.Id.StartsWith("system-"))rule.AllowManual=true;
   rules.First(r=>r.Id=="office").Processes=new[]{"OfficeClickToRun","msiexec","setup"};rules.First(r=>r.Id=="uv-cache").Processes=new[]{"uv"};
 
-  foreach(var rule in rules) rule.Roots=rule.Roots.Where(r=>String.Equals(Path.GetPathRoot(Path.GetFullPath(r)),TargetDrive,StringComparison.OrdinalIgnoreCase)).ToArray();
+  rules.RemoveAll(r=>r.Roots.Length>0&&r.Roots.All(ScanPolicy.Excluded));
+  foreach(var rule in rules) rule.Roots=rule.Roots.Where(r=>!ScanPolicy.Excluded(r)&&String.Equals(Path.GetPathRoot(Path.GetFullPath(r)),TargetDrive,StringComparison.OrdinalIgnoreCase)).ToArray();
   return rules;
  }
 }

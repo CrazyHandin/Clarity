@@ -15,8 +15,8 @@ public sealed class BrandMark:Viewbox {
  public double CheckProgress{get{return (double)GetValue(CheckProgressProperty);}set{SetValue(CheckProgressProperty,value);}}
  public BrandMark(){
   Stretch=Stretch.Uniform;var canvas=new Grid{Width=256,Height=256};Child=canvas;
-  canvas.Children.Add(new Ellipse{Width=232.96,Height=232.96,Fill=App.Brush("#39C5BB"),HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center});
-  outline=new Path{Stroke=App.Brush("#103C3B"),StrokeThickness=19.2,StrokeStartLineCap=PenLineCap.Round,StrokeEndLineCap=PenLineCap.Round};
+  canvas.Children.Add(new Ellipse{Width=232.96,Height=232.96,Fill=new SolidColorBrush(Color.FromRgb(57,197,187)),HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center});
+  outline=new Path{Stroke=new SolidColorBrush(Color.FromRgb(16,60,59)),StrokeThickness=19.2,StrokeStartLineCap=PenLineCap.Round,StrokeEndLineCap=PenLineCap.Round};
   check=new Path{Stroke=Brushes.White,StrokeThickness=16.64,StrokeStartLineCap=PenLineCap.Round,StrokeEndLineCap=PenLineCap.Round,StrokeLineJoin=PenLineJoin.Round};
   canvas.Children.Add(outline);canvas.Children.Add(check);UpdatePaths();
  }

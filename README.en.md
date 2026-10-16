@@ -9,6 +9,7 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 ## Features
 
 - **Common application support:** Cache and log rules for Windows, WeChat, QQ, browsers, Adobe, VS Code, WPS, and more.
+- **Theme options:** Light and dark modes, automatic Windows theme matching, and a quick switch on the home screen.
 - **Clear cleanup choices:** Results grouped by category and application, with search, filters, group selection, and explanations of each item's purpose, impact, and risk.
 - **Application and rule discovery:** Application fingerprints, built-in rules, Winapp2, and unknown-cache detection, with portable application folders, rule updates, and offline import.
 - **Backup and restore:** Backup-first cleanup, shortcuts to backup locations, and automatic removal of backup copies after verified restoration.
@@ -20,7 +21,7 @@ Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified 
 
 1. Run the installer, or extract the complete portable package and run `Clarity.exe`, keeping `Clarity.exe.config` and the `rules` folder beside it.
 2. Choose a scan mode and click **Start scan**. Opening the app does not start scanning.
-3. Review the results and clean your selection. Risk items trigger confirmation. Click **Done** on the completion screen to return to the initial screen.
+3. Review the results and clean your selection. Risk items trigger confirmation. The completion screen lists unfinished items and their reasons; click **Done** to return to the initial screen.
 
 | Scan mode | Scope | Cleanup options |
 | --- | --- | --- |

@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 
 namespace ClearSpace {
-public sealed class SystemCleanupResult {public bool Completed;public string Message;}
+public sealed class SystemCleanupResult {public bool Completed;public string Message;public long Bytes;}
 public static class SystemDiskCleanup {
  public const string Arguments="/d C /verylowdisk";
  public static string Executable{get{return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"cleanmgr.exe");}}
@@ -17,7 +17,8 @@ public static class SystemDiskCleanup {
   using(var process=Process.Start(start)){
    if(process==null)throw new IOException("无法启动 Windows 磁盘清理。");DateTime next=DateTime.UtcNow;
    // Let Windows finish its own cleanup. Never kill it in the middle of a system operation.
-   while(!process.WaitForExit(300)){if(DateTime.UtcNow>=next){if(status!=null)status(token.IsCancellationRequested?"已请求停止，等待 Windows 完成当前系统清理":"Windows 正在清理 C 盘，完成后自动关闭");next=DateTime.UtcNow.AddSeconds(3);}}
+   var completion=new CleanupCompletionDialog();
+   while(!process.WaitForExit(300)){completion.Acknowledge(process.Id);if(DateTime.UtcNow>=next){if(status!=null)status(token.IsCancellationRequested?"已请求停止，等待 Windows 完成当前系统清理":"Windows 正在清理 C 盘，完成后自动关闭");next=DateTime.UtcNow.AddSeconds(3);}}
    return new SystemCleanupResult{Completed=process.ExitCode==0,Message=process.ExitCode==0?"Windows 磁盘清理已结束，系统工具已退出；未将系统释放量计入文件估算。":"Windows 磁盘清理退出码 "+process.ExitCode+"，部分系统项目可能需要管理员权限。"};
   }
  }

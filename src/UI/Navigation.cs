@@ -5,18 +5,19 @@ using System.Windows;
 using System.Windows.Controls;
 namespace ClearSpace {
 public sealed partial class Controller {
- readonly List<FrameworkElement> pages=new List<FrameworkElement>();SettingsView settingsView;
+ readonly List<FrameworkElement> pages=new List<FrameworkElement>();SettingsView settingsView;WindowTransitions windowTransitions;
  public Action<string> OpenProject=url=>Process.Start(new ProcessStartInfo(url){UseShellExecute=true});
  void InitializeChrome(){
   UiMotion.SetEnabled(Window,SystemParameters.ClientAreaAnimation);
   Get<Image>("CaptionLogo").Source=Window.Icon;
-  Get<Button>("MinimizeWindow").Click+=(s,e)=>SystemCommands.MinimizeWindow(Window);
+  windowTransitions=new WindowTransitions(Window,Get<Grid>("WindowRoot"));
+  Get<Button>("MinimizeWindow").Click+=(s,e)=>{windowTransitions.LastTransition=windowTransitions.Minimize();};
   Get<Button>("MaximizeWindow").Click+=(s,e)=>{if(Window.WindowState==WindowState.Maximized)SystemCommands.RestoreWindow(Window);else SystemCommands.MaximizeWindow(Window);};
   Get<Button>("CloseWindow").Click+=(s,e)=>SystemCommands.CloseWindow(Window);
   UiMotion.CloseOnRequest(Window,Get<Grid>("WindowRoot"));
   Window.StateChanged+=(s,e)=>{Get<Button>("MaximizeWindow").Content=Window.WindowState==WindowState.Maximized?"\uE923":"\uE922";Get<Button>("MaximizeWindow").ToolTip=Window.WindowState==WindowState.Maximized?"还原窗口":"最大化";};
  }
- void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);}
+ void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);RefreshTheme(UiMotion.GetEnabled(Window));}
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
   settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess);

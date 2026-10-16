@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "build": 1,
   "highlights": {
-    "zh-CN": "发布 1.0.0 正式版：修复规则打包引发的特定误报，加强规则完整性校验、软件更新与备份处理保护。",
-    "en": "Clarity 1.0.0: fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling."
+    "zh-CN": "新增深浅色主题与跟随 Windows、窗口动画及未完成清理项目列表；优化清理结束速度，修复 Windows 磁盘清理提示，并支持关闭休眠释放空间。",
+    "en": "Added light and dark themes with Windows theme sync, window animations, and unfinished cleanup details. Improved cleanup completion speed, fixed the Disk Cleanup prompt, and added optional hibernation cleanup."
   }
 }

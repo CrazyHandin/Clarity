@@ -30,6 +30,8 @@
       <StackPanel>
        <TextBlock Text="界面语言" FontSize="18" FontWeight="SemiBold"/>
        <ComboBox x:Name="LanguageChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,14,0,12"/>
+       <TextBlock Text="界面主题" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,0"/>
+       <ComboBox x:Name="ThemeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,12,0,12"/>
        <TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
       </StackPanel>
      </Border>
