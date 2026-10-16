@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.1.0",
-  "build": 1,
+  "build": 2,
   "highlights": {
     "zh-CN": "新增可叠加管理的 JSON 规则包与只读预览，支持 Winapp2 和 JSON 同时启用，扩展文件名、保留期及大小条件。",
     "en": "Added stackable JSON rule packs with read-only previews, simultaneous Winapp2 and JSON support, and filename, age and size conditions."

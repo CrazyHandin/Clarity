@@ -69,7 +69,7 @@ if ($WithTests) { $testSources = @(Get-ChildItem -LiteralPath (Join-Path $PSScri
 if ($sources.Count -eq 0) { throw 'No C# source files found.' }
 $inputPaths = @($allSources.FullName) + @($testSources.FullName) + @($resources.Keys | ForEach-Object { Join-Path $PSScriptRoot $_ }) + @('build.ps1','version.json','scripts/Get-ReleaseVersion.ps1','assets/app.manifest','assets/Clarity.ico','assets/Clarity.exe.config','rules/Winapp2.ini' | ForEach-Object { Join-Path $PSScriptRoot $_ })
 $inputPaths = @($inputPaths | Where-Object { $_ })
-$inputPaths += @('installer/Clarity.iss','scripts/build-installer.ps1','scripts/Sign-UpdateManifest.ps1','package-release.ps1' | ForEach-Object { Join-Path $PSScriptRoot $_ })
+$inputPaths += @('installer/Clarity.iss','scripts/build-installer.ps1','scripts/Sign-UpdateManifest.ps1','package-release.ps1','scripts/Test-UpdatePackageLayout.ps1','tests/UpdatePackageCompatibility.ps1' | ForEach-Object { Join-Path $PSScriptRoot $_ })
 function Get-BuildInputs {
     foreach ($path in ($inputPaths | Sort-Object -Unique)) {
         [ordered]@{Path=$path.Substring($PSScriptRoot.TrimEnd('\').Length+1).Replace('\','/');SHA256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash}

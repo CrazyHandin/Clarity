@@ -48,7 +48,6 @@ $publicFiles = [ordered]@{
     'docs/Winapp2-License.md' = 'docs/Winapp2-License.md'
     'docs/BUILD.md' = 'docs/BUILD.md'
     'docs/JSON规则填写说明.txt' = 'docs/JSON规则填写说明.txt'
-    'rules/RulePack.template.json' = 'rules/RulePack.template.json'
     'docs/USAGE.txt' = '使用说明.txt'
     'docs/TERMS.txt' = 'docs/TERMS.txt'; 'LICENSE.txt' = 'LICENSE.txt'
     'rules/Winapp2.ini' = 'rules/Winapp2.ini'; 'rules/ApplicationRules.template.json' = 'rules/ApplicationRules.template.json'
@@ -95,9 +94,10 @@ $sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','
 foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests')) -Filter '*.cs' -File -Recurse | Sort-Object FullName)) {
     $sourceFiles += $file.FullName.Substring($PSScriptRoot.TrimEnd('\').Length + 1).Replace('\','/')
 }
-$sourceFiles += 'scripts/Get-ReleaseVersion.ps1'
+$sourceFiles += @('scripts/Get-ReleaseVersion.ps1','scripts/Test-UpdatePackageLayout.ps1','tests/UpdatePackageCompatibility.ps1','rules/RulePack.template.json')
 $sourceFiles += @('assets/update-public-key.xml','scripts/Sign-UpdateManifest.ps1')
 $sourceFiles = @($sourceFiles | Sort-Object -Unique)
+& (Join-Path $PSScriptRoot 'scripts/Test-UpdatePackageLayout.ps1') -Names $portableFiles
 Write-Archive $portable $destination $portableFiles
 Write-Archive $source $PSScriptRoot $sourceFiles
 $installer = & (Join-Path $PSScriptRoot 'scripts/build-installer.ps1') -PortableArchive $portable -OutputDirectory $OutputRoot -CompilerPath $InstallerCompiler
