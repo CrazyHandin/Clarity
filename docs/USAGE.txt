@@ -56,7 +56,8 @@ JSON 规则填写说明可在规则管理中直接打开。
 在关于页点击“检查软件更新”，更新卡片底部显示加载条；无更新或检查失败时在窗口顶部提示。
 有更新时弹出小窗口，显示更新说明和“下载并更新”按钮。下载时显示进度、百分比和文件大小，可取消。
 点击“本版更新内容”小按钮，可在弹窗中查看当前版本的更新概括。
-下载后核对 SHA-256，安装版自动升级并重启；便携版自动替换程序文件，失败时尝试恢复原文件。
+软件更新验证发布者签名及 SHA-256。安装到受保护的 Program Files 目录时，首次授权安装后会配置按需更新服务；后续通常无需重复授权，服务完成任务后退出。其他安装目录保留安装器更新方式。
+安装版自动升级后以原账户重新打开；便携版自动替换程序文件，失败时尝试恢复原文件。卸载会移除更新服务。
 下载可取消，检查更新不自动扫描或清理；更新及安装可能需要联网与 Windows 权限确认。
 
 第三方规则说明
@@ -145,7 +146,10 @@ Clarity checks GitHub Releases on startup. A new version or internal build adds 
 Click Check for software updates in About. A loading bar appears along the bottom of the update card; no-update and error results use top notifications.
 Available updates open in a small window with notes and a Download and update button. Downloads show progress, percentage and byte totals, and can be cancelled.
 What's new in this version opens the current version's summary in a separate small window.
-Downloads are verified with SHA-256. Installed editions upgrade and restart; portable editions replace program files,
+Update manifests require a valid publisher signature, and downloads are verified with SHA-256.
+For protected Program Files installations, setup installs an on-demand update service after the first administrator approval.
+Subsequent updates normally require no further approval. The service exits after its task and is removed on uninstall.
+Other installation locations keep the installer-based update method. Installed editions upgrade and restart as the original user; portable editions replace program files,
 with rollback attempted if replacement fails. Downloads can be cancelled. Checking for updates does not scan or clean files.
 Updates require a network connection and may require Windows permission approval.
 

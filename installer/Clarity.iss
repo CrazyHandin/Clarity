@@ -64,6 +64,8 @@ Name: "{app}\Logs"; Permissions: users-modify
 [Files]
 Source: "{#PayloadDir}\Clarity.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\Clarity.exe.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\Clarity.UpdateService.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\Clarity.UpdateService.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\使用说明.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\rules\Winapp2.ini"; DestDir: "{app}\rules"; Flags: ignoreversion
 
@@ -75,6 +77,10 @@ Name: "{autodesktop}\Clarity"; Filename: "{app}\Clarity.exe"; WorkingDir: "{app}
 Filename: "{app}\Clarity.exe"; Description: "{cm:LaunchProgram,Clarity}"; Flags: nowait postinstall skipifsilent unchecked
 Filename: "{app}\Clarity.exe"; Flags: nowait runasoriginaluser; Check: RestartAfterUpdate
 
+[UninstallRun]
+Filename: "{sys}\sc.exe"; Parameters: "stop ClarityUpdate"; Flags: runhidden waituntilterminated; RunOnceId: "StopClarityUpdate"
+Filename: "{sys}\sc.exe"; Parameters: "delete ClarityUpdate"; Flags: runhidden waituntilterminated; RunOnceId: "RemoveClarityUpdate"
+
 [CustomMessages]
 english.NetRequired=Clarity requires .NET Framework 4.8 or later. Install it from https://dotnet.microsoft.com/download/dotnet-framework/net48, then run this installer again.
 english.SelectInstallFolder=Choose an installation location. Clarity will be installed in a Clarity subfolder.
@@ -84,6 +90,35 @@ chinesesimplified.SelectInstallFolder=请选择安装位置。程序将安装到
 #endif
 
 [Code]
+procedure PrepareUpdateService;
+begin
+  ExtractTemporaryFile('Clarity.exe');
+  ExtractTemporaryFile('Clarity.UpdateService.exe');
+  ExtractTemporaryFile('Clarity.UpdateService.exe.config');
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var ResultCode: Integer;
+begin
+  PrepareUpdateService;
+  Result := '';
+  if not Exec(ExpandConstant('{tmp}\Clarity.UpdateService.exe'), '--stop', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+    Result := 'Could not prepare the Clarity update service.'
+  else if ResultCode <> 0 then
+    Result := 'The Clarity update service could not be stopped. Please try again.';
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var ResultCode: Integer;
+begin
+  if CurStep = ssPostInstall then begin
+    if not Exec(ExpandConstant('{tmp}\Clarity.UpdateService.exe'), '--register-target "' + ExpandConstant('{app}') + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+      RaiseException('Could not configure the Clarity update service.');
+    if (ResultCode <> 0) and (ResultCode <> 3) then
+      RaiseException('The Clarity update service could not be registered.');
+  end;
+end;
+
 function RestartAfterUpdate: Boolean;
 begin
   Result := ExpandConstant('{param:CLARITYUPDATE|0}') = '1';

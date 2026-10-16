@@ -13,13 +13,14 @@ public sealed class VerifiedUpdatePayload {
 }
 public static class UpdatePackage {
  static readonly HashSet<string> Allowed=new HashSet<string>(new[]{"Clarity.exe","Clarity.exe.config","使用说明.txt","README.md","README.en.md","CHANGELOG.md","THIRD_PARTY_NOTICES.md","LICENSE.txt","VERIFICATION.txt","SHA256.txt","docs/版本历史.md","docs/清理依据.md","docs/常用软件规则.md","docs/清理规则一览.md","docs/规则库维护.md","docs/Winapp2-使用说明.md","docs/Winapp2-License.md","docs/BUILD.md","docs/TERMS.txt","docs/JSON规则填写说明.txt","rules/Winapp2.ini","rules/ApplicationRules.template.json","rules/BundledRules.signed.json","rules/rule-public-key.xml"},StringComparer.OrdinalIgnoreCase);
- internal static bool SafeFutureParents(string path){
+ static UpdatePackage(){Allowed.Add(UpdateServiceProtocol.ExecutableName);Allowed.Add(UpdateServiceProtocol.ExecutableName+".config");}
+ public static bool SafeFutureParents(string path){
   try{string current=Path.GetDirectoryName(Path.GetFullPath(path));if(String.IsNullOrEmpty(current)||current.StartsWith("\\\\",StringComparison.Ordinal))return false;
    while(!Directory.Exists(current)){try{File.GetAttributes(current);return false;}catch(FileNotFoundException){}catch(DirectoryNotFoundException){}current=Path.GetDirectoryName(current);if(String.IsNullOrEmpty(current))return false;}
    return Engine.SafeAncestors(Path.Combine(current,"probe"));
   }catch{return false;}
  }
- internal static void CreateDirectory(string directory){if(!SafeFutureParents(Path.Combine(directory,"probe")))throw new IOException("更新目录包含链接或无法验证");Directory.CreateDirectory(directory);if(!Engine.SafeAncestors(Path.Combine(directory,"probe")))throw new IOException("更新目录发生变化");}
+ public static void CreateDirectory(string directory){if(!SafeFutureParents(Path.Combine(directory,"probe")))throw new IOException("更新目录包含链接或无法验证");Directory.CreateDirectory(directory);if(!Engine.SafeAncestors(Path.Combine(directory,"probe")))throw new IOException("更新目录发生变化");}
  static void VerifyFile(FileStream stream,string path){Native.INFO info;if(!Native.GetFileInformationByHandle(stream.SafeFileHandle,out info)||(info.Attributes&(Native.UnsafeAttributes|0x10))!=0||info.Links!=1||!Engine.Normalize(Native.FinalPath(stream.SafeFileHandle)).Equals(Engine.Normalize(path),StringComparison.OrdinalIgnoreCase))throw new IOException("更新文件包含链接或位置发生变化");}
  static string Hash(Stream stream){using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-","").ToLowerInvariant();}
  public static string Destination(string root,string name){

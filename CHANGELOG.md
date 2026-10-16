@@ -4,7 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
-| 1.0.6 | Expand simple cleanup with low-risk caches and older diagnostics; improve update dialogs and theme switching. |
+| 1.0.6 | Add an on-demand update service and publisher signature verification; expand simple cleanup with low-risk caches and older diagnostics. |
 | 1.0.5 | Add light/dark themes and Windows theme sync, window animations, unfinished cleanup details and optional hibernation cleanup; improve cleanup completion and Windows Disk Cleanup. |
 | 1.0.0 | Fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling. |
 | beta0.20 | Added online software updates and automatic cleanup history, with improvements to backup recovery and rule management. |

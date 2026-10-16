@@ -14,6 +14,8 @@ $TestExecutable = (Resolve-Path -LiteralPath $TestExecutable).Path
 function Confirm-BuildInputs {
     if ($build.Schema -ne 1 -or $build.TestHost.Define -ne 'CLARITY_TESTS' -or $build.ExecutableSHA256 -ne (Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash -or $build.TestHost.SHA256 -ne (Get-FileHash -LiteralPath $TestExecutable -Algorithm SHA256).Hash) { throw 'Build and test-host provenance does not match. Rebuild with -WithTests.' }
     if ([Diagnostics.FileVersionInfo]::GetVersionInfo($Executable).ProductVersion -ne $build.Version -or [Diagnostics.FileVersionInfo]::GetVersionInfo($TestExecutable).ProductVersion -ne $build.Version) { throw 'Production and test-host versions do not match.' }
+    $serviceFile = Join-Path (Split-Path -Parent $Executable) 'Clarity.UpdateService.exe'
+    if ((Get-FileHash -LiteralPath $serviceFile -Algorithm SHA256).Hash -ne $build.UpdateServiceSHA256 -or [Diagnostics.FileVersionInfo]::GetVersionInfo($serviceFile).ProductVersion -ne $build.Version) { throw 'Update service provenance does not match the build.' }
     if (@($build.BundledFiles).Count -ne 1 -or $build.BundledFiles[0].Path -cne 'rules/Winapp2.ini') { throw 'Bundled rule provenance is missing.' }
     foreach ($binary in @($Executable,$TestExecutable)) {
         $ruleFile = Join-Path (Split-Path -Parent $binary) 'rules/Winapp2.ini'
@@ -54,6 +56,7 @@ $proof = [ordered]@{
     ExecutableSHA256 = (Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash
     TestHostSHA256 = (Get-FileHash -LiteralPath $TestExecutable -Algorithm SHA256).Hash
     BuildManifestSHA256 = (Get-FileHash -LiteralPath $buildManifest -Algorithm SHA256).Hash
+    UpdateServiceSHA256 = $build.UpdateServiceSHA256
     TestHostIsolated = $true
     BundledRuleSHA256 = $build.BundledFiles[0].SHA256
     Checks = $passed

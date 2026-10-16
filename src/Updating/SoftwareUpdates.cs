@@ -50,7 +50,7 @@ public static class SoftwareUpdates {
  public static SoftwareRelease Check(CancellationToken token){
   return Check(token,Text);
  }
- public static SoftwareRelease Check(CancellationToken token,Func<string,long,CancellationToken,string> read){token.ThrowIfCancellationRequested();return ParseDownloadManifest(read(LatestManifestUrl,65536,token));}
+ public static SoftwareRelease Check(CancellationToken token,Func<string,long,CancellationToken,string> read,string publicKey=null){token.ThrowIfCancellationRequested();return ParseDownloadManifest(UpdateTrust.Verify(read(LatestManifestUrl,65536,token),publicKey));}
  public static SoftwareRelease ParseDownloadManifest(string raw){
   if(raw==null||Encoding.UTF8.GetByteCount(raw)>65536)throw new InvalidDataException("更新清单过大");var data=Object(Json.DeserializeObject(raw));string tag=Value(data,"Version");VersionNumber(tag);int build=Convert.ToInt32(data["Build"]);if(Convert.ToInt32(data["Schema"])!=1||build<1||build>65535)throw new InvalidDataException("更新清单版本无效");var result=new SoftwareRelease{Version=tag,Build=build,Notes=""};string prefix="Clarity-"+tag,legacyPrefix=prefix+"-build"+build;
   if(data.ContainsKey("Highlights")){var highlights=data["Highlights"]as Dictionary<string,object>;if(highlights!=null)result.Notes=Value(highlights,UiText.English?"en":"zh-CN");}

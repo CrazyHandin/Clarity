@@ -247,6 +247,7 @@ public static class App {
 #endif
  [STAThread]public static int Main(string[] args){try{
   if(args.Length==2&&args[0]=="--apply-update")return UpdateLauncher.Apply(args[1]);
+  if(args.Length==2&&args[0]=="--complete-service-update")return ServiceUpdateClient.Complete(args[1]);
 #if CLARITY_TESTS
   if(args.Length==3&&args[0]=="--production-self-test")return ProductionArtifactTests.Run(args[1],args[2]);
   if(args.Length==2&&args[0]=="--software-update-probe"){var release=SoftwareUpdates.Check(CancellationToken.None);WriteJson(args[1],new{release.Version,release.Build,release.Notes,Assets=release.Assets.Select(a=>new{a.Name,a.Size,a.Url,a.SHA256})});return 0;}

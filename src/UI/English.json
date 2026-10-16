@@ -930,5 +930,11 @@
   "会失去这些旧日志对应的历史故障诊断信息，不影响软件正常运行。": "Historical troubleshooting information in these logs will be lost; normal application operation is unaffected.",
   "明确诊断目录中超过 14 天的崩溃转储与诊断输出，不处理聊天、配置或恢复资料。": "Crash dumps and diagnostic output older than 14 days in dedicated diagnostic folders. Chats, settings and recovery data are retained.",
   "会失去对应历史崩溃的诊断资料，不影响软件正常运行。": "Historical crash diagnostics will be lost; normal application operation is unaffected.",
-  "Go 构建缓存中超过 14 天、符合 Go 哈希命名格式的编译结果；保留模块源码与标记文件。": "Go build artifacts older than 14 days with Go hash-based names. Module sources and marker files are retained."
+  "Go 构建缓存中超过 14 天、符合 Go 哈希命名格式的编译结果；保留模块源码与标记文件。": "Go build artifacts older than 14 days with Go hash-based names. Module sources and marker files are retained.",
+  "正在通过更新服务下载…": "Downloading through the update service…",
+  "更新仍在进行，请稍后手动打开 Clarity。": "The update is still running. Please open Clarity again later.",
+  "软件更新缺少发布者签名": "The software update has no publisher signature",
+  "软件更新发布者签名校验失败": "Software update publisher signature verification failed",
+  "更新服务身份校验失败": "The update service could not be authenticated",
+  "更新版本已变化，请重新检查更新": "The available update changed. Please check again."
 }

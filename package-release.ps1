@@ -1,7 +1,8 @@
 param(
     [string]$OutputRoot = (Join-Path $PSScriptRoot 'releases'),
     [string]$VerificationDirectory = (Join-Path $PSScriptRoot 'release-verification'),
-    [string]$InstallerCompiler
+    [string]$InstallerCompiler,
+    [Parameter(Mandatory=$true)][string]$UpdateSigningKey
 )
 $ErrorActionPreference = 'Stop'
 $metadata = & (Join-Path $PSScriptRoot 'scripts/Get-ReleaseVersion.ps1')
@@ -16,6 +17,7 @@ $proof = Get-Content -LiteralPath (Join-Path $VerificationDirectory 'verificatio
 if ($proof.Version -ne $metadata.FullVersion -or $proof.ExecutableSHA256 -ne $hash) { throw 'Verification reports do not belong to this executable.' }
 $buildManifest = Join-Path $destination 'build-manifest.json'
 $build = Get-Content -LiteralPath $buildManifest -Raw | ConvertFrom-Json
+if ($proof.UpdateServiceSHA256 -ne $build.UpdateServiceSHA256 -or (Get-FileHash -LiteralPath (Join-Path $destination 'Clarity.UpdateService.exe') -Algorithm SHA256).Hash -ne $proof.UpdateServiceSHA256) { throw 'Update service does not match verification.' }
 if ($proof.Schema -ne 2 -or -not $proof.TestHostIsolated -or $proof.BuildManifestSHA256 -ne (Get-FileHash -LiteralPath $buildManifest -Algorithm SHA256).Hash -or $build.ExecutableSHA256 -ne $hash -or $proof.TestHostSHA256 -ne $build.TestHost.SHA256) { throw 'Missing matching production/test-host verification.' }
 if (@($build.BundledFiles).Count -ne 1 -or $build.BundledFiles[0].Path -cne 'rules/Winapp2.ini' -or $proof.BundledRuleSHA256 -ne $build.BundledFiles[0].SHA256 -or (Get-FileHash -LiteralPath (Join-Path $destination 'rules/Winapp2.ini') -Algorithm SHA256).Hash -ne $proof.BundledRuleSHA256) { throw 'Bundled rules do not match verified content.' }
 foreach ($inputFile in $build.Inputs) {
@@ -56,6 +58,7 @@ foreach ($entry in $publicFiles.GetEnumerator()) {
     New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $entry.Key) -Destination $target -Force
 }
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets/Clarity.exe.config') -Destination (Join-Path $destination 'Clarity.UpdateService.exe.config') -Force
 $verification = @"
 Clarity $tag
 Verified: $([DateTime]::UtcNow.ToString('yyyy-MM-dd')) UTC
@@ -84,7 +87,7 @@ function Write-Archive([string]$ArchivePath,[string]$Base,[string[]]$Names) {
 }
 $portable = Join-Path $OutputRoot "$prefix-portable.zip"
 $source = Join-Path $OutputRoot "$prefix-source.zip"
-$portableFiles = @('Clarity.exe') + @($publicFiles.Values) + @('VERIFICATION.txt','SHA256.txt')
+$portableFiles = @('Clarity.exe','Clarity.UpdateService.exe','Clarity.UpdateService.exe.config') + @($publicFiles.Values) + @('VERIFICATION.txt','SHA256.txt')
 $sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','src/UI/Settings.xaml','src/UI/English.json','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
 # Include source code from the two source folders, and only explicitly listed
 # resources and documents. Local backups, signing keys, reports and build output stay out.
@@ -92,6 +95,7 @@ foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),
     $sourceFiles += $file.FullName.Substring($PSScriptRoot.TrimEnd('\').Length + 1).Replace('\','/')
 }
 $sourceFiles += 'scripts/Get-ReleaseVersion.ps1'
+$sourceFiles += @('assets/update-public-key.xml','scripts/Sign-UpdateManifest.ps1')
 $sourceFiles = @($sourceFiles | Sort-Object -Unique)
 Write-Archive $portable $destination $portableFiles
 Write-Archive $source $PSScriptRoot $sourceFiles
@@ -105,4 +109,5 @@ $checksumFile = Join-Path $OutputRoot $metadata.ChecksumFile
 $artifacts = foreach ($path in @($installerPath,$portable)) { [ordered]@{Name=[IO.Path]::GetFileName($path);Size=(Get-Item -LiteralPath $path).Length;SHA256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()} }
 $updateManifest = [ordered]@{Schema=1;Version=$tag;Build=$metadata.Build;Highlights=$metadata.Highlights;Artifacts=@($artifacts)}
 [IO.File]::WriteAllText((Join-Path $OutputRoot 'Clarity-update.json'),($updateManifest | ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
+& (Join-Path $PSScriptRoot 'scripts/Sign-UpdateManifest.ps1') -ManifestFile (Join-Path $OutputRoot 'Clarity-update.json') -KeyFile $UpdateSigningKey
 [pscustomobject]@{Version=$tag;Checks=$passed;Executable=$executable;SHA256=$hash;Portable=$portable;PortableFiles=$portableFiles.Count;Source=$source;SourceFiles=$sourceFiles.Count;Installer=$installerPath;Checksums=$checksumFile}
