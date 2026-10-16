@@ -1,47 +1,121 @@
 JSON 规则填写说明
 
-可复制下面的最小示例，保存为 UTF-8 编码的 .json 文件，然后在“规则管理 → 本地导入”中选择它。规则用于常规扫描的高级自选，不会加入快速扫描或自动勾选。
+在“规则管理”中，Winapp2 与 JSON 可同时启用，切换“管理来源”只切换编辑器。各来源单独保存启用状态、更新地址及自动更新开关。Winapp2 地址固定，JSON 地址默认空。保存后在下次常规扫描生效。
 
+独立规则包：打开“规则管理 → 附加规则包”，导入 Schema 2 JSON；新包默认关闭。可启用、移除或用相同 PackId、更高 Version 导入升级，保留上一版以便回退。最多 20 个附加包，每包最多 500 条规则。附加包的本地版本管理独立于当前 JSON 来源，不会覆盖内置规则。
+
+只读预览：选中规则包，点击“只读预览”，匹配应用后使用正式扫描器读取候选，显示容量与示例路径；不执行清理，不改变主页扫描结果。预览可取消。
+
+Schema 2 示例（保存为 UTF-8 .json）：
 {
-  "Schema": 1,
+  "Schema": 2,
+  "PackId": "example-app",
+  "Name": "Example App cache rules",
   "Version": "1.0.0",
-  "Published": "2026-10-15",
-  "Rules": [{
-    "Id": "example-cache",
-    "Name": "Example App",
-    "Group": "软件缓存",
-    "Part": "资源缓存",
-    "MatchNames": ["Example App"],
-    "ExecutableNames": ["Example.exe"],
-    "Paths": ["%LOCALAPPDATA%\\Example App\\Cache"],
-    "ExcludeNames": ["settings.json", "accounts.db"],
-    "KeepDays": 14,
-    "Method": "files",
-    "Description": "已确认用途的资源缓存。",
-    "Impact": "缓存将重新生成，首次打开可能较慢。"
-  }]
+  "Author": "Your name",
+  "Description": "Old diagnostic logs only.",
+  "Rules": [
+    {
+      "Id": "old-logs",
+      "Name": "Example App",
+      "Group": "软件缓存",
+      "Part": "旧诊断日志",
+      "MatchNames": [
+        "Example App"
+      ],
+      "ExecutableNames": [
+        "Example.exe"
+      ],
+      "Paths": [
+        "%LOCALAPPDATA%\\Example App\\Logs"
+      ],
+      "ExcludeNames": [
+        "accounts"
+      ],
+      "KeepDays": 14,
+      "Conditions": {
+        "NamePattern": "*.log",
+        "MinAgeDays": 30,
+        "MinSizeBytes": 1024,
+        "MaxSizeBytes": 104857600
+      },
+      "Method": "files",
+      "Description": "Old diagnostic logs.",
+      "Impact": "Historical diagnostics will be lost."
+    }
+  ]
 }
 
-字段
-Schema 固定为 1。Version 为规则包版本，Published 为发布日期。
-Id：仅用小写字母、数字和连字符，包内唯一。
-Name / Group / Part：软件名、分类和项目名。Group 可使用“软件缓存”“网页缓存”“开发缓存”。
-MatchNames / ExecutableNames / Publishers：应用指纹，填入实际应用名、程序文件名或发行商。需要先发现对应软件，规则才会生效。
-Paths：明确的缓存、临时或日志目录。支持 %LOCALAPPDATA%、%APPDATA%、%PROGRAMDATA%、%TEMP%、%EXEDIR%、%INSTALLDIR%、%PORTABLEROOT%。支持受限的单层 *；禁止绝对路径、..、**、脚本及任意命令。
-KeepDays：保留最近多少天的文件。建议至少 14 天。
-ExcludeNames / ExcludePaths：排除的文件名和目录模板。软件会额外保留账号、书签、聊天、数据库和设置等敏感内容。
-Extensions：可选扩展名列表，例如 [".log", ".tmp"]。FileNameRegex 为可选文件名正则。
-Method 可填 files 或 contents，均仅处理通过安全检查的候选文件，不删除扫描根目录。Description 说明用途，Impact 写清楚删除后影响；不可把未经验证的目录描述为无风险。
+字段与条件
+Schema：1 或 2。旧 Schema 1 仍可通过“本地导入”作为当前 JSON 来源使用；独立规则包需 Schema 2，并填写 PackId 与 Name。
+PackId / Id：包标识 / 包内规则标识，使用小写字母、数字和连字符，必须唯一。Version 为可比较的版本号，升级必须提高版本；Author、Description 为可选说明。
+Name / Group / Part：软件名、分类和项目名。Group 仅支持“软件缓存”“网页缓存”“开发缓存”，英文界面也使用这些规范值。
+MatchNames / ExecutableNames / Publishers / ProductNames / RequireSignature：应用指纹。必须发现匹配软件才会展开缓存路径。ExecutableNames 为明确的 EXE 文件名。
+Paths：缓存、临时或日志目录模板，支持 %LOCALAPPDATA%、%APPDATA%、%PROGRAMDATA%、%TEMP%、%EXEDIR%、%INSTALLDIR%、%PORTABLEROOT%。支持受限的单层 * / ?，不支持绝对路径、..、**、脚本或命令；不扫描 Windows 系统目录。每层展开最多 256 个目录，单条规则最多 100 个根目录及 100 个应用指纹匹配。
+KeepDays：保留最近 7～3650 天的文件，建议至少 14 天。
+Conditions（Schema 2，可选）：NamePattern 是文件名通配符；MinAgeDays 是最小年龄天数；MinSizeBytes、MaxSizeBytes 为单个文件字节数的闭区间，可分别省略。所有条件与原有 Extensions、FileNameRegex 同时满足才命中（AND）。实际保留期取 KeepDays 与 MinAgeDays 中较大者。年龄最大 3650 天，大小条件最大 1 TiB。
+ExcludeNames / ExcludePaths：额外排除的文件名及目录模板。内置敏感内容、账号、数据库、配置和个人文档保护仍然生效。
+Method：files 或 contents，均仅处理安全过滤后的文件，不删除扫描根目录。Description 说明用途，Impact 写清删除后影响。未知字段会被拒绝，避免拼写错误使条件失效。
+Schema 2 不提供绕过这些条件的手动保留项删除。外部规则均只供常规扫描、高级自选，默认不勾选，清理前先备份。
 
-导入与在线更新
-本地未签名 JSON 需要确认来源。在线地址必须是 HTTPS，且返回由发布者私钥签名的规则包；普通 JSON 的 HTTPS 地址不能代替签名。没有签名密钥时，使用本地导入。导入或更新后需要重新进行常规扫描。
+在线与离线更新
+当前 JSON 来源仍支持 HTTPS 发布者签名更新；普通 JSON 的 HTTPS 链接不能代替签名。未签名包需本地导入并确认来源。附加包通过本地导入更高版本升级；不执行包内脚本，不自动扫描或删除。
 
 ============================================================
 English JSON Rule Guide
 
-Save the example above as a UTF-8 .json file and use Rule management → Import locally. Custom rules appear only in regular scanning and advanced selection; they are never selected automatically.
+Winapp2 and JSON can be enabled together in Rule management. Switching the source editor does not change enabled sources. Each has its own automatic-update preference; Winapp2 uses its fixed address and the JSON address starts empty. Save changes, then start a new regular scan.
 
-Schema is 1. Version and Published identify the rule pack. Id must be unique and use lowercase letters, digits and hyphens. Name, Group and Part describe the application and cache. The category values remain the Chinese canonical names shown in the example.
-MatchNames, ExecutableNames and Publishers match discovered application fingerprints. Paths must identify known cache, temporary or log directories. Supported variables: LOCALAPPDATA, APPDATA, PROGRAMDATA, TEMP, EXEDIR, INSTALLDIR and PORTABLEROOT. Absolute paths, traversal, recursive wildcards and commands are rejected.
-KeepDays retains recent files. ExcludeNames and ExcludePaths protect selected content in addition to the built-in sensitive-file exclusions. Extensions and FileNameRegex optionally restrict files. Method accepts files or contents; both process only candidates passing the safety filters and retain scan root directories. Description and Impact explain the purpose and cleanup consequences.
-Unsigned files require local-import confirmation. Online updates require HTTPS and a publisher-signed envelope, not an unsigned JSON document. Run a new regular scan after changing rules.
+Under Additional rule packs, import a Schema 2 JSON file. New packs start disabled. Toggle packs independently, remove a pack, or import the same PackId with a higher Version to upgrade while retaining the previous version for rollback. Up to 20 packs and 500 rules per pack are supported. Legacy Schema 1 remains supported through the main JSON source import.
+
+Select a pack and choose Read-only preview to use the production compiler and scanner, showing candidate sizes and sample paths without deleting files or changing the main scan. You may cancel the preview.
+
+Schema 2 example:
+{
+  "Schema": 2,
+  "PackId": "example-app",
+  "Name": "Example App cache rules",
+  "Version": "1.0.0",
+  "Author": "Your name",
+  "Description": "Old diagnostic logs only.",
+  "Rules": [
+    {
+      "Id": "old-logs",
+      "Name": "Example App",
+      "Group": "软件缓存",
+      "Part": "旧诊断日志",
+      "MatchNames": [
+        "Example App"
+      ],
+      "ExecutableNames": [
+        "Example.exe"
+      ],
+      "Paths": [
+        "%LOCALAPPDATA%\\Example App\\Logs"
+      ],
+      "ExcludeNames": [
+        "accounts"
+      ],
+      "KeepDays": 14,
+      "Conditions": {
+        "NamePattern": "*.log",
+        "MinAgeDays": 30,
+        "MinSizeBytes": 1024,
+        "MaxSizeBytes": 104857600
+      },
+      "Method": "files",
+      "Description": "Old diagnostic logs.",
+      "Impact": "Historical diagnostics will be lost."
+    }
+  ]
+}
+
+PackId and rule Id use lowercase letters, digits and hyphens; they must be unique. Name identifies the pack. Version must increase for imports that upgrade an existing pack. Author and Description are optional. Group uses the canonical Chinese values shown above, including in the English UI.
+
+MatchNames, ExecutableNames, Publishers, ProductNames and RequireSignature identify installed or explicitly discovered portable applications. Paths must point to explicit cache, log or temporary directories using the supported variables: LOCALAPPDATA, APPDATA, PROGRAMDATA, TEMP, EXEDIR, INSTALLDIR and PORTABLEROOT. Bounded * and ? are supported; absolute paths, traversal, ** and executable commands are rejected. Windows directories are excluded. Expansion is limited to 256 directories per level, 100 scan roots and 100 matched applications per rule.
+
+KeepDays retains 7–3650 days of recent files. Optional Schema 2 Conditions support a filename glob (NamePattern), age in days (MinAgeDays), and an inclusive per-file byte range (MinSizeBytes, MaxSizeBytes). All supplied conditions, Extensions and FileNameRegex use AND logic. The effective age is the larger of KeepDays and MinAgeDays. Ages are capped at 3650 days and size limits at 1 TiB.
+
+ExcludeNames and ExcludePaths add exclusions; mandatory sensitive-file protection still applies. Method accepts files or contents; both retain scan root directories and act only on safe candidates. Description and Impact explain purpose and consequences. Unknown fields are rejected. Schema 2 does not offer manual deletion that bypasses these conditions. External rules are regular/advanced-only, unchecked by default and backed up before cleanup.
+
+The main JSON source supports HTTPS updates signed by the built-in publisher key. An unsigned JSON URL cannot replace that signature. Import unsigned packs locally after confirming their source. Additional packs upgrade through local import of a higher version. Rule imports never execute scripts, start scans or delete application data.

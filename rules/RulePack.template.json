@@ -1,0 +1,38 @@
+{
+  "Schema": 2,
+  "PackId": "example-app",
+  "Name": "Example App cache rules",
+  "Version": "1.0.0",
+  "Author": "Your name",
+  "Description": "Old diagnostic logs only.",
+  "Rules": [
+    {
+      "Id": "old-logs",
+      "Name": "Example App",
+      "Group": "软件缓存",
+      "Part": "旧诊断日志",
+      "MatchNames": [
+        "Example App"
+      ],
+      "ExecutableNames": [
+        "Example.exe"
+      ],
+      "Paths": [
+        "%LOCALAPPDATA%\\Example App\\Logs"
+      ],
+      "ExcludeNames": [
+        "accounts"
+      ],
+      "KeepDays": 14,
+      "Conditions": {
+        "NamePattern": "*.log",
+        "MinAgeDays": 30,
+        "MinSizeBytes": 1024,
+        "MaxSizeBytes": 104857600
+      },
+      "Method": "files",
+      "Description": "Old diagnostic logs.",
+      "Impact": "Historical diagnostics will be lost."
+    }
+  ]
+}

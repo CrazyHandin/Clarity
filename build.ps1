@@ -43,6 +43,7 @@ $compilerArguments = @(
 $resources = [ordered]@{
     'src/UI/Main.xaml' = 'ClearSpace.Main.xaml'
     'src/UI/Settings.xaml' = 'ClearSpace.Settings.xaml'
+    'src/UI/RulePacks.xaml' = 'ClearSpace.RulePacks.xaml'
     'src/UI/English.json' = 'ClearSpace.English.json'
     'docs/USAGE.txt' = 'ClearSpace.Usage.txt'
     'docs/TERMS.txt' = 'ClearSpace.Terms.txt'

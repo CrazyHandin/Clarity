@@ -48,6 +48,7 @@ $publicFiles = [ordered]@{
     'docs/Winapp2-License.md' = 'docs/Winapp2-License.md'
     'docs/BUILD.md' = 'docs/BUILD.md'
     'docs/JSON规则填写说明.txt' = 'docs/JSON规则填写说明.txt'
+    'rules/RulePack.template.json' = 'rules/RulePack.template.json'
     'docs/USAGE.txt' = '使用说明.txt'
     'docs/TERMS.txt' = 'docs/TERMS.txt'; 'LICENSE.txt' = 'LICENSE.txt'
     'rules/Winapp2.ini' = 'rules/Winapp2.ini'; 'rules/ApplicationRules.template.json' = 'rules/ApplicationRules.template.json'
@@ -88,7 +89,7 @@ function Write-Archive([string]$ArchivePath,[string]$Base,[string[]]$Names) {
 $portable = Join-Path $OutputRoot "$prefix-portable.zip"
 $source = Join-Path $OutputRoot "$prefix-source.zip"
 $portableFiles = @('Clarity.exe','Clarity.UpdateService.exe','Clarity.UpdateService.exe.config') + @($publicFiles.Values) + @('VERIFICATION.txt','SHA256.txt')
-$sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','src/UI/Settings.xaml','src/UI/English.json','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
+$sourceFiles = @('version.json','build.ps1','package-release.ps1','.gitignore','src/UI/Main.xaml','src/UI/Settings.xaml','src/UI/RulePacks.xaml','src/UI/English.json','assets/Clarity.ico','assets/app.manifest','scripts/create-icon.ps1','scripts/Publish-Rules.ps1','scripts/build-installer.ps1','scripts/verify-release.ps1','scripts/publish-release.ps1','installer/Clarity.iss') + @($publicFiles.Keys)
 # Include source code from the two source folders, and only explicitly listed
 # resources and documents. Local backups, signing keys, reports and build output stay out.
 foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),(Join-Path $PSScriptRoot 'tests')) -Filter '*.cs' -File -Recurse | Sort-Object FullName)) {

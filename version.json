@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.0.6",
-  "build": 6,
+  "version": "1.1.0",
+  "build": 1,
   "highlights": {
-    "zh-CN": "新增按需更新服务与发布者签名校验，优化软件更新体验；扩展简洁清理中的低风险缓存与旧诊断资料。",
-    "en": "Added an on-demand update service and publisher signature verification for smoother updates; expanded simple cleanup with low-risk caches and older diagnostics."
+    "zh-CN": "新增可叠加管理的 JSON 规则包与只读预览，支持 Winapp2 和 JSON 同时启用，扩展文件名、保留期及大小条件。",
+    "en": "Added stackable JSON rule packs with read-only previews, simultaneous Winapp2 and JSON support, and filename, age and size conditions."
   }
 }

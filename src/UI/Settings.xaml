@@ -114,7 +114,10 @@
      <StackPanel Margin="18">
       <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
        <StackPanel>
-        <TextBlock Text="清理规则来源" FontSize="18" FontWeight="SemiBold"/>
+        <TextBlock Text="启用清理规则" FontSize="18" FontWeight="SemiBold"/>
+        <WrapPanel Margin="0,14,0,8"><CheckBox x:Name="EnableWinapp2" Content="Winapp2 社区规则" Margin="0,0,24,6"/><CheckBox x:Name="EnableJson" Content="JSON 应用规则" Margin="0,0,0,6"/></WrapPanel>
+        <TextBlock Text="可同时启用。常规扫描叠加规则，重复文件只处理一次；快速扫描仅使用内置规则。" Foreground="#A7BFCD" TextWrapping="Wrap" Margin="0,0,0,14"/>
+        <TextBlock Text="管理来源（切换不会改变启用状态）" FontSize="14"/>
         <ComboBox x:Name="RuleProvider" Margin="0,12,0,10" Height="38"/>
         <TextBlock x:Name="LibraryState" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap"/>
         <TextBlock Text="HTTPS 规则文件地址" FontSize="14" Margin="0,18,0,0"/>
@@ -134,6 +137,7 @@
          <Button x:Name="Export" Content="导出当前规则" Margin="0,0,10,8"/>
          <Button x:Name="Rollback" Content="回退上一版" Margin="0,0,10,8"/>
          <Button x:Name="Compatibility" Content="兼容报告" Margin="0,0,10,8"/>
+         <Button x:Name="RulePacks" Content="附加规则包" Margin="0,0,10,8"/>
          <Button x:Name="JsonGuide" Content="JSON 规则填写说明" Margin="0,0,10,8"/>
         </WrapPanel>
         <TextBlock x:Name="SourceHint" Foreground="#E4BE81" FontSize="14" TextWrapping="Wrap" Margin="0,8,0,0"/>

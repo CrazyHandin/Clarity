@@ -16,6 +16,7 @@ public sealed class Rule {
  public RegistryScope[] RegistryScopes;
  public string[] ExcludedRoots,ExcludedNames;public string FileNameRegex,Detection,Warning;public bool Heuristic,ForceBackup,HeaderGuard;public Func<string,bool> AdditionalExclude;
  public string[] Roots, Processes = new string[0], Extensions;
+ public RuleConditions Conditions;
  public int Days; public bool Quick, Protected, Single, AllowManual, ManualIgnoresPersonalNames;
  public Func<string,bool> ManualAdditionalExclude;
  public Rule(string id, string title, string category, string description, string impact, string[] roots, int days, bool quick, params string[] processes) {
@@ -23,7 +24,7 @@ public sealed class Rule {
  }
  public bool ExplicitExcluded(string path,bool manual){string full=Engine.Normalize(path);if((ExcludedRoots??new string[0]).Any(r=>full.Equals(Engine.Normalize(r),StringComparison.OrdinalIgnoreCase)||full.StartsWith(Engine.Normalize(r)+"\\",StringComparison.OrdinalIgnoreCase)))return true;foreach(string root in Roots){string normalized=Engine.Normalize(root);if(full.StartsWith(normalized+"\\",StringComparison.OrdinalIgnoreCase)&&!(manual&&ManualIgnoresPersonalNames)){string relative=full.Substring(normalized.Length+1);if(relative.Split('\\').Any(p=>(ExcludedNames??new string[0]).Contains(p,StringComparer.OrdinalIgnoreCase)))return true;}}return false;}
  public bool Excluded(string path){string full=Engine.Normalize(path);return ExplicitExcluded(path,false)||((Heuristic||Id.StartsWith("library-"))&&Roots.Any(root=>full.StartsWith(Engine.Normalize(root)+"\\",StringComparison.OrdinalIgnoreCase)&&PathPolicy.Sensitive(path,root)));}
- public bool MatchesPattern(string path){return (NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null||Extensions.Contains(Path.GetExtension(path),StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)));}
+ public bool MatchesPattern(string path){return RuleConditionEvaluator.NameMatches(Conditions,path)&&(NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null||Extensions.Contains(Path.GetExtension(path),StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)));}
  public bool Accept(string path){try{return !Excluded(path)&&MatchesPattern(path)&&(AdditionalExclude==null||!AdditionalExclude(path))&&(!(Heuristic||HeaderGuard)||!HeuristicScanner.LooksPersonal(path));}catch{return false;}}
  public bool ManualAccept(string path){try{var exclude=ManualAdditionalExclude??AdditionalExclude;return AllowManual&&!ExplicitExcluded(path,true)&&MatchesPattern(path)&&(exclude==null||!exclude(path));}catch{return false;}}
  public string Group { get { return GroupOverride??Groups.ForCategory(Category); } }
@@ -105,7 +106,7 @@ public sealed class Engine {
   try {
    if(ScanPolicy.Excluded(path)||IsRecoveryPath(path))return;
    var info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
-   if(!result.Rule.MatchesPattern(path))return;
+   if(!result.Rule.MatchesPattern(path)||!RuleConditionEvaluator.SizeMatches(result.Rule.Conditions,info.Length))return;
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
    result.Files++; result.TotalBytes+=info.Length;
    if(result.Samples.Count<5) result.Samples.Add(path);
@@ -169,6 +170,7 @@ public sealed class Engine {
    if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { errorCode=Marshal.GetLastWin32Error();reason="文件正在使用、无权限或已不存在"; return false; }
    if((info.Attributes&(Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { reason="链接、云端、只读或受保护文件"; return false; }
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(snapshot.Path),StringComparison.OrdinalIgnoreCase)) { reason="文件实际位置已改变"; return false; }
+   if(!RuleConditionEvaluator.SizeMatches(rule.Conditions,info.Bytes)){reason="文件不再符合规则的大小条件";return false;}
    if(info.Volume!=snapshot.Volume || info.IndexHigh!=snapshot.IndexHigh || info.IndexLow!=snapshot.IndexLow || info.Bytes!=snapshot.Bytes || info.Write.Value!=snapshot.Modified) { reason="扫描后文件发生变化，请重新扫描"; return false; }
    if(info.Write.Value>DateTime.UtcNow.AddDays(manual?0:-rule.Days).ToFileTimeUtc()) { reason="文件最近仍在使用"; return false; }
    if(rule.Shortcut && (String.IsNullOrEmpty(snapshot.Condition)||!ShortcutAudit.ProvenMissingLocalTarget(snapshot.Condition))) {reason="快捷方式目标恢复或无法确认失效";return false;}

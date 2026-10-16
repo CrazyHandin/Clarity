@@ -11,7 +11,7 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 - **Common application support:** Cache and log rules for Windows, WeChat, QQ, browsers, Adobe, VS Code, WPS, and more.
 - **Theme options:** Light and dark modes, automatic Windows theme matching, and a quick switch on the home screen.
 - **Clear cleanup choices:** Results grouped by category and application, with search, filters, group selection, and explanations of each item's purpose, impact, and risk.
-- **Application and rule discovery:** Application fingerprints, built-in rules, Winapp2, and unknown-cache detection, with portable application folders, rule updates, and offline import.
+- **Extensible rules:** Enable Winapp2 and JSON together; install, toggle, upgrade and roll back multiple rule packs. Match application fingerprints, filenames, age and size, with read-only previews.
 - **Backup and restore:** Backup-first cleanup, shortcuts to backup locations, and automatic removal of backup copies after verified restoration.
 - **History and updates:** Automatically saved cleanup records with a direct shortcut in Settings, startup update checks, and online upgrades for installed and portable editions.
 
@@ -51,6 +51,8 @@ Removing low-risk caches may require downloads or slow the next launch. Advanced
 **Windows Disk Cleanup** is a separate option, disabled by default. It automatically processes C: and exits when finished. Its deletions bypass Clarity's backups and may be irreversible.
 
 ## Rules and privacy
+
+Winapp2 and JSON can be enabled together under Settings & Backups → Rule management. Switching the source editor does not change enabled sources. Additional rule packs support Schema 2 JSON, start disabled, and offer read-only previews, individual toggles, upgrades and rollback. Changes apply to the next regular scan; overlapping candidate files count and clean once.
 
 Update or import Winapp2 INI and JSON rules under Settings & Backups → Rule Management. Updates fetch rule files without uploading application inventories, paths, or scan results, and do not automatically scan or clean.
 

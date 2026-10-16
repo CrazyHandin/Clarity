@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference='Stop'
 $ruleText=[IO.File]::ReadAllText((Resolve-Path -LiteralPath $RulesFile).Path)
 $pack=$ruleText | ConvertFrom-Json
-if ($pack.Schema -ne 1 -or -not $pack.Version -or -not $pack.Rules) {throw 'Invalid rule pack'}
+if ($pack.Schema -notin @(1,2) -or -not $pack.Version -or -not $pack.Rules) {throw 'Invalid rule pack'}
 $parameters=New-Object Security.Cryptography.CspParameters
 $parameters.ProviderType=24
 $parameters.Flags=[Security.Cryptography.CspProviderFlags]::CreateEphemeralKey
