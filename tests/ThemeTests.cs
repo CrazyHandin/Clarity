@@ -11,6 +11,7 @@ namespace ClearSpace {
 public sealed partial class Controller {
  async Task VerifyThemes(string output,Action<bool,string> check){
   ShowReady();string previous=settings.Theme;var save=SaveTheme;var system=UiTheme.SystemLight;int saved=0;string file=Path.Combine(output,"theme-settings.json");var selections=groups.Select(g=>g.Selected).ToArray();int scans=engine.Rules.Count;
+  var themeButton=Get<Button>("ThemeButton");var minimize=Get<Button>("MinimizeWindow");var caption=themeButton.Parent as StackPanel;check(caption!=null&&caption==minimize.Parent&&caption.Children.IndexOf(themeButton)+1==caption.Children.IndexOf(minimize)&&themeButton.BorderThickness==new Thickness(0)&&System.Windows.Shell.WindowChrome.GetIsHitTestVisibleInChrome(themeButton),"The borderless animated theme switch sits immediately beside Minimize in the interactive caption");
   try{
    settings.Theme="dark";RefreshTheme(false);SaveTheme=s=>{saved++;File.WriteAllText(file,new JavaScriptSerializer().Serialize(s));};UiMotion.SetEnabled(Window,true);
    Get<Button>("ThemeButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(80);var mark=Get<ThemeSwitchMark>("ThemeMark");Color middle=((SolidColorBrush)Window.Background).Color;

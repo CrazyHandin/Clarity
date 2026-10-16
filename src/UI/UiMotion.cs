@@ -41,17 +41,28 @@ public static class UiMotion {
    element.Width=Math.Max(64,Math.Min(220,bar.ActualWidth*0.24));position.X=(bar.ActualWidth-element.Width)/2;if(!GetEnabled(bar))return;position.BeginAnimation(TranslateTransform.XProperty,new DoubleAnimation(-element.Width,bar.ActualWidth,TimeSpan.FromMilliseconds(1300)){RepeatBehavior=RepeatBehavior.Forever});
   };bar.IsVisibleChanged+=(s,e)=>refresh();bar.SizeChanged+=(s,e)=>refresh();bar.Loaded+=(s,e)=>refresh();
  }
- public static void CloseOnRequest(Window window,FrameworkElement surface){
+ public static void Dialog(Window window,FrameworkElement surface){
+  bool closing=false;window.Opacity=GetEnabled(window)?0:1;
+  // Install after the caller's download/cancellation guards have been registered.
+  window.SourceInitialized+=(s,e)=>{if(!GetEnabled(window))window.Opacity=1;window.Closing+=(sender,args)=>{if(!args.Cancel)closing=true;};CloseOnRequest(window,surface,true);};
+  window.ContentRendered+=(s,e)=>{
+   if(closing)return;window.Opacity=1;if(!GetEnabled(window))return;
+   var scale=new ScaleTransform();surface.RenderTransformOrigin=new Point(0.5,0.5);surface.RenderTransform=scale;var duration=TimeSpan.FromMilliseconds(210);var ease=new QuadraticEase{EasingMode=EasingMode.EaseOut};
+   window.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(0,1,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});
+   scale.BeginAnimation(ScaleTransform.ScaleXProperty,new DoubleAnimation(0.97,1,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});scale.BeginAnimation(ScaleTransform.ScaleYProperty,new DoubleAnimation(0.97,1,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});
+  };
+ }
+ public static void CloseOnRequest(Window window,FrameworkElement surface,bool fadeWindow=false){
   if(surface==null)return;bool animating=false,allowClose=false,closed=false;
   window.Closed+=(s,e)=>closed=true;window.PreviewKeyDown+=(s,e)=>{if(animating)e.Handled=true;};
   window.Closing+=(s,e)=>{
    if(e.Cancel||allowClose||!window.IsVisible||!GetEnabled(window))return;e.Cancel=true;if(animating)return;animating=true;
-   bool hitTest=surface.IsHitTestVisible;double opacity=surface.Opacity;var original=surface.RenderTransform;var origin=surface.RenderTransformOrigin;surface.IsHitTestVisible=false;surface.RenderTransformOrigin=new Point(0.5,0.5);var scale=new ScaleTransform();surface.RenderTransform=scale;
+   UIElement fading=fadeWindow?(UIElement)window:surface;double currentOpacity=fading.Opacity;bool hitTest=surface.IsHitTestVisible;double opacity=fadeWindow?1:surface.Opacity;var original=surface.RenderTransform;var origin=surface.RenderTransformOrigin;surface.IsHitTestVisible=false;surface.RenderTransformOrigin=new Point(0.5,0.5);var scale=new ScaleTransform();surface.RenderTransform=scale;
    var duration=TimeSpan.FromMilliseconds(170);var easing=new QuadraticEase{EasingMode=EasingMode.EaseIn};scale.BeginAnimation(ScaleTransform.ScaleXProperty,new DoubleAnimation(1,0.985,duration){EasingFunction=easing});scale.BeginAnimation(ScaleTransform.ScaleYProperty,new DoubleAnimation(1,0.985,duration){EasingFunction=easing});
-   var fade=new DoubleAnimation(opacity,0,duration){EasingFunction=easing};fade.Completed+=(sender,args)=>window.Dispatcher.BeginInvoke(new Action(()=>{
+   var fade=new DoubleAnimation(currentOpacity,0,duration){EasingFunction=easing};fade.Completed+=(sender,args)=>window.Dispatcher.BeginInvoke(new Action(()=>{
     if(closed)return;allowClose=true;window.Close();
-    if(!closed){allowClose=false;animating=false;surface.BeginAnimation(UIElement.OpacityProperty,null);surface.Opacity=opacity;surface.RenderTransform=original;surface.RenderTransformOrigin=origin;surface.IsHitTestVisible=hitTest;}
-   }));surface.BeginAnimation(UIElement.OpacityProperty,fade,HandoffBehavior.SnapshotAndReplace);
+    if(!closed){allowClose=false;animating=false;fading.BeginAnimation(UIElement.OpacityProperty,null);fading.Opacity=opacity;surface.RenderTransform=original;surface.RenderTransformOrigin=origin;surface.IsHitTestVisible=hitTest;}
+   }));fading.BeginAnimation(UIElement.OpacityProperty,fade,HandoffBehavior.SnapshotAndReplace);
   };
  }
  public static void Expander(Expander expander){

@@ -15,6 +15,8 @@ Clarity is a Windows C-drive cleaner available as an installer or portable app, 
 - **Backup and restore:** Backup-first cleanup, shortcuts to backup locations, and automatic removal of backup copies after verified restoration.
 - **History and updates:** Automatically saved cleanup records with a direct shortcut in Settings, startup update checks, and online upgrades for installed and portable editions.
 
+To upgrade from 1.0.5 or earlier, download and install 1.0.6 manually once. Later online updates support the new package names.
+
 ## Get started
 
 Requires **Windows 10/11 and .NET Framework 4.8**. Choose English or Simplified Chinese under **Settings & Backups → General**. The included TXT guide contains Chinese instructions followed by the English guide.

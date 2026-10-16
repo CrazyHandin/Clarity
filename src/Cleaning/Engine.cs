@@ -252,7 +252,7 @@ public static class RuleBook {
   foreach(string systemFile in new[]{"pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
   ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
   CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
-  CommonSoftwareRules.Add(rules,local,roaming,profile,programData);
+  CommonSoftwareRules.Add(rules,local,roaming,profile,programData);SimpleCleanupRules.Apply(rules);
   foreach(var rule in rules)if(rule.Roots.Length>0&&String.IsNullOrEmpty(rule.InfoKind)&&!rule.Id.StartsWith("system-"))rule.AllowManual=true;
   rules.First(r=>r.Id=="office").Processes=new[]{"OfficeClickToRun","msiexec","setup"};rules.First(r=>r.Id=="uv-cache").Processes=new[]{"uv"};
 

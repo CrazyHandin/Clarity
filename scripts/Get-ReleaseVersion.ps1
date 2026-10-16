@@ -17,7 +17,7 @@ if ($isBeta) {
     if ($major -gt 65535 -or $minor -gt 65535 -or $patch -gt 65535) { throw 'Invalid stable version.' }
     $tag = [string]$definition.version
 } else { throw 'Invalid release channel.' }
-$artifactTag = if ($build -gt 0) { "$tag-build$build" } else { $tag }
+$artifactTag = $tag
 [pscustomobject]@{
     Tag = $tag
     IsBeta = $isBeta
@@ -27,5 +27,5 @@ $artifactTag = if ($build -gt 0) { "$tag-build$build" } else { $tag }
     NumericVersion = $(if ($isBeta) { '0.{0}.{1}.0' -f $minor,$build } else { '{0}.{1}.{2}.{3}' -f $major,$minor,$patch,$build })
     ArtifactTag = $artifactTag
     AssetPrefix = "Clarity-$artifactTag"
-    ChecksumFile = $(if ($build -gt 0) { "SHA256SUMS-build$build.txt" } else { 'SHA256SUMS.txt' })
+    ChecksumFile = 'SHA256SUMS.txt'
 }

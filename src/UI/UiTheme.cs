@@ -45,7 +45,8 @@ public static class UiTheme {
  // Light surfaces, borders and green typography follow the beta0.02 palette.
  static readonly Dictionary<string,string> lightColors=new Dictionary<string,string>{
   {"#161D25","#F3F8F8"},{"#1B2731","#FFFFFF"},{"#1D2933","#FFFFFF"},{"#202D37","#FFFFFF"},{"#24313D","#FFFFFF"},{"#24333E","#EAF5F2"},{"#34434F","#EAF5F2"},{"#607681","#9ABBB7"},{"#344651","#D9E8E7"},{"#39C5BB","#0D857A"},{"#DFEAF2","#173E3D"},{"#CFDFEB","#245A57"},{"#EDF3F7","#173E3D"},
-  {"#083F3A","#FFFFFF"},{"#083E3A","#FFFFFF"},{"#F2B868","#925B00"},{"#E4BE81","#805500"},{"#FFADA2","#B23D34"},{"#F27777","#C63838"},{"#87B5DF","#356C9C"},{"#F69DB5","#A33363"},{"#49312F","#FDE8E5"},{"#27394C","#E8F0FA"},{"#402C3B","#FCE8F0"},{"#1B3B3B","#E1F3EF"},{"#41372A","#FFF1D6"},{"#302D28","#FFF5DF"},{"#6C5940","#D1AE6D"},{"#254B49","#DDF3ED"},{"#213C40","#DFEDE9"},{"#1E3038","#EAF5F2"},{"#FFFFFF","#FFFFFF"},{"#000000","#000000"}
+  {"#083F3A","#FFFFFF"},{"#083E3A","#FFFFFF"},{"#F2B868","#925B00"},{"#E4BE81","#805500"},{"#FFADA2","#B23D34"},{"#F27777","#C63838"},{"#87B5DF","#356C9C"},{"#F69DB5","#A33363"},{"#49312F","#FDE8E5"},{"#27394C","#E8F0FA"},{"#402C3B","#FCE8F0"},{"#1B3B3B","#E1F3EF"},{"#41372A","#FFF1D6"},{"#302D28","#FFF5DF"},{"#6C5940","#D1AE6D"},{"#254B49","#DDF3ED"},{"#213C40","#DFEDE9"},{"#1E3038","#EAF5F2"},{"#FFFFFF","#FFFFFF"},{"#000000","#000000"},
+  {"#203D31","#E7F6ED"},{"#56C98B","#27804D"},{"#C9F4DB","#235A3B"},{"#7FDBAC","#27804D"},{"#3B3323","#FFF6DF"},{"#E8BE58","#A87812"},{"#FFE6A3","#6E5010"},{"#F2CB68","#996D0D"}
  };
  static Color Map(Color color,bool light){
   if(!light||color.A==0)return color;string hex="#"+color.R.ToString("X2")+color.G.ToString("X2")+color.B.ToString("X2"),mapped;Color result;

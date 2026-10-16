@@ -864,7 +864,7 @@
   "内部构建 ": "Internal build ",
   "秒后自动关闭": "seconds until automatic close",
   "软件更新": "Software updates",
-  "检查软件更新": "Check for software updates",
+  "检查软件更新": "Check for updates",
   "检查新版本并自动下载更新": "Check for new versions and download updates automatically",
   "当前版本：": "Current version: ",
   "仓库版本：": "Repository version: ",
@@ -925,5 +925,10 @@
   "关闭 Windows 休眠 · 不经过备份": "Disable Windows hibernation · No file backup",
   "正在关闭 Windows 休眠…": "Disabling Windows hibernation…",
   "关闭 Windows 休眠需要管理员权限。请在设置中以管理员身份重新启动，然后重新扫描。": "Administrator privileges are required to disable hibernation. Restart as administrator from Settings, then scan again.",
-  "Windows 休眠已关闭；如需恢复，以管理员身份运行 powercfg /hibernate on。": "Windows hibernation is disabled. To enable it again, run powercfg /hibernate on as administrator."
+  "Windows 休眠已关闭；如需恢复，以管理员身份运行 powercfg /hibernate on。": "Windows hibernation is disabled. To enable it again, run powercfg /hibernate on as administrator.",
+  "独立日志目录中超过 14 天的 .log/.xlog 诊断输出；保留个人文档、配置、数据库与备份。": "Diagnostic .log/.xlog files older than 14 days in dedicated log folders. Personal documents, settings, databases and backups are retained.",
+  "会失去这些旧日志对应的历史故障诊断信息，不影响软件正常运行。": "Historical troubleshooting information in these logs will be lost; normal application operation is unaffected.",
+  "明确诊断目录中超过 14 天的崩溃转储与诊断输出，不处理聊天、配置或恢复资料。": "Crash dumps and diagnostic output older than 14 days in dedicated diagnostic folders. Chats, settings and recovery data are retained.",
+  "会失去对应历史崩溃的诊断资料，不影响软件正常运行。": "Historical crash diagnostics will be lost; normal application operation is unaffected.",
+  "Go 构建缓存中超过 14 天、符合 Go 哈希命名格式的编译结果；保留模块源码与标记文件。": "Go build artifacts older than 14 days with Go hash-based names. Module sources and marker files are retained."
 }

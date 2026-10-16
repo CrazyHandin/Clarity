@@ -12,8 +12,8 @@ $prefix = $metadata.AssetPrefix
 $NotesFile = (Resolve-Path -LiteralPath $NotesFile).Path
 $OutputRoot = (Resolve-Path -LiteralPath $OutputRoot).Path
 $packages = @("$prefix-setup.exe","$prefix-portable.zip","$prefix-source.zip")
-$immutable = $packages + @($metadata.ChecksumFile)
-$names = $immutable + @('Clarity-update.json')
+$payloads = $packages + @($metadata.ChecksumFile)
+$names = $payloads + @('Clarity-update.json')
 foreach ($name in $names) { if (-not (Test-Path -LiteralPath (Join-Path $OutputRoot $name) -PathType Leaf)) { throw "Missing release asset: $name" } }
 $checksums = @{}
 foreach ($line in Get-Content -LiteralPath (Join-Path $OutputRoot $metadata.ChecksumFile)) {
@@ -47,16 +47,30 @@ if (-not $record) {
 $maximum = 0
 foreach ($asset in $record.assets) { $maximum = [Math]::Max($maximum,(Get-AssetBuild $asset.name $tag)) }
 if ($maximum -gt $metadata.Build) { throw 'A newer internal build is already published.' }
-foreach ($name in $immutable) {
+$previousBuild = 0
+if (@($record.assets | Where-Object name -eq 'Clarity-update.json').Count -gt 0) {
+    $previousFile = Join-Path $OutputRoot ('publish-state-'+[Guid]::NewGuid().ToString('N')+'.json')
+    try {
+        Invoke-Gh -Arguments @('release','download',$tag,'--repo',$Repository,'--pattern','Clarity-update.json','--output',$previousFile) | Out-Null
+        $previous = Get-Content -LiteralPath $previousFile -Raw | ConvertFrom-Json
+        if ($previous.Schema -ne 1 -or $previous.Version -ne $tag -or $previous.Build -lt 1 -or $previous.Build -gt 65535) { throw 'Invalid existing update manifest.' }
+        $previousBuild = [int]$previous.Build
+        if ($previousBuild -gt $metadata.Build) { throw 'A newer internal build is already published.' }
+    } finally { if (Test-Path -LiteralPath $previousFile) { Remove-Item -LiteralPath $previousFile -Force } }
+}
+foreach ($name in $payloads) {
     $old = @($record.assets | Where-Object name -eq $name)
     $hash = (Get-FileHash -LiteralPath (Join-Path $OutputRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($old.Count -gt 0) {
-        if ($old.Count -ne 1 -or $old[0].digest -ne "sha256:$hash") { throw "Internal build assets are immutable; increment the build number: $name" }
+        if ($old.Count -ne 1) { throw "Duplicate release attachment: $name" }
+        if ($old[0].digest -eq "sha256:$hash") { continue }
+        if ($previousBuild -lt 1 -or $previousBuild -ge $metadata.Build) { throw "Increment the internal build before replacing a package: $name" }
+        Invoke-Gh -Arguments @('release','upload',$tag,(Join-Path $OutputRoot $name),'--clobber','--repo',$Repository) | Out-Null
         continue
     }
     Invoke-Gh -Arguments @('release','upload',$tag,(Join-Path $OutputRoot $name),'--repo',$Repository) | Out-Null
 }
-# The current-build pointer is replaced only after the immutable packages exist.
+# Replace the current-build pointer after all packages are uploaded.
 Invoke-Gh -Arguments @('release','upload',$tag,(Join-Path $OutputRoot 'Clarity-update.json'),'--clobber','--repo',$Repository) | Out-Null
 $confirmed = $false
 for ($attempt=0; $attempt -lt 6; $attempt++) {
@@ -72,17 +86,17 @@ for ($attempt=0; $attempt -lt 6; $attempt++) {
     Start-Sleep -Seconds 2
 }
 if (-not $confirmed) { throw 'The published files did not match the build artifacts.' }
-Invoke-Gh -Arguments @('release','edit',$tag,'--repo',$Repository,'--draft=false','--prerelease=false','--latest=true') | Out-Null
+Invoke-Gh -Arguments @('release','edit',$tag,'--repo',$Repository,'--draft=false','--prerelease=false','--latest=true','--title',"Clarity $tag",'--notes-file',$NotesFile) | Out-Null
 $latest = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/latest",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
 if ($latest.tag_name -ne $tag -or $latest.draft -or $latest.prerelease) { throw 'Latest release was not confirmed.' }
 # Retire older build files only after the new packages and current-build pointer are verified.
-$obsolete = @($record.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -lt $metadata.Build })
+$obsolete = @($record.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -le $metadata.Build -and $_.name -notin $names })
 foreach ($asset in $obsolete) {
     Invoke-Gh -Arguments @('api','--method','DELETE',"repos/$Repository/releases/assets/$($asset.id)") | Out-Null
 }
 if ($obsolete.Count -gt 0) {
     $remaining = Invoke-Gh -Arguments @('api',"repos/$Repository/releases/$($record.id)",'--header','Cache-Control: no-cache') | Out-String | ConvertFrom-Json
-    if (@($remaining.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -lt $metadata.Build }).Count -gt 0) { throw 'Older build attachments were not fully removed.' }
+    if (@($remaining.assets | Where-Object { $build = Get-AssetBuild $_.name $tag; $build -gt 0 -and $build -le $metadata.Build -and $_.name -notin $names }).Count -gt 0) { throw 'Older build attachments were not fully removed.' }
     foreach ($name in $names) {
         $before = @($record.assets | Where-Object name -eq $name)
         $after = @($remaining.assets | Where-Object name -eq $name)
