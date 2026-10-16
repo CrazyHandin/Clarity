@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.0.6",
-  "build": 1,
+  "build": 2,
   "highlights": {
     "zh-CN": "扩展简洁清理中的低风险缓存与旧诊断资料，优化软件更新弹窗及主题切换操作。",
     "en": "Expanded simple cleanup with low-risk caches and older diagnostic files, and improved update dialogs and theme switching."
