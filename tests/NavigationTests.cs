@@ -13,7 +13,7 @@ public sealed partial class Controller {
  }
  async Task VerifyNavigation(string output,Action<bool,string> check){
   UiText.SetLanguage("zh-CN");Apply(engine.Scan(CancellationToken.None,null));SetMode(true);var chosen=leaves.First(n=>n.Selectable);chosen.Selected=true;var originalEngine=engine;var originalLeaves=leaves;var before=Chosen().ToArray();int windows=Application.Current.Windows.Count;
-  check(Window.Title=="Clarity"&&Get<TextBlock>("VersionLabel")==null&&Window.WindowStyle==WindowStyle.None,"Clarity has a unified caption and shows no version outside About");
+  check(Window.Title=="Clarity"&&Get<TextBlock>("VersionLabel")==null&&System.Windows.Shell.WindowChrome.GetWindowChrome(Window)!=null,"Clarity has a unified custom caption and shows no version outside About");
   var options=new CleanerSettings{RecoveryDirectory=Path.Combine(output,"navigation-backups")};OpenSettings(options,null,s=>{});
   await Window.Dispatcher.InvokeAsync(new Action(()=>Window.UpdateLayout()),System.Windows.Threading.DispatcherPriority.ContextIdle);
   var root=settingsView.Root;var tabs=(TabControl)root.FindName("RulesTabs");check(Application.Current.Windows.Count==windows&&Get<Grid>("MainLayout").Visibility==Visibility.Collapsed&&Get<ContentControl>("PageHost").Content==root,"Settings navigates inside the existing window without creating another window");

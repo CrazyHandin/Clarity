@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.0.6",
-  "build": 4,
+  "build": 5,
   "highlights": {
     "zh-CN": "新增按需更新服务与发布者签名校验，优化软件更新体验；扩展简洁清理中的低风险缓存与旧诊断资料。",
     "en": "Added an on-demand update service and publisher signature verification for smoother updates; expanded simple cleanup with low-risk caches and older diagnostics."

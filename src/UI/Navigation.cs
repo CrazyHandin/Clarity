@@ -5,13 +5,12 @@ using System.Windows;
 using System.Windows.Controls;
 namespace ClearSpace {
 public sealed partial class Controller {
- readonly List<FrameworkElement> pages=new List<FrameworkElement>();SettingsView settingsView;WindowTransitions windowTransitions;
+ readonly List<FrameworkElement> pages=new List<FrameworkElement>();SettingsView settingsView;
  public Action<string> OpenProject=url=>Process.Start(new ProcessStartInfo(url){UseShellExecute=true});
  void InitializeChrome(){
   UiMotion.SetEnabled(Window,SystemParameters.ClientAreaAnimation);
   Get<Image>("CaptionLogo").Source=Window.Icon;
-  windowTransitions=new WindowTransitions(Window,Get<Grid>("WindowRoot"));
-  Get<Button>("MinimizeWindow").Click+=(s,e)=>{windowTransitions.LastTransition=windowTransitions.Minimize();};
+  Get<Button>("MinimizeWindow").Click+=(s,e)=>SystemCommands.MinimizeWindow(Window);
   Get<Button>("MaximizeWindow").Click+=(s,e)=>{if(Window.WindowState==WindowState.Maximized)SystemCommands.RestoreWindow(Window);else SystemCommands.MaximizeWindow(Window);};
   Get<Button>("CloseWindow").Click+=(s,e)=>SystemCommands.CloseWindow(Window);
   UiMotion.CloseOnRequest(Window,Get<Grid>("WindowRoot"));
@@ -21,7 +20,7 @@ public sealed partial class Controller {
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
   settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess);
-  PushPage(settingsView.Root);RefreshUpdateBadges();
+  PushPage(settingsView.Root);RefreshSoftwareUpdateState();
  }
  void PushPage(FrameworkElement page){pages.Add(page);ShowNavigationPage(page);}
  void ShowNavigationPage(FrameworkElement page){
@@ -33,7 +32,7 @@ public sealed partial class Controller {
   if(pages.Count>0){ShowNavigationPage(pages[pages.Count-1]);return;}
   var host=Get<ContentControl>("PageHost");host.Content=null;host.Visibility=Visibility.Collapsed;settingsView=null;Get<Grid>("MainLayout").Visibility=Visibility.Visible;UiText.Attach(Window);UiMotion.Reveal(Get<Grid>("MainLayout"));
  }
- void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),OpenProject,()=>{LastSoftwareOperation=CheckSoftwareUpdatesAsync(true);},OpenReleaseNotes));RefreshUpdateBadges();RefreshAboutUpdateState();}
+ void OpenAbout(){PushPage(About.Create(Window,BackPage,()=>PushPage(DocumentPage.Create(false,BackPage)),()=>PushPage(DocumentPage.Create(true,BackPage)),()=>PushPage(DocumentPage.Terms(BackPage)),OpenProject,SoftwareUpdateAction,OpenReleaseNotes));RefreshSoftwareUpdateState();}
  bool NavigationCanClose(){return settingsView==null||settingsView.TryLeave();}
 }
 }

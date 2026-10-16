@@ -55,15 +55,18 @@ public static class UiMotion {
  }
  public static void CloseOnRequest(Window window,FrameworkElement surface){
   if(surface==null)return;bool animating=false,allowClose=false,closed=false;
-  window.Closed+=(s,e)=>closed=true;window.PreviewKeyDown+=(s,e)=>{if(animating)e.Handled=true;};
+  // Opaque WPF windows need native alpha to include their backing in the fade.
+  NativeWindowFade nativeFade=null;
+  window.Closed+=(s,e)=>{closed=true;if(nativeFade!=null)nativeFade.Finish();};window.PreviewKeyDown+=(s,e)=>{if(animating)e.Handled=true;};
   window.Closing+=(s,e)=>{
-   if(e.Cancel||allowClose||!window.IsVisible||!GetEnabled(window))return;e.Cancel=true;if(animating)return;animating=true;
-   double currentOpacity=surface.Opacity;bool hitTest=surface.IsHitTestVisible;double opacity=(double)surface.GetAnimationBaseValue(UIElement.OpacityProperty);var original=surface.RenderTransform;var origin=surface.RenderTransformOrigin;var openingScale=original as ScaleTransform;double fromX=openingScale==null?1:openingScale.ScaleX,fromY=openingScale==null?1:openingScale.ScaleY;surface.IsHitTestVisible=false;surface.RenderTransformOrigin=new Point(0.5,0.5);var scale=new ScaleTransform();surface.RenderTransform=scale;
-   var duration=TimeSpan.FromMilliseconds(170);var easing=new QuadraticEase{EasingMode=EasingMode.EaseIn};scale.BeginAnimation(ScaleTransform.ScaleXProperty,new DoubleAnimation(fromX,0.985,duration){EasingFunction=easing});scale.BeginAnimation(ScaleTransform.ScaleYProperty,new DoubleAnimation(fromY,0.985,duration){EasingFunction=easing});
+   if(e.Cancel||allowClose||!window.IsVisible||!GetEnabled(window))return;e.Cancel=true;if(animating)return;
+   if(!window.AllowsTransparency){nativeFade=NativeWindowFade.Create(window);if(nativeFade==null){e.Cancel=false;return;}}animating=true;
+   double currentOpacity=nativeFade==null?surface.Opacity:1;bool hitTest=surface.IsHitTestVisible;double opacity=(double)surface.GetAnimationBaseValue(UIElement.OpacityProperty);var original=surface.RenderTransform;var origin=surface.RenderTransformOrigin;var openingScale=original as ScaleTransform;double fromX=openingScale==null?1:openingScale.ScaleX,fromY=openingScale==null?1:openingScale.ScaleY;surface.IsHitTestVisible=false;surface.RenderTransformOrigin=new Point(0.5,0.5);var scale=new ScaleTransform();surface.RenderTransform=scale;
+   var duration=TimeSpan.FromMilliseconds(window.AllowsTransparency?170:220);var easing=new QuadraticEase{EasingMode=EasingMode.EaseInOut};scale.BeginAnimation(ScaleTransform.ScaleXProperty,new DoubleAnimation(fromX,0.985,duration){EasingFunction=easing});scale.BeginAnimation(ScaleTransform.ScaleYProperty,new DoubleAnimation(fromY,0.985,duration){EasingFunction=easing});
    var fade=new DoubleAnimation(currentOpacity,0,duration){EasingFunction=easing};fade.Completed+=(sender,args)=>window.Dispatcher.BeginInvoke(new Action(()=>{
     if(closed)return;allowClose=true;window.Close();
-    if(!closed){allowClose=false;animating=false;surface.BeginAnimation(UIElement.OpacityProperty,null);surface.Opacity=opacity;surface.RenderTransform=original;surface.RenderTransformOrigin=origin;surface.IsHitTestVisible=hitTest;}
-   }));surface.BeginAnimation(UIElement.OpacityProperty,fade,HandoffBehavior.SnapshotAndReplace);
+    if(!closed){allowClose=false;animating=false;if(nativeFade!=null){nativeFade.Restore();nativeFade=null;}else{surface.BeginAnimation(UIElement.OpacityProperty,null);surface.Opacity=opacity;}surface.RenderTransform=original;surface.RenderTransformOrigin=origin;surface.IsHitTestVisible=hitTest;}
+   }));if(nativeFade!=null)nativeFade.BeginAnimation(NativeWindowFade.LevelProperty,fade,HandoffBehavior.SnapshotAndReplace);else surface.BeginAnimation(UIElement.OpacityProperty,fade,HandoffBehavior.SnapshotAndReplace);
   };
  }
  public static void Expander(Expander expander){
