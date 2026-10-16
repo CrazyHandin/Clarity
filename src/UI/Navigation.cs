@@ -17,7 +17,7 @@ public sealed partial class Controller {
   UiMotion.CloseOnRequest(Window,Get<Grid>("WindowRoot"));
   Window.StateChanged+=(s,e)=>{Get<Button>("MaximizeWindow").Content=Window.WindowState==WindowState.Maximized?"\uE923":"\uE922";Get<Button>("MaximizeWindow").ToolTip=Window.WindowState==WindowState.Maximized?"还原窗口":"最大化";};
  }
- void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();UiText.SetLanguage(settings.Language);RefreshTheme(UiMotion.GetEnabled(Window));}
+ void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();if(UiText.Language!=UiText.Normalize(settings.Language))UiText.SetLanguage(settings.Language);RefreshTheme(UiMotion.GetEnabled(Window));}
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
   settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess);

@@ -6,15 +6,16 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Windows.Threading;
+using System.Windows.Media.Animation;
 using Microsoft.Win32;
 namespace ClearSpace {
 public sealed class ThemeColorSlot:INotifyPropertyChanged {
+ internal SolidColorBrush Brush;internal Color LightColor;internal int Revision;
  public Color Original;Color color;public Color Color{get{return color;}set{if(color==value)return;color=value;if(PropertyChanged!=null)PropertyChanged(this,new PropertyChangedEventArgs("Color"));}}
  public event PropertyChangedEventHandler PropertyChanged;
 }
 public static class UiTheme {
- static readonly ResourceDictionary palette=new ResourceDictionary();static readonly Dictionary<string,ThemeColorSlot> slots=new Dictionary<string,ThemeColorSlot>();static DispatcherTimer transition;
+ static readonly ResourceDictionary palette=new ResourceDictionary();static readonly Dictionary<string,ThemeColorSlot> slots=new Dictionary<string,ThemeColorSlot>();static readonly HashSet<string> colorResources=new HashSet<string>();
  public static bool Light{get;private set;}
  public static string Normalize(string value){return String.Equals(value,"system",StringComparison.OrdinalIgnoreCase)?"system":String.Equals(value,"light",StringComparison.OrdinalIgnoreCase)?"light":"dark";}
  internal static Func<bool> SystemLight=ReadSystemLight;
@@ -23,25 +24,29 @@ public static class UiTheme {
  static string Key(Color color){return color.ToString().Substring(1);}
  public static Brush Brush(string value){
   Color color=Parse(value);string key=Key(color);ThemeColorSlot slot;if(!slots.TryGetValue(key,out slot)){
-   slot=new ThemeColorSlot{Original=color,Color=Map(color,Light)};slots[key]=slot;
-   var brush=new SolidColorBrush();BindingOperations.SetBinding(brush,SolidColorBrush.ColorProperty,new Binding("Color"){Source=slot});palette["ThemeBrush"+key]=brush;palette["ThemeColor"+key]=slot.Color;
-   slot.PropertyChanged+=(s,e)=>palette["ThemeColor"+key]=slot.Color;
+   Color mapped=Map(color,true);slot=new ThemeColorSlot{Original=color,LightColor=mapped,Color=Light?mapped:color};slots[key]=slot;
+   var brush=new SolidColorBrush();slot.Brush=brush;BindingOperations.SetBinding(brush,SolidColorBrush.ColorProperty,new Binding("Color"){Source=slot});palette["ThemeBrush"+key]=brush;palette["ThemeColor"+key]=slot.Color;
+   slot.PropertyChanged+=(s,e)=>{if(colorResources.Contains(key))palette["ThemeColor"+key]=slot.Color;};
   }return (Brush)palette["ThemeBrush"+key];
  }
- static string Resource(string value,bool color){Brush(value);return "{DynamicResource Theme"+(color?"Color":"Brush")+Key(Parse(value))+"}";}
+ static string Resource(string value,bool color){Brush(value);string key=Key(Parse(value));if(color)colorResources.Add(key);return "{DynamicResource Theme"+(color?"Color":"Brush")+key+"}";}
  public static string Markup(string markup){
   markup=Regex.Replace(markup,@"(?<prefix>\b(?:Background|Foreground|BorderBrush|Stroke|Fill|Color)\s*=\s*)(?<q>['"+"\""+@"])(?<value>\#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)\k<q>",m=>m.Groups["prefix"].Value+m.Groups["q"].Value+Resource(m.Groups["value"].Value,m.Groups["prefix"].Value.TrimStart().StartsWith("Color"))+m.Groups["q"].Value);
   return Regex.Replace(markup,@"(?<prefix>\bProperty\s*=\s*['"+"\""+@"](?:Background|Foreground|BorderBrush|Stroke|Fill)['"+"\""+@"][^<>]*?\bValue\s*=\s*)(?<q>['"+"\""+@"])(?<value>\#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)\k<q>",m=>m.Groups["prefix"].Value+m.Groups["q"].Value+Resource(m.Groups["value"].Value,false)+m.Groups["q"].Value);
  }
  public static void Attach(FrameworkElement root){if(!root.Resources.MergedDictionaries.Contains(palette))root.Resources.MergedDictionaries.Add(palette);}
  public static void Set(string value,bool animate){
-  bool light=Normalize(value)=="system"?SystemLight():Normalize(value)=="light";if(transition!=null){transition.Stop();transition=null;}Light=light;
-  var start=slots.Values.ToDictionary(s=>s,s=>s.Color);var targets=start.Keys.ToDictionary(s=>s,s=>Map(s.Original,light));
-  if(!animate){foreach(var item in targets)item.Key.Color=item.Value;return;}
-  DateTime began=DateTime.UtcNow;transition=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(16)};
-  transition.Tick+=(s,e)=>{double p=Math.Min(1,(DateTime.UtcNow-began).TotalMilliseconds/240);double eased=p*p*(3-2*p);foreach(var item in targets){Color from=start[item.Key],to=item.Value;item.Key.Color=Color.FromArgb(Blend(from.A,to.A,eased),Blend(from.R,to.R,eased),Blend(from.G,to.G,eased),Blend(from.B,to.B,eased));}if(p>=1){((DispatcherTimer)s).Stop();if(ReferenceEquals(transition,s))transition=null;}};transition.Start();
+  bool light=Normalize(value)=="system"?SystemLight():Normalize(value)=="light";if(animate&&light==Light)return;Light=light;
+  foreach(var slot in slots.Values.ToArray()){
+   var brush=slot.Brush;Color from=brush.Color,to=light?slot.LightColor:slot.Original;int revision=++slot.Revision;
+   brush.BeginAnimation(SolidColorBrush.ColorProperty,null);slot.Color=to;
+   if(!animate||from==to)continue;
+   // Keep resource notifications out of animation frames; WPF animates the shared brush.
+   var animation=new ColorAnimation(from,to,TimeSpan.FromMilliseconds(240)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut},FillBehavior=FillBehavior.Stop};
+   var current=slot;animation.Completed+=(s,e)=>{if(current.Revision==revision)brush.BeginAnimation(SolidColorBrush.ColorProperty,null);};
+   brush.BeginAnimation(SolidColorBrush.ColorProperty,animation,HandoffBehavior.SnapshotAndReplace);
+  }
  }
- static byte Blend(byte a,byte b,double p){return (byte)Math.Round(a+(b-a)*p);}
  // Light surfaces, borders and green typography follow the beta0.02 palette.
  static readonly Dictionary<string,string> lightColors=new Dictionary<string,string>{
   {"#161D25","#F3F8F8"},{"#1B2731","#FFFFFF"},{"#1D2933","#FFFFFF"},{"#202D37","#FFFFFF"},{"#24313D","#FFFFFF"},{"#24333E","#EAF5F2"},{"#34434F","#EAF5F2"},{"#607681","#9ABBB7"},{"#344651","#D9E8E7"},{"#39C5BB","#0D857A"},{"#DFEAF2","#173E3D"},{"#CFDFEB","#245A57"},{"#EDF3F7","#173E3D"},

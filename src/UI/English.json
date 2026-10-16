@@ -10,6 +10,8 @@
   "界面语言": "Interface language",
   "语言修改自动保存，立即生效。": "Language changes are saved automatically and take effect immediately.",
   "语言设置已保存。": "Language preference saved.",
+  "总容量 ": "Capacity ",
+  "可用 ": "Free ",
   "语言设置未保存：": "Language preference was not saved: ",
   "当前已以管理员身份运行。": "Currently running as administrator.",
   "当前使用普通权限。": "Currently running with standard permissions.",
