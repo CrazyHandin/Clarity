@@ -14,6 +14,11 @@ public sealed class VerifiedUpdatePayload {
 public static class UpdatePackage {
  static readonly HashSet<string> Allowed=new HashSet<string>(new[]{"Clarity.exe","Clarity.exe.config","使用说明.txt","README.md","README.en.md","CHANGELOG.md","THIRD_PARTY_NOTICES.md","LICENSE.txt","VERIFICATION.txt","SHA256.txt","docs/版本历史.md","docs/清理依据.md","docs/常用软件规则.md","docs/清理规则一览.md","docs/规则库维护.md","docs/Winapp2-使用说明.md","docs/Winapp2-License.md","docs/BUILD.md","docs/TERMS.txt","docs/JSON规则填写说明.txt","rules/Winapp2.ini","rules/ApplicationRules.template.json","rules/BundledRules.signed.json","rules/rule-public-key.xml"},StringComparer.OrdinalIgnoreCase);
  static UpdatePackage(){Allowed.Add(UpdateServiceProtocol.ExecutableName);Allowed.Add(UpdateServiceProtocol.ExecutableName+".config");}
+ static readonly string[] InstalledFiles={"Clarity.exe","Clarity.exe.config","Clarity.UpdateService.exe","Clarity.UpdateService.exe.config","使用说明.txt","rules/Winapp2.ini"};
+ public static VerifiedUpdatePayload ForInstalledApplication(VerifiedUpdatePayload payload){
+  if(payload==null||InstalledFiles.Any(name=>!payload.Files.Any(file=>file.Name.Equals(name,StringComparison.OrdinalIgnoreCase))))throw new InvalidDataException("安装版更新缺少必要的程序文件");
+  return new VerifiedUpdatePayload(payload.DirectoryPath,payload.Files.Where(file=>InstalledFiles.Contains(file.Name,StringComparer.OrdinalIgnoreCase)).ToList());
+ }
  public static bool SafeFutureParents(string path){
   try{string current=Path.GetDirectoryName(Path.GetFullPath(path));if(String.IsNullOrEmpty(current)||current.StartsWith("\\\\",StringComparison.Ordinal))return false;
    while(!Directory.Exists(current)){try{File.GetAttributes(current);return false;}catch(FileNotFoundException){}catch(DirectoryNotFoundException){}current=Path.GetDirectoryName(current);if(String.IsNullOrEmpty(current))return false;}

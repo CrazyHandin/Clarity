@@ -36,7 +36,7 @@ Settings, About, and the built-in user guide open inside the main window. Return
 
 Click **Check for software updates** in About. Available updates open in a small window with release notes and download progress. New versions add red badges to Settings and About. **What's new in this version** shows the current version's summary.
 
-For installations in a protected Program Files directory, setup configures an on-demand update service. Initial installation or upgrading an older version still requires administrator approval; subsequent updates normally do not. Update manifests require the publisher's signature and packages are checked with SHA-256. The service exits after its task. Portable copies and other installation locations retain their existing update method.
+Protected Program Files installations use an on-demand update service. Custom locations writable by the current account, such as Desktop, update application files directly while preserving the uninstaller, history and backups. Both methods avoid repeated administrator approval; unwritable locations or an unavailable service use the installer with authorization. Update manifests require the publisher's signature and packages are checked with SHA-256. Running the installer manually still requires administrator permission.
 
 Simple cleanup handles only eligible low-risk items. Advanced cleanup allows individual selection and review. Unknown caches and community rules are unchecked by default, advanced-only, and always backed up.
 
