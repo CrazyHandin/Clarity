@@ -32,7 +32,7 @@
      <Trigger Property="IsChecked" Value="{x:Null}"><Setter TargetName="Box" Property="Background" Value="#39C5BB"/><Setter TargetName="Box" Property="BorderBrush" Value="#39C5BB"/><Setter TargetName="Mixed" Property="Visibility" Value="Visible"/></Trigger>
      <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsChecked" Value="True"/><Condition Property="local:UiMotion.Enabled" Value="True"/></MultiTrigger.Conditions><MultiTrigger.EnterActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Box" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.86" To="1" Duration="0:0:0.15" FillBehavior="Stop"/><DoubleAnimation Storyboard.TargetName="Box" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.86" To="1" Duration="0:0:0.15" FillBehavior="Stop"/></Storyboard></BeginStoryboard></MultiTrigger.EnterActions></MultiTrigger>
      <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="#39C5BB"/></Trigger>
-     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="#ECF9F8"/><Setter TargetName="Box" Property="BorderThickness" Value="2"/></Trigger>
+     <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsKeyboardFocused" Value="True"/><Condition Property="IsChecked" Value="False"/></MultiTrigger.Conditions><Setter TargetName="Box" Property="BorderBrush" Value="#ECF9F8"/><Setter TargetName="Box" Property="BorderThickness" Value="2"/></MultiTrigger>
      <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Box" Property="Opacity" Value="0.4"/></Trigger>
     </ControlTemplate.Triggers>
    </ControlTemplate></Setter.Value></Setter>
