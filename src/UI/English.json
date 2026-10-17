@@ -1045,5 +1045,6 @@
   " · 已取消，未导入": " · Cancelled; not imported",
   "JSON 文件：": "JSON file: ",
   "成功": " successful",
-  " 条规则 · ": " rules · "
+  " 条规则 · ": " rules · ",
+  "软件更新检查超时，请检查网络后重试。": "The update check timed out. Check your connection and try again."
 }

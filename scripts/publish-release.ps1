@@ -103,4 +103,5 @@ if ($obsolete.Count -gt 0) {
         if ($after.Count -ne 1 -or $after[0].id -ne $before[0].id -or $after[0].digest -ne $before[0].digest) { throw "Current build asset changed during cleanup: $name" }
     }
 }
+& (Join-Path $PSScriptRoot 'Publish-UpdateChannel.ps1') -Repository $Repository -OutputRoot $OutputRoot -GitHubCli $GitHubCli | Out-Host
 Write-Output $latest.html_url

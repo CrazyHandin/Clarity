@@ -95,7 +95,7 @@ foreach ($file in (Get-ChildItem -LiteralPath @((Join-Path $PSScriptRoot 'src'),
     $sourceFiles += $file.FullName.Substring($PSScriptRoot.TrimEnd('\').Length + 1).Replace('\','/')
 }
 $sourceFiles += @('scripts/Get-ReleaseVersion.ps1','scripts/Test-UpdatePackageLayout.ps1','tests/UpdatePackageCompatibility.ps1','rules/RulePack.template.json')
-$sourceFiles += @('assets/update-public-key.xml','scripts/Sign-UpdateManifest.ps1')
+$sourceFiles += @('assets/update-public-key.xml','scripts/Sign-UpdateManifest.ps1','scripts/Publish-UpdateChannel.ps1')
 $sourceFiles = @($sourceFiles | Sort-Object -Unique)
 & (Join-Path $PSScriptRoot 'scripts/Test-UpdatePackageLayout.ps1') -Names $portableFiles
 Write-Archive $portable $destination $portableFiles

@@ -18,6 +18,7 @@ public sealed class SoftwareRelease {
 public static class SoftwareUpdates {
  public const string Repository="CrazyHandin/Clarity",ReleasePage="https://github.com/CrazyHandin/Clarity/releases/latest";
  public const string LatestManifestUrl="https://github.com/"+Repository+"/releases/latest/download/Clarity-update.json";
+ public const string DirectManifestUrl="https://raw.githubusercontent.com/"+Repository+"/updates/Clarity-update.json";
  public const long MaxPackageBytes=180L*1024*1024;
  static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=2*1024*1024,RecursionLimit=32};
  public static long VersionNumber(string version){
@@ -33,11 +34,12 @@ public static class SoftwareUpdates {
  public static string HashFile(string path){using(var file=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read))using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(file)).Replace("-","").ToLowerInvariant();}
  public static bool TrustedDownload(Uri uri){return uri!=null&&uri.Scheme=="https"&&uri.IsDefaultPort&&String.IsNullOrEmpty(uri.UserInfo)&&String.IsNullOrEmpty(uri.Fragment)&&(uri.Host.Equals("github.com",StringComparison.OrdinalIgnoreCase)||uri.Host.Equals("release-assets.githubusercontent.com",StringComparison.OrdinalIgnoreCase)||uri.Host.Equals("objects.githubusercontent.com",StringComparison.OrdinalIgnoreCase));}
  public static string AssetUrl(string version,string name){VersionNumber(version);if(!Regex.IsMatch(name??"","^[A-Za-z0-9.+_-]+$"))throw new InvalidDataException("更新文件名无效");return "https://github.com/"+Repository+"/releases/download/"+version+"/"+name;}
- static void Transfer(string url,Stream target,long limit,CancellationToken token,Action<long,long> progress){
+ internal static bool TrustedManifest(Uri uri){return TrustedDownload(uri)||uri!=null&&uri.Scheme=="https"&&uri.IsDefaultPort&&String.IsNullOrEmpty(uri.UserInfo)&&String.IsNullOrEmpty(uri.Fragment)&&uri.GetLeftPart(UriPartial.Path)==DirectManifestUrl;}
+ static void Transfer(string url,Stream target,long limit,CancellationToken token,Action<long,long> progress,bool manifest=false){
   token.ThrowIfCancellationRequested();
   ServicePointManager.SecurityProtocol|=SecurityProtocolType.Tls12;var uri=new Uri(url);
   for(int redirects=0;redirects<6;redirects++){
-   if(!TrustedDownload(uri))throw new InvalidDataException("更新下载地址不受信任");var request=(HttpWebRequest)WebRequest.Create(uri);request.AllowAutoRedirect=false;request.Timeout=15000;request.ReadWriteTimeout=15000;request.UserAgent="Clarity/"+ReleaseVersion.FullVersion;request.Accept="application/octet-stream";request.CachePolicy=new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);request.Headers[HttpRequestHeader.CacheControl]="no-cache";
+   token.ThrowIfCancellationRequested();if(!(manifest?TrustedManifest(uri):TrustedDownload(uri)))throw new InvalidDataException("更新下载地址不受信任");var request=(HttpWebRequest)WebRequest.Create(uri);request.AllowAutoRedirect=false;request.Timeout=15000;request.ReadWriteTimeout=15000;request.UserAgent="Clarity/"+ReleaseVersion.FullVersion;request.Accept="application/octet-stream";request.CachePolicy=new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);request.Headers[HttpRequestHeader.CacheControl]="no-cache";
    using(token.Register(()=>request.Abort()))using(var response=Response(request,token)){
     int code=(int)response.StatusCode;if(code==301||code==302||code==303||code==307||code==308){uri=new Uri(uri,response.Headers["Location"]);continue;}
     if(response.StatusCode!=HttpStatusCode.OK||response.ContentLength>limit)throw new IOException("更新服务器响应无效");long total=0;using(var source=response.GetResponseStream()){byte[] buffer=new byte[65536];int read;while((read=source.Read(buffer,0,buffer.Length))>0){token.ThrowIfCancellationRequested();total+=read;if(total>limit)throw new InvalidDataException("更新文件超过大小限制");target.Write(buffer,0,read);if(progress!=null)progress(total,response.ContentLength);}}token.ThrowIfCancellationRequested();return;
@@ -46,11 +48,11 @@ public static class SoftwareUpdates {
   throw new IOException("更新下载重定向过多");
  }
  static HttpWebResponse Response(HttpWebRequest request,CancellationToken token){try{return (HttpWebResponse)request.GetResponse();}catch(WebException ex){token.ThrowIfCancellationRequested();using(var response=ex.Response as HttpWebResponse){if(response!=null){int code=(int)response.StatusCode;throw new IOException(UiText.T(code==403?"更新服务器拒绝访问，请稍后重试或检查网络连接（HTTP 403）。":code==429?"更新请求过于频繁，请稍后重试（HTTP 429）。":code==404?"暂未找到软件更新，请稍后重试（HTTP 404）。":"无法连接更新服务器，请稍后重试。"),ex);}}throw new IOException(UiText.T("无法连接更新服务器，请稍后重试。"),ex);}}
- static string Text(string url,long limit,CancellationToken token){using(var memory=new MemoryStream()){Transfer(url,memory,limit,token,null);return Encoding.UTF8.GetString(memory.ToArray());}}
+ static string Text(string url,long limit,CancellationToken token){if(url==DirectManifestUrl)url+="?check="+DateTime.UtcNow.Ticks;using(var memory=new MemoryStream()){Transfer(url,memory,limit,token,null,true);return Encoding.UTF8.GetString(memory.ToArray());}}
  public static SoftwareRelease Check(CancellationToken token){
   return Check(token,Text);
  }
- public static SoftwareRelease Check(CancellationToken token,Func<string,long,CancellationToken,string> read,string publicKey=null){token.ThrowIfCancellationRequested();return ParseDownloadManifest(UpdateTrust.Verify(read(LatestManifestUrl,65536,token),publicKey));}
+ public static SoftwareRelease Check(CancellationToken token,Func<string,long,CancellationToken,string> read,string publicKey=null){return UpdateChecks.Check(token,read,publicKey);}
  public static SoftwareRelease ParseDownloadManifest(string raw){
   if(raw==null||Encoding.UTF8.GetByteCount(raw)>65536)throw new InvalidDataException("更新清单过大");var data=Object(Json.DeserializeObject(raw));string tag=Value(data,"Version");VersionNumber(tag);int build=Convert.ToInt32(data["Build"]);if(Convert.ToInt32(data["Schema"])!=1||build<1||build>65535)throw new InvalidDataException("更新清单版本无效");var result=new SoftwareRelease{Version=tag,Build=build,Notes=""};string prefix="Clarity-"+tag,legacyPrefix=prefix+"-build"+build;
   if(data.ContainsKey("Highlights")){var highlights=data["Highlights"]as Dictionary<string,object>;if(highlights!=null)result.Notes=Value(highlights,UiText.English?"en":"zh-CN");}
