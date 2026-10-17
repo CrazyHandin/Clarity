@@ -1,7 +1,7 @@
 {
   "Schema": 1,
   "Version": "1.1.0",
-  "Build": 9,
+  "Build": 10,
   "Highlights": {
     "zh-CN": "新增统一的 JSON 规则库，支持多文件导入、独立启停与只读预览；Winapp2 与 JSON 可同时启用，支持文件名、保留期及大小条件。",
     "en": "Added a unified JSON rule library with multi-file import, individual toggles and read-only previews; use Winapp2 and JSON together with filename, age and size conditions."
@@ -9,15 +9,15 @@
   "Artifacts": [
     {
       "Name": "Clarity-1.1.0-setup.exe",
-      "Size": 2816963,
-      "SHA256": "49596736c002c58c2128f2e41c36eccc1bd50f9926fef993636325ff0ed5f43d"
+      "Size": 2817024,
+      "SHA256": "4b5c2044918f64801eea8f88f61a92f5991028c931f6dd062d893adb7bbdcffa"
     },
     {
       "Name": "Clarity-1.1.0-portable.zip",
-      "Size": 576049,
-      "SHA256": "b3beeaaeeaa47c1f92fd032ce79f690d3fdbfdec96e91d8b63b728358c99352a"
+      "Size": 576083,
+      "SHA256": "670795c15444ba7bf9c331f481ab61cec705a29537283d276ba871a065e23881"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjEuMCIsIkJ1aWxkIjo5LCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe57uf5LiA55qEIEpTT04g6KeE5YiZ5bqT77yM5pSv5oyB5aSa5paH5Lu25a+85YWl44CB54us56uL5ZCv5YGc5LiO5Y+q6K+76aKE6KeI77ybV2luYXBwMiDkuI4gSlNPTiDlj6/lkIzml7blkK/nlKjvvIzmlK/mjIHmlofku7blkI3jgIHkv53nlZnmnJ/lj4rlpKflsI/mnaHku7bjgIIiLCJlbiI6IkFkZGVkIGEgdW5pZmllZCBKU09OIHJ1bGUgbGlicmFyeSB3aXRoIG11bHRpLWZpbGUgaW1wb3J0LCBpbmRpdmlkdWFsIHRvZ2dsZXMgYW5kIHJlYWQtb25seSBwcmV2aWV3czsgdXNlIFdpbmFwcDIgYW5kIEpTT04gdG9nZXRoZXIgd2l0aCBmaWxlbmFtZSwgYWdlIGFuZCBzaXplIGNvbmRpdGlvbnMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4xLjAtc2V0dXAuZXhlIiwiU2l6ZSI6MjgxNjk2MywiU0hBMjU2IjoiNDk1OTY3MzZjMDAyYzU4YzIxMjhmMmU0MWMzNmVjY2MxYmQ1MGY5OTI2ZmVmOTkzNjM2MzI1ZmYwZWQ1ZjQzZCJ9LHsiTmFtZSI6IkNsYXJpdHktMS4xLjAtcG9ydGFibGUuemlwIiwiU2l6ZSI6NTc2MDQ5LCJTSEEyNTYiOiJiM2JlZWFhZWVhYTQ3YzFmOTJmZDAzMmNlNzlmNjkwZDNmZGJmZGVjOTZlOTFkOGI2M2I3MjgzNThjOTkzNTJhIn1dfQ==",
-  "Signature": "cCY6QXq8bbjtU0ha4KLeMeCBpkiaFfn6R+gB8g+uruZE2TzeZLdUG2ZS3M8EgIa9Q/ESFbpCxXDxa5l4FWHp3wHFpbRaEklD4S314/Qr/eKfwGOnCw2c4sHvMCdkrrKvTgQTDl1ioftln6WODx7QjWQ4gny2rFhQ2oy4z9tR4eNAqonsABbDK3dDCd44ZXtsR6P/juTUKl1zU4nNb+Onc8S3T4sBRBlM3kQXODvO2ryy99OHZ43zxw14OE+hPzyh97x4LKeI5/239YwXhZLgbCImzhkUm+eThG0s4Fi/Wm23dPFEi/dnthBkgRZOvSV7B+aha3/6EnxZEWFjZdhsB/V0j2Pxvv17wWcjbNRFSWJYycIbAX57S47uohinms62jkuGAqJawjS6rpIP3ZJXFlSEAnDR5t3NPPqjIdn8jl6FjM59tDzMsJFK0zSC2nylo0FpNlNm2rQlhyFvZFwlmsEIlsTkGo5f1tjSd1ARcehbYjazuZPsR6Ll0vy+Zdib"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjEuMCIsIkJ1aWxkIjoxMCwiSGlnaGxpZ2h0cyI6eyJ6aC1DTiI6IuaWsOWinue7n+S4gOeahCBKU09OIOinhOWImeW6k++8jOaUr+aMgeWkmuaWh+S7tuWvvOWFpeOAgeeLrOeri+WQr+WBnOS4juWPquivu+mihOiniO+8m1dpbmFwcDIg5LiOIEpTT04g5Y+v5ZCM5pe25ZCv55So77yM5pSv5oyB5paH5Lu25ZCN44CB5L+d55WZ5pyf5Y+K5aSn5bCP5p2h5Lu244CCIiwiZW4iOiJBZGRlZCBhIHVuaWZpZWQgSlNPTiBydWxlIGxpYnJhcnkgd2l0aCBtdWx0aS1maWxlIGltcG9ydCwgaW5kaXZpZHVhbCB0b2dnbGVzIGFuZCByZWFkLW9ubHkgcHJldmlld3M7IHVzZSBXaW5hcHAyIGFuZCBKU09OIHRvZ2V0aGVyIHdpdGggZmlsZW5hbWUsIGFnZSBhbmQgc2l6ZSBjb25kaXRpb25zLiJ9LCJBcnRpZmFjdHMiOlt7Ik5hbWUiOiJDbGFyaXR5LTEuMS4wLXNldHVwLmV4ZSIsIlNpemUiOjI4MTcwMjQsIlNIQTI1NiI6IjRiNWMyMDQ0OTE4ZjY0ODAxZWVhOGY4OGY2MWE5MmY1OTkxMDI4YzkzMWY2ZGQwNjJkODkzYWRiN2JiZGNmZmEifSx7Ik5hbWUiOiJDbGFyaXR5LTEuMS4wLXBvcnRhYmxlLnppcCIsIlNpemUiOjU3NjA4MywiU0hBMjU2IjoiNjcwNzk1YzE1NDQ0YmE3YmY5YzMzMWY0ODFhYjYxY2VjNzA1YTI5NTM3MjgzZDI3NmJhODcxYTA2NWUyMzg4MSJ9XX0=",
+  "Signature": "Vj7I1lye/z8MSMBdF4rmGsYO51nHRH0mOcKu19K3N+YbyMsSqq4Jg7fD8DCwElZeIbM99AlD3NPwKoSg8umkhgkq9EG7X9lN+8aO7GshMi1t1hMENgzzaksr+I1nCoU0Q3Jqqw1l1GxBJKc5AZIydgU0kvRImA6fpxxjM967qTHdx2oEOPCdTY8l2jUFxKuuTL4czCfddFpVYOhpDZdaY+WKk4QsOZFfr5tEbtxlBu1iFQBwi0MjjQqSip1IuDk5PzOgnERrHiJBjSXRHLvYU9kInIBmJambTf8Z8WaRk56mJSwSL/79fKGG7qPm9AU4GmPugXOwM9p6RcJ8C6wFAhDa5bjVychiQIB7rjwXktuRdWwglgFDb1EbmN2wLoZkMXFqg+pvX8ai/DXemXoGUKDsGLTRWTl81f25X+DnPB21wQoQ9rrHON1QHQdRaQf94/Ijeg68UfqvJcpgykGfu+sdjftUvlxzm44LxwZk4/r2ZJxVIErtH73wXKjVXKR7"
 }
