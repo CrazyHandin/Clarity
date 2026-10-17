@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.1.0",
-  "build": 7,
+  "build": 8,
   "highlights": {
     "zh-CN": "新增统一的 JSON 规则库，支持多文件导入、独立启停与只读预览；Winapp2 与 JSON 可同时启用，支持文件名、保留期及大小条件。",
     "en": "Added a unified JSON rule library with multi-file import, individual toggles and read-only previews; use Winapp2 and JSON together with filename, age and size conditions."
