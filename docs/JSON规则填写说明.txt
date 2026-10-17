@@ -1,12 +1,18 @@
 JSON 规则填写说明
 
-在“规则管理”中，Winapp2 与 JSON 可同时启用，切换“管理来源”只切换编辑器。各来源单独保存启用状态、更新地址及自动更新开关。Winapp2 地址固定，JSON 地址默认空。保存后在下次常规扫描生效。
+使用入口
+设置与备份 → 规则管理 → 管理 JSON 规则 → 导入 JSON（可多选）。
+Winapp2 在单独卡片管理，可与多个 JSON 文件同时启用。JSON 文件独立保存，不会替换默认库或其他文件。新文件默认关闭，启用后在下次常规扫描生效。
 
-独立规则包：打开“规则管理 → 附加规则包”，导入 Schema 2 JSON；新包默认关闭。可启用、移除或用相同 PackId、更高 Version 导入升级，保留上一版以便回退。最多 20 个附加包，每包最多 500 条规则。附加包的本地版本管理独立于当前 JSON 来源，不会覆盖内置规则。
+多文件与版本
+支持 Schema 1、Schema 2，一次最多选 20 份文件，共最多保存 20 份导入规则。导入前逐项检查，确认后显示每份成功、跳过或失败的原因。格式错误不影响其他有效文件。相同文件重复导入会跳过；内容变化必须提高 Version。
+Schema 2 使用 PackId 标识同一规则包，文件改名也可升级。Schema 1 根据文件名建立稳定标识，升级请保持文件名不变并提高 Version。批次中的重复标识会拒绝导入，请只保留每包的一份文件。
+每份文件可独立启停、导出、升级、回退或移除。升级保留原启用状态及上一版；回退也恢复上一版文件名。移除只删除规则定义，不处理应用文件或备份。旧版保存的默认 JSON 来源仍保留在列表中，可关闭、导出或回退。
 
-只读预览：选中规则包，点击“只读预览”，匹配应用后使用正式扫描器读取候选，显示容量与示例路径；不执行清理，不改变主页扫描结果。预览可取消。
+只读预览
+选中一份规则，点击只读预览，使用正式扫描器读取候选，显示容量和示例路径，不调用清理器，也不更改主页扫描结果。
 
-Schema 2 示例（保存为 UTF-8 .json）：
+Schema 2 示例（UTF-8 .json）
 {
   "Schema": 2,
   "PackId": "example-app",
@@ -46,29 +52,28 @@ Schema 2 示例（保存为 UTF-8 .json）：
   ]
 }
 
-字段与条件
-Schema：1 或 2。旧 Schema 1 仍可通过“本地导入”作为当前 JSON 来源使用；独立规则包需 Schema 2，并填写 PackId 与 Name。
-PackId / Id：包标识 / 包内规则标识，使用小写字母、数字和连字符，必须唯一。Version 为可比较的版本号，升级必须提高版本；Author、Description 为可选说明。
-Name / Group / Part：软件名、分类和项目名。Group 仅支持“软件缓存”“网页缓存”“开发缓存”，英文界面也使用这些规范值。
-MatchNames / ExecutableNames / Publishers / ProductNames / RequireSignature：应用指纹。必须发现匹配软件才会展开缓存路径。ExecutableNames 为明确的 EXE 文件名。
-Paths：缓存、临时或日志目录模板，支持 %LOCALAPPDATA%、%APPDATA%、%PROGRAMDATA%、%TEMP%、%EXEDIR%、%INSTALLDIR%、%PORTABLEROOT%。支持受限的单层 * / ?，不支持绝对路径、..、**、脚本或命令；不扫描 Windows 系统目录。每层展开最多 256 个目录，单条规则最多 100 个根目录及 100 个应用指纹匹配。
-KeepDays：保留最近 7～3650 天的文件，建议至少 14 天。
-Conditions（Schema 2，可选）：NamePattern 是文件名通配符；MinAgeDays 是最小年龄天数；MinSizeBytes、MaxSizeBytes 为单个文件字节数的闭区间，可分别省略。所有条件与原有 Extensions、FileNameRegex 同时满足才命中（AND）。实际保留期取 KeepDays 与 MinAgeDays 中较大者。年龄最大 3650 天，大小条件最大 1 TiB。
-ExcludeNames / ExcludePaths：额外排除的文件名及目录模板。内置敏感内容、账号、数据库、配置和个人文档保护仍然生效。
-Method：files 或 contents，均仅处理安全过滤后的文件，不删除扫描根目录。Description 说明用途，Impact 写清删除后影响。未知字段会被拒绝，避免拼写错误使条件失效。
-Schema 2 不提供绕过这些条件的手动保留项删除。外部规则均只供常规扫描、高级自选，默认不勾选，清理前先备份。
+字段
+Schema：1 或 2。Schema 2 必须有 PackId 和 Name；Schema 1 不需要增加这些字段，直接导入即可。
+PackId / Id：规则包 / 单条规则标识，使用小写字母、数字、连字符。Version 是可比较的版本号。Author、Description 为可选说明。
+Name / Group / Part：软件名、分类、项目名。Group 使用“软件缓存”“网页缓存”“开发缓存”，英文界面也使用这些规范值。
+MatchNames / ExecutableNames / Publishers / ProductNames / RequireSignature：应用指纹，匹配到实际软件后才展开路径。
+Paths：明确缓存、临时或日志目录。支持 %LOCALAPPDATA%、%APPDATA%、%PROGRAMDATA%、%TEMP%、%EXEDIR%、%INSTALLDIR%、%PORTABLEROOT% 与有界 * / ?。禁止绝对路径、..、**、脚本、命令，不扫描 Windows 目录。每层最多展开 256 个目录，单条规则最多 100 个根目录及 100 个应用匹配。
+KeepDays：保留最近 7～3650 天，建议至少 14 天。
+Conditions（Schema 2，可选）：NamePattern 是文件名通配符；MinAgeDays 是最小年龄天数；MinSizeBytes、MaxSizeBytes 是单文件字节数的闭区间。与 Extensions、FileNameRegex 共同使用 AND 条件，必须全部满足。保留期取 KeepDays 与 MinAgeDays 的较大值；年龄最大 3650 天，大小条件最大 1 TiB。
+ExcludeNames / ExcludePaths：额外排除的名称及目录模板；敏感文件保护仍生效。
+Method：files / contents，都仅处理安全检查后的文件，保留扫描根目录。Description、Impact 说明用途与删除影响。未知字段被拒绝。Schema 2 不提供绕过这些条件的手动保留项删除。
 
 在线与离线更新
-当前 JSON 来源仍支持 HTTPS 发布者签名更新；普通 JSON 的 HTTPS 链接不能代替签名。未签名包需本地导入并确认来源。附加包通过本地导入更高版本升级；不执行包内脚本，不自动扫描或删除。
+列表中默认规则库的在线更新设置仅影响默认库；需 HTTPS 及内置公钥匹配的发布者签名。其他导入文件通过重新导入更高版本更新。本地未签名文件需确认来源；签名原文保持不变，不改写为其他格式。所有外部规则仅参与常规扫描、高级自选，默认不勾选，清理前先备份。不会因导入自动扫描或删除。
 
 ============================================================
 English JSON Rule Guide
 
-Winapp2 and JSON can be enabled together in Rule management. Switching the source editor does not change enabled sources. Each has its own automatic-update preference; Winapp2 uses its fixed address and the JSON address starts empty. Save changes, then start a new regular scan.
+Open Settings & Backups → Rule management → Manage JSON rules → Import JSON (multiple files). Winapp2 has its own card and can run together with multiple JSON files. Files are stored independently and do not replace the default library. New files start disabled and take effect in the next regular scan.
 
-Under Additional rule packs, import a Schema 2 JSON file. New packs start disabled. Toggle packs independently, remove a pack, or import the same PackId with a higher Version to upgrade while retaining the previous version for rollback. Up to 20 packs and 500 rules per pack are supported. Legacy Schema 1 remains supported through the main JSON source import.
+Import Schema 1 or 2 directly, up to 20 selected files and 20 stored imports. Each file is validated and reported separately; malformed files do not block valid ones. Identical imports are skipped. Changed content requires a higher Version. Schema 2 uses PackId for upgrades even after renaming the file. Schema 1 uses a stable identity based on its filename: keep that name for upgrades. Conflicting IDs in one batch are rejected.
 
-Select a pack and choose Read-only preview to use the production compiler and scanner, showing candidate sizes and sample paths without deleting files or changing the main scan. You may cancel the preview.
+Each file has independent enable, export, upgrade, rollback and remove actions. Upgrades preserve enablement and the previous version. Rollback restores both content and filename. Removing definitions never deletes application files or backups. Previously saved default JSON rules remain in the list. Read-only preview uses the production scanner without cleanup or changes to the main scan.
 
 Schema 2 example:
 {
@@ -110,12 +115,10 @@ Schema 2 example:
   ]
 }
 
-PackId and rule Id use lowercase letters, digits and hyphens; they must be unique. Name identifies the pack. Version must increase for imports that upgrade an existing pack. Author and Description are optional. Group uses the canonical Chinese values shown above, including in the English UI.
+Schema 2 requires PackId and Name. Schema 1 needs neither and is supported unchanged. IDs use lowercase letters, digits and hyphens. Version must increase for upgrades. Author and Description are optional. Group uses the canonical Chinese values in the example.
 
-MatchNames, ExecutableNames, Publishers, ProductNames and RequireSignature identify installed or explicitly discovered portable applications. Paths must point to explicit cache, log or temporary directories using the supported variables: LOCALAPPDATA, APPDATA, PROGRAMDATA, TEMP, EXEDIR, INSTALLDIR and PORTABLEROOT. Bounded * and ? are supported; absolute paths, traversal, ** and executable commands are rejected. Windows directories are excluded. Expansion is limited to 256 directories per level, 100 scan roots and 100 matched applications per rule.
+MatchNames, ExecutableNames, Publishers, ProductNames and RequireSignature match application fingerprints. Paths must identify explicit cache, temporary or log directories. Variables: LOCALAPPDATA, APPDATA, PROGRAMDATA, TEMP, EXEDIR, INSTALLDIR, PORTABLEROOT. Bounded * and ? are supported; absolute paths, traversal, ** and executable commands are rejected. Windows directories are excluded. Limits: 256 expanded directories per level, 100 roots and 100 matching apps per rule.
 
-KeepDays retains 7–3650 days of recent files. Optional Schema 2 Conditions support a filename glob (NamePattern), age in days (MinAgeDays), and an inclusive per-file byte range (MinSizeBytes, MaxSizeBytes). All supplied conditions, Extensions and FileNameRegex use AND logic. The effective age is the larger of KeepDays and MinAgeDays. Ages are capped at 3650 days and size limits at 1 TiB.
+KeepDays retains 7–3650 days. Optional Schema 2 Conditions support NamePattern, MinAgeDays, MinSizeBytes and MaxSizeBytes. Sizes are inclusive per-file bytes; all supplied filters, Extensions and FileNameRegex combine with AND. The effective age is the larger of KeepDays and MinAgeDays. Ages are capped at 3650 days and sizes at 1 TiB. ExcludeNames and ExcludePaths add exclusions. Sensitive-file protections remain. Method accepts files or contents; both retain scan roots. Unknown fields are rejected. Schema 2 does not expose manual deletion that bypasses these conditions.
 
-ExcludeNames and ExcludePaths add exclusions; mandatory sensitive-file protection still applies. Method accepts files or contents; both retain scan root directories and act only on safe candidates. Description and Impact explain purpose and consequences. Unknown fields are rejected. Schema 2 does not offer manual deletion that bypasses these conditions. External rules are regular/advanced-only, unchecked by default and backed up before cleanup.
-
-The main JSON source supports HTTPS updates signed by the built-in publisher key. An unsigned JSON URL cannot replace that signature. Import unsigned packs locally after confirming their source. Additional packs upgrade through local import of a higher version. Rule imports never execute scripts, start scans or delete application data.
+Online settings apply only to the default library, require HTTPS and the built-in publisher signature. Other files update through local reimport of a higher version. Unsigned files require confirmation; signed payloads are stored unchanged. External rules are regular/advanced-only, unchecked by default and backed up before cleaning. Import never starts a scan or deletion.

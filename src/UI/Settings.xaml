@@ -110,41 +110,18 @@
     </ScrollViewer>
    </TabItem>
    <TabItem x:Name="RulesTab" Header="规则管理">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-     <StackPanel Margin="18">
-      <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
-       <StackPanel>
-        <TextBlock Text="启用清理规则" FontSize="18" FontWeight="SemiBold"/>
-        <WrapPanel Margin="0,14,0,8"><CheckBox x:Name="EnableWinapp2" Content="Winapp2 社区规则" Margin="0,0,24,6"/><CheckBox x:Name="EnableJson" Content="JSON 应用规则" Margin="0,0,0,6"/></WrapPanel>
-        <TextBlock Text="可同时启用。常规扫描叠加规则，重复文件只处理一次；快速扫描仅使用内置规则。" Foreground="#A7BFCD" TextWrapping="Wrap" Margin="0,0,0,14"/>
-        <TextBlock Text="管理来源（切换不会改变启用状态）" FontSize="14"/>
-        <ComboBox x:Name="RuleProvider" Margin="0,12,0,10" Height="38"/>
-        <TextBlock x:Name="LibraryState" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap"/>
-        <TextBlock Text="HTTPS 规则文件地址" FontSize="14" Margin="0,18,0,0"/>
-        <TextBox x:Name="UpdateUrl" Margin="0,10,0,14" Height="38" Background="#25333E" Foreground="#DFEAF2" BorderBrush="#45616C" Padding="8"/>
-        <CheckBox x:Name="Automatic" Content="每 7 天自动检查一次" Margin="0,0,0,16"/>
-        <WrapPanel>
-         <Button x:Name="Save" Content="保存规则设置" Margin="0,0,10,8"/>
-         <Button x:Name="Check" Content="检查更新" Margin="0,0,10,8" Background="#39C5BB" Foreground="#083F3A" BorderBrush="#39C5BB" FontWeight="SemiBold"/>
-        </WrapPanel>
-       </StackPanel>
-      </Border>
-      <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
-       <StackPanel>
-        <TextBlock Text="本地规则与版本管理" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,14"/>
-        <WrapPanel>
-         <Button x:Name="Import" Content="本地导入" Margin="0,0,10,8"/>
-         <Button x:Name="Export" Content="导出当前规则" Margin="0,0,10,8"/>
-         <Button x:Name="Rollback" Content="回退上一版" Margin="0,0,10,8"/>
-         <Button x:Name="Compatibility" Content="兼容报告" Margin="0,0,10,8"/>
-         <Button x:Name="RulePacks" Content="附加规则包" Margin="0,0,10,8"/>
-         <Button x:Name="JsonGuide" Content="JSON 规则填写说明" Margin="0,0,10,8"/>
-        </WrapPanel>
-        <TextBlock x:Name="SourceHint" Foreground="#E4BE81" FontSize="14" TextWrapping="Wrap" Margin="0,8,0,0"/>
-       </StackPanel>
-      </Border>
-     </StackPanel>
-    </ScrollViewer>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="18">
+     <TextBlock Text="常规扫描使用已启用的规则，重复文件只处理一次。" Foreground="#A7BFCD" Margin="2,0,0,16" TextWrapping="Wrap"/>
+     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20"><StackPanel>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Winapp2 社区规则" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="LibraryState" Foreground="#A7BFCD" Margin="0,8,0,0"/></StackPanel><CheckBox x:Name="EnableWinapp2" Grid.Column="1" Content="启用" VerticalAlignment="Center"/></Grid>
+      <TextBox x:Name="UpdateUrl" IsReadOnly="True" Margin="0,18,0,14" Height="38" Background="#25333E" Foreground="#A7BFCD" BorderBrush="#344651" Padding="8"/>
+      <CheckBox x:Name="Automatic" Content="每 7 天自动检查一次" Margin="0,0,0,16"/>
+      <WrapPanel><Button x:Name="Check" Content="检查更新" Margin="0,0,10,8"/><Button x:Name="ImportIni" Content="导入 INI" Margin="0,0,10,8"/><Button x:Name="ExportIni" Content="导出 INI" Margin="0,0,10,8"/><Button x:Name="RollbackIni" Content="回退上一版" Margin="0,0,10,8"/><Button x:Name="Compatibility" Content="兼容报告" Margin="0,0,0,8"/></WrapPanel>
+     </StackPanel></Border>
+     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,16,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,20,0"><TextBlock Text="JSON 规则库" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="JsonSummary" Foreground="#A7BFCD" Margin="0,8,0,8" TextWrapping="Wrap"/><TextBlock Text="一次导入多个文件，每份规则独立启停、更新和回退。" Foreground="#A7BFCD" TextWrapping="Wrap"/></StackPanel><Button x:Name="RulePacks" Grid.Column="1" Content="管理 JSON 规则" VerticalAlignment="Center" Background="#39C5BB" Foreground="#083F3A" BorderBrush="#39C5BB"/></Grid></Border>
+     <WrapPanel Margin="0,16,0,0"><Button x:Name="JsonGuide" Content="JSON 规则填写说明"/></WrapPanel>
+     <TextBlock Text="外部规则仅参与常规扫描和高级自选，清理前先备份。" Foreground="#A7BFCD" TextWrapping="Wrap" Margin="2,18,0,0"/>
+    </StackPanel></ScrollViewer>
    </TabItem>
   </TabControl>
   <Border x:Name="SettingsStatusFrame" Grid.Row="2" Visibility="Collapsed" Background="#1D3035" CornerRadius="9" Padding="12,10" Margin="0,14,0,0">

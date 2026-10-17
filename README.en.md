@@ -52,7 +52,7 @@ Removing low-risk caches may require downloads or slow the next launch. Advanced
 
 ## Rules and privacy
 
-Winapp2 and JSON can be enabled together under Settings & Backups → Rule management. Switching the source editor does not change enabled sources. Additional rule packs support Schema 2 JSON, start disabled, and offer read-only previews, individual toggles, upgrades and rollback. Changes apply to the next regular scan; overlapping candidate files count and clean once.
+Winapp2 and JSON can be enabled together under Settings & Backups → Rule management. JSON rule library supports batch import of Schema 1 / 2 JSON, start disabled, and offer read-only previews, individual toggles, upgrades and rollback. Changes apply to the next regular scan; overlapping candidate files count and clean once.
 
 Update or import Winapp2 INI and JSON rules under Settings & Backups → Rule Management. Updates fetch rule files without uploading application inventories, paths, or scan results, and do not automatically scan or clean.
 

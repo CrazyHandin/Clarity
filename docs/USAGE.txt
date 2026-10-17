@@ -46,8 +46,8 @@ Windows 磁盘清理是默认关闭的独立选项，自动处理 C 盘并退出
 
 规则更新
 “设置与备份 → 规则管理”支持 Winapp2 INI、JSON 规则更新和离线导入。
-Winapp2 与 JSON 可同时勾选启用，管理来源切换不会关闭其他来源；各自独立更新。
-“附加规则包”支持多个 Schema 2 JSON 包的导入、启停、升级和回退，新包默认关闭。
+Winapp2 与 JSON 可同时勾选启用，在单独卡片中管理 Winapp2，JSON 统一进入规则库管理。
+“JSON 规则库”支持多选 Schema 1 / 2 JSON 文件的导入、启停、升级和回退，新包默认关闭。
 可点击“只读预览”查看规则候选，不删除文件。文件名、年龄、大小条件须同时满足；重复文件只处理一次。
 JSON 规则填写说明可在规则管理中直接打开。
 更新不上传应用列表、路径或扫描结果，不会自动扫描或删除。
@@ -80,7 +80,7 @@ Clarity 自有内容使用 MIT 许可；Winapp2 规则独立使用 CC BY-SA 4.0�
 ============================================================
 English User Guide
 
-Winapp2 and JSON can be enabled together in Rule management, with independent update preferences. Additional rule packs support Schema 2 JSON import, toggles, upgrades and rollback; new packs start disabled. Read-only preview shows candidates without deletion. Filename, age and size conditions use AND logic, and overlapping candidate files count once.
+Winapp2 and JSON can be enabled together in Rule management, with independent update preferences. The JSON rule library supports batch import of Schema 1 / 2 JSON files, individual toggles, upgrades and rollback; new packs start disabled. Read-only preview shows candidates without deletion. Filename, age and size conditions use AND logic, and overlapping candidate files count once.
 
 To upgrade from 1.0.5 or earlier, download and install 1.0.6 manually once. Later online updates support the new package names.
 ============================================================
