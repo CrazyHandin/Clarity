@@ -57,7 +57,7 @@
     </Border></Grid>
     <ControlTemplate.Triggers>
      <Trigger Property="IsChecked" Value="True"><Setter TargetName="CardBox" Property="Background" Value="#39C5BB"/><Setter TargetName="CardBox" Property="BorderBrush" Value="#39C5BB"/><Setter TargetName="CardMark" Property="Visibility" Value="Visible"/></Trigger>
-     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CardSurface" Property="BorderBrush" Value="#607681"/></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CardSurface" Property="Background" Value="#24313D"/></Trigger>
      <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsPressed" Value="True"/><Condition Property="local:UiMotion.Enabled" Value="True"/></MultiTrigger.Conditions>
       <MultiTrigger.EnterActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="CardSurface" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0.975" Duration="0:0:0.075"/><DoubleAnimation Storyboard.TargetName="CardSurface" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="0.975" Duration="0:0:0.075"/></Storyboard></BeginStoryboard></MultiTrigger.EnterActions>
       <MultiTrigger.ExitActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="CardSurface" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.15" FillBehavior="Stop"/><DoubleAnimation Storyboard.TargetName="CardSurface" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.15" FillBehavior="Stop"/></Storyboard></BeginStoryboard></MultiTrigger.ExitActions>
