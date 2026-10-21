@@ -40,6 +40,7 @@ public static class UiText {
  public static void SetLanguage(string value){language=Normalize(value);foreach(var weak in windows.ToArray()){var window=weak.Target as Window;if(window==null){windows.Remove(weak);continue;}Context context;if(contexts.TryGetValue(window,out context))context.Apply();}}
  public static void Attach(Window window){Context found;if(contexts.TryGetValue(window,out found)){found.Apply();return;}var context=new Context(window);contexts.Add(window,context);windows.Add(new WeakReference(window));context.Attach();}
  public static void Forget(Window window,DependencyObject root){Context context;if(contexts.TryGetValue(window,out context))context.Forget(root);}
+ public static void AttachPage(Window window,FrameworkElement page){Context context;if(contexts.TryGetValue(window,out context))context.AttachPage(page);else Attach(window);}
  public static MessageBoxResult Show(Window owner,string message,string caption=null,MessageBoxButton buttons=MessageBoxButton.OK,MessageBoxImage image=MessageBoxImage.None){return English?EnglishDialog.Show(owner,message,buttons):MessageBox.Show(owner,message,App.DisplayName,buttons,image);}
  public static MessageBoxResult Show(string message,string caption=null,MessageBoxButton buttons=MessageBoxButton.OK,MessageBoxImage image=MessageBoxImage.None){return English?EnglishDialog.Show(null,message,buttons):MessageBox.Show(message,App.DisplayName,buttons,image);}
  sealed class TextState {
@@ -58,6 +59,7 @@ public static class UiText {
    state.Descriptor.AddValueChanged(target,state.Handler);states.Add(state);state.Apply();
   }
   public void Visit(DependencyObject node){Visit(node,new HashSet<DependencyObject>());}
+  public void AttachPage(DependencyObject node){if(!visited.Contains(node))Visit(node);}
   public void Forget(DependencyObject root){var nodes=new HashSet<DependencyObject>();Collect(root,nodes);foreach(var state in states.Where(s=>nodes.Contains(s.Target)).ToArray()){state.Descriptor.RemoveValueChanged(state.Target,state.Handler);states.Remove(state);}visited.ExceptWith(nodes);}
   static void Collect(DependencyObject node,HashSet<DependencyObject> nodes){if(node==null||!nodes.Add(node))return;foreach(object child in LogicalTreeHelper.GetChildren(node)){var item=child as DependencyObject;if(item!=null)Collect(item,nodes);}if(node is Visual)for(int i=0;i<VisualTreeHelper.GetChildrenCount(node);i++)Collect(VisualTreeHelper.GetChild(node,i),nodes);}
   void Visit(DependencyObject node,HashSet<DependencyObject> traversal){

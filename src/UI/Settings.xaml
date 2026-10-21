@@ -32,7 +32,7 @@
        <ComboBox x:Name="LanguageChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,14,0,12"/>
        <TextBlock Text="界面主题" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,0"/>
        <ComboBox x:Name="ThemeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,12,0,12"/>
-       <CheckBox x:Name="LiquidGlassChoice" Content="液体玻璃外观" ToolTip="透明背景与系统模糊，文字保持不透明。" Margin="0,4,0,6"/><TextBlock x:Name="GlassPerformanceNote" Text="该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。" Foreground="#A7BFCD" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
+       <CheckBox x:Name="LiquidGlassChoice" Content="液态玻璃外观" ToolTip="全透式透出桌面；内部通透仅展示软件内的通透效果。" Margin="0,4,0,6"/><ComboBox x:Name="GlassModeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,4,0,8"/><TextBlock x:Name="GlassPerformanceNote" Text="该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。" Foreground="#E8BE58" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
       </StackPanel>
      </local:GlassPanel>
      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">

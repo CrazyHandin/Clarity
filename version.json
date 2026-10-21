@@ -1,9 +1,9 @@
 {
   "channel": "stable",
   "version": "1.1.1",
-  "build": 2,
+  "build": 3,
   "highlights": {
-    "zh-CN": "新增液体玻璃透明外观，覆盖主界面与更新弹窗；优化磁盘空间展示与页面切换。",
-    "en": "Added a transparent Liquid Glass appearance for the main interface and update dialogs; improved disk space display and page transitions."
+    "zh-CN": "新增液态玻璃外观，支持全透式与默认的内部通透模式；优化磁盘空间展示与页面切换。",
+    "en": "Added Liquid Glass appearance with full transparency and default internal glass; improved disk space display and page transitions."
   }
 }

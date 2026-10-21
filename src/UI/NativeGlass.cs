@@ -38,7 +38,8 @@ internal sealed class NativeGlass {
  }
  void Apply(bool force=false){
   if(closed||source==null||source.IsDisposed||handle==IntPtr.Zero)return;
-  bool requested=UiGlass.GetEnabled(window)&&Allowed(),composition=false;
+  bool requested=UiGlass.GetEnabled(window)&&UiGlass.GetMode(window)=="full"&&Allowed(),composition=false;
+  if(!requested&&!applied){RestoreBackground();return;}
   if(!force&&requested&&applied&&lastLight==UiTheme.Light)return;
   try{
    if(requested&&DwmIsCompositionEnabled(out composition)==0&&composition){
@@ -54,7 +55,8 @@ internal sealed class NativeGlass {
   UiGlass.SetHasBackdrop(window,false);
   try{Accent(handle,false);var margins=new Margins();DwmExtendFrameIntoClientArea(handle,ref margins);}catch(EntryPointNotFoundException){}catch(DllNotFoundException){}
   var chrome=WindowChrome.GetWindowChrome(window);if(chrome!=null&&chrome.GlassFrameThickness!=originalGlass)chrome.GlassFrameThickness=originalGlass;
-  window.Background=originalBackground;if(!window.AllowsTransparency)source.CompositionTarget.BackgroundColor=Colors.Black;applied=false;
+  RestoreBackground();applied=false;
  }
+ void RestoreBackground(){UiGlass.SetHasBackdrop(window,false);window.Background=UiGlass.GetEnabled(window)&&UiGlass.GetMode(window)=="internal"&&!window.AllowsTransparency?App.Brush("#161D25"):originalBackground;if(!window.AllowsTransparency)source.CompositionTarget.BackgroundColor=Colors.Black;}
 }
 }
