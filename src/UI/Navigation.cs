@@ -25,7 +25,7 @@ public sealed partial class Controller {
  void OpenRulePacks(CleanerSettings options,DiscoveryResult discovery,Action<CleanerSettings> persist=null){if(settingsView!=null&&!settingsView.TryLeave())return;rulePackView=RulePackCenter.Create(Window,options,discovery,BackPage,SettingsChanged,Notify,NotifySuccess,null,null,persist);PushPage(rulePackView.Root);}
  void PushPage(FrameworkElement page){pages.Add(page);ShowNavigationPage(page);}
  void NavigateTo(FrameworkElement page,Action show,bool back=false){
-  if(pageTransition==null)pageTransition=new PageTransition(Get<Grid>("NavigationSurface"),Get<Image>("NavigationSnapshot"));
+  if(pageTransition==null)pageTransition=new PageTransition(Get<Grid>("NavigationSurface"));
   pageTransition.Switch(page,()=>{show();UiText.Attach(Window);},back);
  }
  void ShowNavigationPage(FrameworkElement page,bool back=false){

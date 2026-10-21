@@ -1,5 +1,10 @@
 {
-  "设置与备份": "Settings & Backups",
+    "液态玻璃（Beta）": "Liquid Glass (Beta)",
+  "玻璃样式已保存。": "Glass appearance saved.",
+  "玻璃样式未保存：": "Glass appearance was not saved: ",
+  "已占用 ": "Used ",
+  " · 可用 ": " · Free ",
+"设置与备份": "Settings & Backups",
   "开始扫描": "Start scan",
   "常规设置": "General",
   "关于 Clarity": "About Clarity",

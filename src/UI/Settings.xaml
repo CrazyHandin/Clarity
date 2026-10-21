@@ -1,5 +1,5 @@
-<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Foreground="#DFEAF2" FontSize="15">
- <Grid Background="#161D25"><Grid Margin="24">
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity" Foreground="#DFEAF2" FontSize="15">
+ <local:GlassBackdrop Background="#161D25"><Grid Margin="24">
   <Grid.Resources>
    <Style TargetType="ListBoxItem">
     <Setter Property="Foreground" Value="#CFDFEB"/><Setter Property="Padding" Value="8,5"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -26,31 +26,31 @@
    <TabItem x:Name="GeneralTab" Header="常规设置">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="18">
-     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
       <StackPanel>
        <TextBlock Text="界面语言" FontSize="18" FontWeight="SemiBold"/>
        <ComboBox x:Name="LanguageChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,14,0,12"/>
        <TextBlock Text="界面主题" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,0"/>
        <ComboBox x:Name="ThemeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,12,0,12"/>
-       <TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
+       <CheckBox x:Name="LiquidGlassChoice" Content="液态玻璃（Beta）" Margin="0,4,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
       </StackPanel>
-     </Border>
-     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
+     </local:GlassPanel>
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
       <StackPanel>
        <TextBlock Text="管理员模式" FontSize="18" FontWeight="SemiBold"/>
        <TextBlock x:Name="PrivilegeState" Foreground="#A7BFCD" FontSize="14" Margin="0,12,0,14"/>
        <Button x:Name="AdminMode" Content="以管理员身份重新启动" HorizontalAlignment="Left" Background="#3B3323" Foreground="#FFE6A3" BorderBrush="#E8BE58" FontWeight="SemiBold"/>
        <TextBlock Text="重启后仍需手动扫描。" Foreground="#91AAB9" FontSize="14" TextWrapping="Wrap" Margin="0,14,0,0"/>
       </StackPanel>
-     </Border>
-     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0"><StackPanel><TextBlock Text="清理记录" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="HistoryLocation" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,10,0,12"/><WrapPanel><Button x:Name="OpenHistory" Content="打开清理记录" Margin="0,0,10,0"/><Button x:Name="OpenHistoryFolder" Content="打开记录文件夹"/></WrapPanel></StackPanel></Border>
+     </local:GlassPanel>
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0"><StackPanel><TextBlock Text="清理记录" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="HistoryLocation" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,10,0,12"/><WrapPanel><Button x:Name="OpenHistory" Content="打开清理记录" Margin="0,0,10,0"/><Button x:Name="OpenHistoryFolder" Content="打开记录文件夹"/></WrapPanel></StackPanel></local:GlassPanel>
     </StackPanel></ScrollViewer>
    </TabItem>
    <TabItem x:Name="BackupTab" Header="备份与恢复">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
      <Grid Margin="18">
       <Grid.ColumnDefinitions><ColumnDefinition Width="1.45*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-      <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,14,0" VerticalAlignment="Top">
+      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,14,0" VerticalAlignment="Top">
        <StackPanel>
         <TextBlock Text="文件备份" FontSize="18" FontWeight="SemiBold"/>
         <TextBlock Text="备份保存位置" Foreground="#A7BFCD" FontSize="14" Margin="0,14,0,0"/>
@@ -70,22 +70,22 @@
         </WrapPanel>
         <TextBlock Text="文件备份仅支持本机、本账户恢复。清空备份后无法再从该批次恢复。" Foreground="#91AAB9" TextWrapping="Wrap" FontSize="14" Margin="0,5,0,0"/>
        </StackPanel>
-      </Border>
-      <Border Grid.Column="1" Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" VerticalAlignment="Top">
+      </local:GlassPanel>
+      <local:GlassPanel Grid.Column="1" Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" VerticalAlignment="Top">
        <StackPanel>
         <TextBlock Text="注册表备份" FontSize="18" FontWeight="SemiBold"/>
         <TextBlock Text="恢复清理前备份的缺失注册表项，保留现有项目。" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,12,0,14"/>
         <Button x:Name="RestoreRegistry" Content="恢复注册表备份" HorizontalAlignment="Left" Margin="0,0,0,12"/>
         <Button x:Name="OpenRegistryBackup" Content="打开注册表备份位置" HorizontalAlignment="Left"/>
        </StackPanel>
-      </Border>
+      </local:GlassPanel>
      </Grid>
     </ScrollViewer>
    </TabItem>
    <TabItem x:Name="ApplicationsTab" Header="扫描与应用">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
      <StackPanel Margin="18">
-      <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
+      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
        <Grid>
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="220"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <Grid><TextBlock Text="已发现应用" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/><Button x:Name="OpenApplication" Content="打开应用文件位置" IsEnabled="False" HorizontalAlignment="Right" Background="#28524F" Foreground="#D7F6F2" BorderBrush="#39C5BB"/></Grid>
@@ -95,8 +95,8 @@
         </ListBox>
         <TextBox x:Name="AppEvidence" Grid.Row="3" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="105" VerticalScrollBarVisibility="Auto" Background="#25333E" Foreground="#BBD2DE" BorderThickness="0" Margin="0,12,0,0" Padding="9" FontSize="14"/>
        </Grid>
-      </Border>
-      <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
+      </local:GlassPanel>
+      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
        <Expander x:Name="PortableExpander" IsExpanded="False" Foreground="#DFEAF2">
         <Expander.Header><TextBlock Text="便携 / 自定义软件目录" FontSize="16" FontWeight="SemiBold"/></Expander.Header>
         <StackPanel>
@@ -105,27 +105,27 @@
          <TextBlock Text="目录修改自动保存，常规扫描时生效；快速扫描仅使用内置规则。" Foreground="#91AAB9" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,0"/>
         </StackPanel>
        </Expander>
-      </Border>
+      </local:GlassPanel>
      </StackPanel>
     </ScrollViewer>
    </TabItem>
    <TabItem x:Name="RulesTab" Header="规则管理">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="18">
      <TextBlock Text="常规扫描使用已启用的规则，重复文件只处理一次。" Foreground="#A7BFCD" Margin="2,0,0,16" TextWrapping="Wrap"/>
-     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20"><StackPanel>
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20"><StackPanel>
       <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Winapp2 社区规则" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="LibraryState" Foreground="#A7BFCD" Margin="0,8,0,0"/></StackPanel><CheckBox x:Name="EnableWinapp2" Grid.Column="1" Content="启用" VerticalAlignment="Center"/></Grid>
       <TextBox x:Name="UpdateUrl" IsReadOnly="True" Margin="0,18,0,14" Height="38" Background="#25333E" Foreground="#A7BFCD" BorderBrush="#344651" Padding="8"/>
       <CheckBox x:Name="Automatic" Content="每 7 天自动检查一次" Margin="0,0,0,16"/>
       <WrapPanel><Button x:Name="Check" Content="检查更新" Margin="0,0,10,8"/><Button x:Name="ImportIni" Content="导入 INI" Margin="0,0,10,8"/><Button x:Name="ExportIni" Content="导出 INI" Margin="0,0,10,8"/><Button x:Name="RollbackIni" Content="回退上一版" Margin="0,0,10,8"/><Button x:Name="Compatibility" Content="兼容报告" Margin="0,0,0,8"/></WrapPanel>
-     </StackPanel></Border>
-     <Border Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,16,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,20,0"><TextBlock Text="JSON 规则库" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="JsonSummary" Foreground="#A7BFCD" Margin="0,8,0,8" TextWrapping="Wrap"/><TextBlock Text="一次导入多个文件，每份规则独立启停、更新和回退。" Foreground="#A7BFCD" TextWrapping="Wrap"/></StackPanel><Button x:Name="RulePacks" Grid.Column="1" Content="管理 JSON 规则" VerticalAlignment="Center" Background="#39C5BB" Foreground="#083F3A" BorderBrush="#39C5BB"/></Grid></Border>
+     </StackPanel></local:GlassPanel>
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,16,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,20,0"><TextBlock Text="JSON 规则库" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="JsonSummary" Foreground="#A7BFCD" Margin="0,8,0,8" TextWrapping="Wrap"/><TextBlock Text="一次导入多个文件，每份规则独立启停、更新和回退。" Foreground="#A7BFCD" TextWrapping="Wrap"/></StackPanel><Button x:Name="RulePacks" Grid.Column="1" Content="管理 JSON 规则" VerticalAlignment="Center" Background="#39C5BB" Foreground="#083F3A" BorderBrush="#39C5BB"/></Grid></local:GlassPanel>
      <WrapPanel Margin="0,16,0,0"><Button x:Name="JsonGuide" Content="JSON 规则填写说明"/></WrapPanel>
      <TextBlock Text="外部规则仅参与常规扫描和高级自选，清理前先备份。" Foreground="#A7BFCD" TextWrapping="Wrap" Margin="2,18,0,0"/>
     </StackPanel></ScrollViewer>
    </TabItem>
   </TabControl>
-  <Border x:Name="SettingsStatusFrame" Grid.Row="2" Visibility="Collapsed" Background="#1D3035" CornerRadius="9" Padding="12,10" Margin="0,14,0,0">
+  <local:GlassPanel x:Name="SettingsStatusFrame" Grid.Row="2" Visibility="Collapsed" Background="#1D3035" CornerRadius="9" Padding="12,10" Margin="0,14,0,0">
    <TextBlock x:Name="Status" Text="" Foreground="#ADDBD6" FontSize="14" TextWrapping="Wrap"/>
-  </Border>
- </Grid></Grid>
+  </local:GlassPanel>
+ </Grid></local:GlassBackdrop>
 </UserControl>

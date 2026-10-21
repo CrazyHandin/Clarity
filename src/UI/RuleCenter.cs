@@ -29,6 +29,8 @@ public static class RuleCenter {
   WireHistoryAndGuide(w,jsonGuide,message);
   Action persistSettings=()=>{if(persist!=null)persist(settings);else settings.Save();};Func<string,TextBox> text=n=>(TextBox)w.FindName(n);Func<string,Button> button=n=>(Button)w.FindName(n);
   var language=(ComboBox)w.FindName("LanguageChoice");language.ItemsSource=new[]{"简体中文","English"};language.SelectedIndex=UiText.Normalize(settings.Language)=="en"?1:0;
+  var glass=(CheckBox)w.FindName("LiquidGlassChoice");glass.IsChecked=settings.LiquidGlass;
+  glass.Click+=(s,e)=>{bool previous=settings.LiquidGlass;try{settings.LiquidGlass=glass.IsChecked==true;persistSettings();UiGlass.SetEnabled(owner,settings.LiquidGlass);saved("玻璃样式已保存。");}catch(Exception ex){settings.LiquidGlass=previous;glass.IsChecked=previous;message("玻璃样式未保存："+ex.Message);}};
   var theme=(ComboBox)w.FindName("ThemeChoice");theme.ItemsSource=new[]{"跟随 Windows","深色","浅色"};theme.SelectedIndex=UiTheme.Normalize(settings.Theme)=="system"?0:UiTheme.Normalize(settings.Theme)=="light"?2:1;bool restoringTheme=false;
   theme.SelectionChanged+=(s,e)=>{if(restoringTheme)return;string previous=settings.Theme;try{settings.Theme=theme.SelectedIndex==0?"system":theme.SelectedIndex==2?"light":"dark";persistSettings();UiTheme.Set(settings.Theme,UiMotion.GetEnabled(owner));changed();}catch(Exception ex){settings.Theme=previous;restoringTheme=true;try{theme.SelectedIndex=UiTheme.Normalize(previous)=="system"?0:UiTheme.Normalize(previous)=="light"?2:1;}finally{restoringTheme=false;}message("主题设置未保存："+ex.Message);}};
   bool restoringLanguage=false;

@@ -10,6 +10,9 @@ public static class UiMotion {
  public static readonly DependencyProperty EnabledProperty=DependencyProperty.RegisterAttached("Enabled",typeof(bool),typeof(UiMotion),new FrameworkPropertyMetadata(true,FrameworkPropertyMetadataOptions.Inherits));
  public static bool GetEnabled(DependencyObject target){return (bool)target.GetValue(EnabledProperty);}
  public static void SetEnabled(DependencyObject target,bool value){target.SetValue(EnabledProperty,value);}
+ public static readonly DependencyProperty NavigatingProperty=DependencyProperty.RegisterAttached("Navigating",typeof(bool),typeof(UiMotion),new FrameworkPropertyMetadata(false,FrameworkPropertyMetadataOptions.Inherits));
+ public static bool GetNavigating(DependencyObject target){return (bool)target.GetValue(NavigatingProperty);}
+ internal static void SetNavigating(DependencyObject target,bool value){target.SetValue(NavigatingProperty,value);}
  public static void Reveal(FrameworkElement element,int milliseconds=180,double distance=8){
   if(element==null)return;var offset=new TranslateTransform();element.RenderTransform=offset;element.BeginAnimation(UIElement.OpacityProperty,null);element.Opacity=1;
   if(!GetEnabled(element))return;
@@ -34,10 +37,12 @@ public static class UiMotion {
  }
  public static void Tabs(TabControl tabs){
   int revision=0;
+  Action reset=()=>{tabs.ApplyTemplate();var content=tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement;if(content!=null){content.BeginAnimation(UIElement.OpacityProperty,null);content.Opacity=1;content.RenderTransform=Transform.Identity;}};
+  tabs.IsVisibleChanged+=(s,e)=>{if(!tabs.IsVisible){revision++;reset();}};
   tabs.SelectionChanged+=(s,e)=>{
-   if(!ReferenceEquals(e.Source,tabs))return;int current=++revision;
+   if(!ReferenceEquals(e.Source,tabs))return;if(GetNavigating(tabs)){revision++;reset();return;}int current=++revision;
    tabs.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,new Action(()=>{
-    if(current!=revision||!tabs.IsVisible)return;tabs.ApplyTemplate();var content=tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement;if(content==null)return;
+    if(current!=revision||!tabs.IsVisible)return;if(GetNavigating(tabs)){reset();return;}tabs.ApplyTemplate();var content=tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement;if(content==null)return;
     content.BeginAnimation(UIElement.OpacityProperty,null);content.Opacity=1;var offset=new TranslateTransform();content.RenderTransform=offset;if(!GetEnabled(tabs))return;
     var duration=TimeSpan.FromMilliseconds(220);var ease=new CubicEase{EasingMode=EasingMode.EaseOut};
     content.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(0.88,1,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});

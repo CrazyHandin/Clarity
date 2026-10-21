@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| 1.1.1 | Add experimental Liquid Glass styling, clarify disk usage and unify page transitions. |
 | 1.1.0 | Add stackable JSON rule packs, read-only previews and filename/age/size conditions; allow Winapp2 and JSON rules together. |
 | 1.0.6 | Add an on-demand update service and publisher signature verification; expand simple cleanup with low-risk caches and older diagnostics. |
 | 1.0.5 | Add light/dark themes and Windows theme sync, window animations, unfinished cleanup details and optional hibernation cleanup; improve cleanup completion and Windows Disk Cleanup. |

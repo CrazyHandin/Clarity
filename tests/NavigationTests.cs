@@ -31,17 +31,16 @@ public sealed partial class Controller {
    ((Button)about.FindName("SourceButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));check(opened==1,"Source navigation invokes only the injected opener during testing");BackPage();
    check(Get<ContentControl>("PageHost").Content==root&&tabs.SelectedItem==root.FindName("BackupTab")&&((TextBox)root.FindName("RecoveryPath")).Text==draft,"Returning from About preserves the selected settings section and unsaved location draft");BackPage();
    check(pages.Count==0&&ReferenceEquals(engine,originalEngine)&&ReferenceEquals(leaves,originalLeaves)&&phase=="results"&&hasScanned&&Chosen().SequenceEqual(before),"Returning to cleanup preserves scan results and exact selected findings without rescanning");
-   UiMotion.SetEnabled(Window,true);OpenSettings(options,null,s=>{});var snapshot=Get<Image>("NavigationSnapshot");
-   check(snapshot.Visibility==Visibility.Visible&&snapshot.Source!=null&&!snapshot.IsHitTestVisible&&settingsView.Root.Opacity==1,"Navigation retains the outgoing view above a fully visible destination without blocking input");
-   await Task.Delay(80);check(snapshot.Opacity>0&&snapshot.Opacity<1&&settingsView.Root.Opacity==1,"Page transitions blend the old view without fading the new content to an empty background");
+   UiMotion.SetEnabled(Window,true);OpenSettings(options,null,s=>{});var navigation=Get<Grid>("NavigationSurface");
+   check(Get<Image>("NavigationSnapshot")==null&&UiMotion.GetNavigating(navigation)&&settingsView.Root.Opacity==1,"Navigation uses one host transition without an outgoing snapshot or a second page fade");
+   await Task.Delay(70);var offset=(System.Windows.Media.TranslateTransform)navigation.RenderTransform;check(offset.X>0&&offset.X<8&&navigation.Opacity==1,"The single navigation slide interpolates while all content stays fully readable");
    var animatedTabs=(TabControl)settingsView.Root.FindName("RulesTabs");animatedTabs.SelectedIndex=1;animatedTabs.SelectedIndex=0;
    await Window.Dispatcher.InvokeAsync(new Action(()=>Window.UpdateLayout()),System.Windows.Threading.DispatcherPriority.ContextIdle);
-   var content=(FrameworkElement)animatedTabs.Template.FindName("PART_SelectedContentHost",animatedTabs);check(content.Opacity>=0.88,"Rapid settings-section switches keep the content readable throughout the transition");
+   var content=(FrameworkElement)animatedTabs.Template.FindName("PART_SelectedContentHost",animatedTabs);check(content.Opacity==1&&!content.HasAnimatedProperties&&content.RenderTransform==System.Windows.Media.Transform.Identity,"Settings content does not start a second animation while its navigation host is moving");
    OpenAbout();BackPage();BackPage();await Task.Delay(290);
-   for(int frame=0;frame<50&&Get<Grid>("MainLayout").Opacity!=1;frame++)await Task.Delay(20);
-   check(Get<Grid>("MainLayout").Opacity==1&&Get<Grid>("MainLayout").Visibility==Visibility.Visible&&Application.Current.Windows.Count==windows&&Chosen().SequenceEqual(before),"Rapid animated navigation settles on the correct page without losing selection; opacity="+Get<Grid>("MainLayout").Opacity+", windows="+Application.Current.Windows.Count+"/"+windows);
-   check(snapshot.Visibility==Visibility.Collapsed&&snapshot.Source==null,"Completed or replaced page transitions release their outgoing snapshot");
-   UiMotion.SetEnabled(Window,false);OpenSettings(options,null,s=>{});OpenAbout();BackPage();BackPage();check(snapshot.Visibility==Visibility.Collapsed&&snapshot.Source==null&&Get<Grid>("MainLayout").Opacity==1,"Reduced-motion navigation switches synchronously with no retained overlay");
+   check(Get<Grid>("MainLayout").Opacity==1&&Get<Grid>("MainLayout").Visibility==Visibility.Visible&&Application.Current.Windows.Count==windows&&Chosen().SequenceEqual(before),"Rapid animated navigation settles on the correct page without losing selection");
+   check(!UiMotion.GetNavigating(navigation)&&!((System.Windows.Media.TranslateTransform)navigation.RenderTransform).HasAnimatedProperties&&((System.Windows.Media.TranslateTransform)navigation.RenderTransform).X==0,"Replaced navigation transitions release their clocks and active state");
+   UiMotion.SetEnabled(Window,false);OpenSettings(options,null,s=>{});OpenAbout();BackPage();BackPage();check(!UiMotion.GetNavigating(navigation)&&navigation.Opacity==1&&((System.Windows.Media.TranslateTransform)navigation.RenderTransform).X==0,"Reduced-motion navigation switches synchronously with no transition clock");
   }finally{OpenProject=savedProject;UiMotion.SetEnabled(Window,false);while(pages.Count>0)BackPage();}
   UiText.SetLanguage("en");search.Text="Media cache";check(VisibleLeaves().Count>0&&VisibleLeaves().All(n=>n.Title=="媒体缓存"),"English item searches match displayed translations while preserving canonical rule names");search.Text="";UiText.SetLanguage("zh-CN");ShowReady();
  }

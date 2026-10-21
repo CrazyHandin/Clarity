@@ -12,7 +12,7 @@ Clarity is a Windows C-drive cleaner with installer and portable editions. It cl
 - **Two scan modes:** Quick uses built-in rules; Regular adds application discovery, external rules and unknown cache detection. Scanning starts only when requested.
 - **Extensible rules:** Use Winapp2 and JSON together, with multi-file JSON import, individual toggles, previews, upgrades and rollback.
 - **Backup and restore:** Backup-first cleanup and saved cleanup history. Verified restored copies are automatically removed from backups.
-- **Interface and updates:** Chinese and English, light and dark themes with Windows theme matching, and software updates from About.
+- **Interface and updates:** Chinese and English, light and dark themes with Windows theme matching, experimental Liquid Glass styling, and software updates from About.
 
 ## Get started
 

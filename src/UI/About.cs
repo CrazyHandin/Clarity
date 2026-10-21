@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace ClearSpace {
 public static class About {
  static TextBlock Text(string value,int size=15,string color="#CFDFEB"){return new TextBlock{Text=value,FontSize=size,FontWeight=size>=17?FontWeights.SemiBold:FontWeights.Normal,Foreground=App.Brush(color),TextWrapping=TextWrapping.Wrap,LineHeight=size+9};}
- static Border Card(UIElement content){return new Border{Background=App.Brush("#202D37"),BorderBrush=App.Brush("#344651"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(12),Padding=new Thickness(22,18,22,18),Margin=new Thickness(0,0,0,10),Child=content};}
+ static Border Card(UIElement content){return new GlassPanel{Background=App.Brush("#202D37"),BorderBrush=App.Brush("#344651"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(12),Padding=new Thickness(22,18,22,18),Margin=new Thickness(0,0,0,10),Child=content};}
  static void Name(FrameworkElement root,FrameworkElement element,string name){element.Name=name;root.RegisterName(name,element);}
  static Border Link(FrameworkElement root,string title,string note,string name,Action action,Window owner){
   var row=new Grid();row.ColumnDefinitions.Add(new ColumnDefinition());row.ColumnDefinitions.Add(new ColumnDefinition{Width=GridLength.Auto});var words=new StackPanel{Margin=new Thickness(0,0,22,0),VerticalAlignment=VerticalAlignment.Center};words.Children.Add(Text(title,17,"#ECF3F8"));if(!String.IsNullOrEmpty(note))words.Children.Add(Text(note,14,"#A7BFCD"));row.Children.Add(words);
