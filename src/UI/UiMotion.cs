@@ -32,7 +32,19 @@ public static class UiMotion {
   var draw=new DoubleAnimationUsingKeyFrames{FillBehavior=FillBehavior.Stop};draw.KeyFrames.Add(new DiscreteDoubleKeyFrame(12,KeyTime.FromTimeSpan(TimeSpan.Zero)));draw.KeyFrames.Add(new LinearDoubleKeyFrame(12,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(160))));draw.KeyFrames.Add(new EasingDoubleKeyFrame(0,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(540)),new QuadraticEase{EasingMode=EasingMode.EaseOut}));check.BeginAnimation(System.Windows.Shapes.Shape.StrokeDashOffsetProperty,draw);
   var twinkle=new DoubleAnimationUsingKeyFrames{FillBehavior=FillBehavior.Stop};twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(0,KeyTime.FromTimeSpan(TimeSpan.Zero)));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(1,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(280))));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(0.35,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(460))));twinkle.KeyFrames.Add(new LinearDoubleKeyFrame(1,KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(720))));sparkles.BeginAnimation(UIElement.OpacityProperty,twinkle);
  }
- public static void Tabs(TabControl tabs){tabs.SelectionChanged+=(s,e)=>{if(!ReferenceEquals(e.Source,tabs))return;tabs.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,new Action(()=>{tabs.ApplyTemplate();Reveal(tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement);}));};}
+ public static void Tabs(TabControl tabs){
+  int revision=0;
+  tabs.SelectionChanged+=(s,e)=>{
+   if(!ReferenceEquals(e.Source,tabs))return;int current=++revision;
+   tabs.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,new Action(()=>{
+    if(current!=revision||!tabs.IsVisible)return;tabs.ApplyTemplate();var content=tabs.Template.FindName("PART_SelectedContentHost",tabs)as FrameworkElement;if(content==null)return;
+    content.BeginAnimation(UIElement.OpacityProperty,null);content.Opacity=1;var offset=new TranslateTransform();content.RenderTransform=offset;if(!GetEnabled(tabs))return;
+    var duration=TimeSpan.FromMilliseconds(220);var ease=new CubicEase{EasingMode=EasingMode.EaseOut};
+    content.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(0.88,1,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});
+    offset.BeginAnimation(TranslateTransform.YProperty,new DoubleAnimation(4,0,duration){EasingFunction=ease,FillBehavior=FillBehavior.Stop});
+   }));
+  };
+ }
  public static void Loading(ProgressBar bar){
   var track=new FrameworkElementFactory(typeof(Grid));track.SetValue(UIElement.ClipToBoundsProperty,true);track.SetBinding(Panel.BackgroundProperty,new System.Windows.Data.Binding("Background"){RelativeSource=System.Windows.Data.RelativeSource.TemplatedParent});
   var band=new FrameworkElementFactory(typeof(Border),"LoadingBand");band.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Left);band.SetValue(Border.BackgroundProperty,new LinearGradientBrush(new GradientStopCollection{new GradientStop(Color.FromArgb(0,57,197,187),0),new GradientStop(Color.FromRgb(57,197,187),0.22),new GradientStop(Color.FromRgb(57,197,187),0.78),new GradientStop(Color.FromArgb(0,57,197,187),1)},new Point(0,0.5),new Point(1,0.5)));track.AppendChild(band);bar.Template=new ControlTemplate(typeof(ProgressBar)){VisualTree=track};
