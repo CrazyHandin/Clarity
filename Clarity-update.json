@@ -1,23 +1,23 @@
 {
   "Schema": 1,
   "Version": "1.1.1",
-  "Build": 1,
+  "Build": 2,
   "Highlights": {
-    "zh-CN": "新增液态玻璃（Beta）样式，覆盖主界面与更新弹窗；调整磁盘空间展示，统一页面切换动画。",
-    "en": "Added Liquid Glass (Beta) for the main interface and update dialogs; improved disk usage display and unified page transitions."
+    "zh-CN": "新增液体玻璃透明外观，覆盖主界面与更新弹窗；优化磁盘空间展示与页面切换。",
+    "en": "Added a transparent Liquid Glass appearance for the main interface and update dialogs; improved disk space display and page transitions."
   },
   "Artifacts": [
     {
       "Name": "Clarity-1.1.1-setup.exe",
-      "Size": 2819256,
-      "SHA256": "f83d2b2897f5863fcc2d9c2c0f278db68d8878c60b38d672220854843aa55254"
+      "Size": 2820930,
+      "SHA256": "37017e374fd0f2526224d22fa15a1d589c28cdcb8ca163f31cd81d75553b4138"
     },
     {
       "Name": "Clarity-1.1.1-portable.zip",
-      "Size": 575224,
-      "SHA256": "8c62f4c3f8b7800127fc99e2ec5c39f04d202abb185ad8c979d4e7670eae37f5"
+      "Size": 576985,
+      "SHA256": "0fbff3efb4dd35753997b1ffebe3d4499fabeadcdfdfefa13b5f6b0bfe8ad58f"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjEuMSIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5ray5oCB546755KD77yIQmV0Ye+8ieagt+W8j++8jOimhuebluS4u+eVjOmdouS4juabtOaWsOW8ueeql++8m+iwg+aVtOejgeebmOepuumXtOWxleekuu+8jOe7n+S4gOmhtemdouWIh+aNouWKqOeUu+OAgiIsImVuIjoiQWRkZWQgTGlxdWlkIEdsYXNzIChCZXRhKSBmb3IgdGhlIG1haW4gaW50ZXJmYWNlIGFuZCB1cGRhdGUgZGlhbG9nczsgaW1wcm92ZWQgZGlzayB1c2FnZSBkaXNwbGF5IGFuZCB1bmlmaWVkIHBhZ2UgdHJhbnNpdGlvbnMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4xLjEtc2V0dXAuZXhlIiwiU2l6ZSI6MjgxOTI1NiwiU0hBMjU2IjoiZjgzZDJiMjg5N2Y1ODYzZmNjMmQ5YzJjMGYyNzhkYjY4ZDg4NzhjNjBiMzhkNjcyMjIwODU0ODQzYWE1NTI1NCJ9LHsiTmFtZSI6IkNsYXJpdHktMS4xLjEtcG9ydGFibGUuemlwIiwiU2l6ZSI6NTc1MjI0LCJTSEEyNTYiOiI4YzYyZjRjM2Y4Yjc4MDAxMjdmYzk5ZTJlYzVjMzlmMDRkMjAyYWJiMTg1YWQ4Yzk3OWQ0ZTc2NzBlYWUzN2Y1In1dfQ==",
-  "Signature": "lF7jz4aoj0GNfFHAju/RcjF6qjK7PFd6IOHndTO0nSi2fTC7GQtxI88uzg8bEy88UK0zd0M1pM2wYHMV8ORpBIF9cwuEMx3zodSJcHLLFzCuI6CXjTm31HlHdT+saUJYOba3ogZxPuskoC2IZ5gGgxa9Ns4oGN7i6vZOu1AW5+aMRcPKwcLrk3y+lOaYBVggDu3F96LuI5mpvtdX4ZXK9XFQSiU3DleaCYSSgVzaYm/C/ti+wd8s3mA+x3luFz53UO4RSNJeF97XAvld9c3EJ/U02cP4Q2uLFFG0NILDfvQ/SL32eQh3Db0zfZR4x+fAaChoGKhjPXmTQ3WOylw/PzJ/4OcgavDWJyIAkKFIo8C7CBJW4bhScfPbnhEkbmlGtWfIZ2GcRf46yms17xLLSZ3iPmwCeUKyU9/5vYvHwr9LHVmrm8jZhw6BAkFs10XaM0rNpAHun6kngmdfvSjAaWzsP9n1ufT8o/jxwwmgtRsROXEOLt4fBqe6ESwI7DFp"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjEuMSIsIkJ1aWxkIjoyLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5ray5L2T546755KD6YCP5piO5aSW6KeC77yM6KaG55uW5Li755WM6Z2i5LiO5pu05paw5by556qX77yb5LyY5YyW56OB55uY56m66Ze05bGV56S65LiO6aG16Z2i5YiH5o2i44CCIiwiZW4iOiJBZGRlZCBhIHRyYW5zcGFyZW50IExpcXVpZCBHbGFzcyBhcHBlYXJhbmNlIGZvciB0aGUgbWFpbiBpbnRlcmZhY2UgYW5kIHVwZGF0ZSBkaWFsb2dzOyBpbXByb3ZlZCBkaXNrIHNwYWNlIGRpc3BsYXkgYW5kIHBhZ2UgdHJhbnNpdGlvbnMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4xLjEtc2V0dXAuZXhlIiwiU2l6ZSI6MjgyMDkzMCwiU0hBMjU2IjoiMzcwMTdlMzc0ZmQwZjI1MjYyMjRkMjJmYTE1YTFkNTg5YzI4Y2RjYjhjYTE2M2YzMWNkODFkNzU1NTNiNDEzOCJ9LHsiTmFtZSI6IkNsYXJpdHktMS4xLjEtcG9ydGFibGUuemlwIiwiU2l6ZSI6NTc2OTg1LCJTSEEyNTYiOiIwZmJmZjNlZmI0ZGQzNTc1Mzk5N2IxZmZlYmUzZDQ0OTlmYWJlYWRjZGZkZmVmYTEzYjVmNmIwYmZlOGFkNThmIn1dfQ==",
+  "Signature": "Ev1gcgcFX7c/vbO4/FG/BIaa3vQR5r9KBEO4Q8atOVt9mauf8VyA+aCqGNImsO5xLdEq4d6JCD0+C60RWbi/0EguJnvzVK97ya0HLZIyF2zfeO7ZZa3Iv+qwXUYP9rGMg6M5h3UxknKioMgsnTTliVBpODrdHfKr0AZEdSBFzrYW2QbfDSpda7jvaol4xRPAe5wBLZTwPD/d9JEWFGx2aG4SddG6nprQ1XVk69XZsrBMnMkLiUfMz9hSki1CjGMcXWF+8R1kRcZr+G0FTmFdCWIP7nBpEUNMIIJgT69qm6W1F9/PTSzacektOK0IJLzlqDIliYZOYxIa7uJvCHl8/3yA9CD+ivf3wu7CcauJY28cnPDB3hpLjBJ/Nzh7Sn7Fc3ve/bSk95XG6/PPxaZpfo/oC5M0ZpJ3Sj2rsA/0oSuk9agZm2pc01MqTMAlsIDbdMsrxKIveJFVMx/HS3Dv/DDeMKz6R/bDELs0xWoyiwOuL51l6yeaUtHwPspjEmRP"
 }
