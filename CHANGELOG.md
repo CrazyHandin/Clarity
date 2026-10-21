@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| 1.2.0 | Add local scan caching and a shared scan session; reduce repeat identification, overlapping reads and UI refresh overhead. |
 | 1.1.1 | Add experimental Liquid Glass styling, clarify disk usage and unify page transitions. |
 | 1.1.0 | Add stackable JSON rule packs, read-only previews and filename/age/size conditions; allow Winapp2 and JSON rules together. |
 | 1.0.6 | Add an on-demand update service and publisher signature verification; expand simple cleanup with low-risk caches and older diagnostics. |

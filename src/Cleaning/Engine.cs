@@ -25,7 +25,7 @@ public sealed class Rule {
  public bool ExplicitExcluded(string path,bool manual){string full=Engine.Normalize(path);if((ExcludedRoots??new string[0]).Any(r=>full.Equals(Engine.Normalize(r),StringComparison.OrdinalIgnoreCase)||full.StartsWith(Engine.Normalize(r)+"\\",StringComparison.OrdinalIgnoreCase)))return true;foreach(string root in Roots){string normalized=Engine.Normalize(root);if(full.StartsWith(normalized+"\\",StringComparison.OrdinalIgnoreCase)&&!(manual&&ManualIgnoresPersonalNames)){string relative=full.Substring(normalized.Length+1);if(relative.Split('\\').Any(p=>(ExcludedNames??new string[0]).Contains(p,StringComparer.OrdinalIgnoreCase)))return true;}}return false;}
  public bool Excluded(string path){string full=Engine.Normalize(path);return ExplicitExcluded(path,false)||((Heuristic||Id.StartsWith("library-"))&&Roots.Any(root=>full.StartsWith(Engine.Normalize(root)+"\\",StringComparison.OrdinalIgnoreCase)&&PathPolicy.Sensitive(path,root)));}
  public bool MatchesPattern(string path){return RuleConditionEvaluator.NameMatches(Conditions,path)&&(NamePrefix==null||Path.GetFileName(path).StartsWith(NamePrefix,StringComparison.OrdinalIgnoreCase))&&(Extensions==null||Extensions.Contains(Path.GetExtension(path),StringComparer.OrdinalIgnoreCase))&&(String.IsNullOrEmpty(FileNameRegex)||Regex.IsMatch(Path.GetFileName(path),FileNameRegex,RegexOptions.IgnoreCase,TimeSpan.FromMilliseconds(100)));}
- public bool Accept(string path){try{return !Excluded(path)&&MatchesPattern(path)&&(AdditionalExclude==null||!AdditionalExclude(path))&&(!(Heuristic||HeaderGuard)||!HeuristicScanner.LooksPersonal(path));}catch{return false;}}
+ public bool Accept(string path,Func<string,bool> personal=null){try{return !Excluded(path)&&MatchesPattern(path)&&(AdditionalExclude==null||!AdditionalExclude(path))&&(!(Heuristic||HeaderGuard)||!(personal==null?HeuristicScanner.LooksPersonal(path):personal(path)));}catch{return false;}}
  public bool ManualAccept(string path){try{var exclude=ManualAdditionalExclude??AdditionalExclude;return AllowManual&&!ExplicitExcluded(path,true)&&MatchesPattern(path)&&(exclude==null||!exclude(path));}catch{return false;}}
  public string Group { get { return GroupOverride??Groups.ForCategory(Category); } }
 }
@@ -65,11 +65,11 @@ public static class Native {
 }
 public sealed class Engine {
  static readonly object ProcessLock=new object(); static HashSet<string> ProcessNames=new HashSet<string>(StringComparer.OrdinalIgnoreCase); static DateTime ProcessSnapshotTime=DateTime.MinValue; static bool ProcessSnapshotValid;
- public readonly List<Rule> Rules; public Func<string[],bool> IsRunning;
+ public readonly List<Rule> Rules; public Func<string[],bool> IsRunning;public readonly ScanSession Session;bool scanning;
  public Action<ScanProgress> LiveProgress; public string RegistryBackupDirectory; ScanProgress live; long baseBytes; int baseFiles,baseRegistry;DateTime lastPulse;
  public bool UseFileBackup;public string FileBackupDirectory;
  public Func<CancellationToken,Action<string>,SystemCleanupResult> RunSystemCleanup=SystemDiskCleanup.Run,DisableHibernation=Hibernation.Disable;
- public Engine(List<Rule> rules) { Rules=rules; IsRunning=OwnersRunning;FileBackupDirectory=FileRecovery.DefaultDirectory(); }
+ public Engine(List<Rule> rules,ScanSession session=null) { Rules=rules;Session=session??new ScanSession();IsRunning=OwnersRunning;FileBackupDirectory=FileRecovery.DefaultDirectory(); }
  bool IsRecoveryPath(string path){try{string full=Normalize(path);foreach(string root in new[]{CleanerSettings.Root,FileBackupDirectory,RegistryBackupDirectory,CleaningHistory.DirectoryPath,Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Logs")}){if(String.IsNullOrWhiteSpace(root))continue;string p=Normalize(root);if(full.Equals(p,StringComparison.OrdinalIgnoreCase)||full.StartsWith(p+"\\",StringComparison.OrdinalIgnoreCase))return true;}if(full.EndsWith(".csbackup",StringComparison.OrdinalIgnoreCase))return true;string directory=Directory.Exists(full)?full:Path.GetDirectoryName(full);return File.Exists(Path.Combine(directory,"files.csbackup"));}catch{return true;}}
  static void ResetProcessSnapshot() { lock(ProcessLock) { ProcessSnapshotTime=DateTime.MinValue; } }
  public static bool OwnersRunning(string[] owners) {
@@ -92,33 +92,36 @@ public sealed class Engine {
  public static bool SafeAncestors(string path) {
   try { string current=Path.GetDirectoryName(Path.GetFullPath(path)); while(!String.IsNullOrEmpty(current)) { if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) return false; current=Path.GetDirectoryName(current); } return true; } catch { return false; }
  }
- Snapshot Capture(string path, Finding result, DateTime cutoff) {
+ Snapshot Capture(string path, Finding result, DateTime cutoff,FileInfo current=null) {
   if(!SafeAncestors(path)) { result.Links++; return null; }
+  var previous=current==null?null:Session.SnapshotFor(path,current);if(previous!=null){Session.Statistics.SnapshotReuses++;if(previous.Modified>cutoff.ToFileTimeUtc()){result.Recent++;return null;}return previous;}
   using(var handle=Native.CreateFile(path,0x80,7,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
    Native.INFO info; if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { result.Unreadable++; return null; }
    if((info.Attributes & (Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { result.Links++; return null; }
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(path),StringComparison.OrdinalIgnoreCase)) { result.Links++; return null; }
+   var snapshot=new Snapshot { Path=Path.GetFullPath(path),Bytes=info.Bytes,Modified=info.Write.Value,Volume=info.Volume,IndexHigh=info.IndexHigh,IndexLow=info.IndexLow };Session.Remember(snapshot);
    if(info.Write.Value>cutoff.ToFileTimeUtc()) { result.Recent++; return null; }
-   return new Snapshot { Path=Path.GetFullPath(path),Bytes=info.Bytes,Modified=info.Write.Value,Volume=info.Volume,IndexHigh=info.IndexHigh,IndexLow=info.IndexLow };
+   return snapshot;
   }
  }
- void InspectFile(string path,Finding result,DateTime cutoff) {
+ void InspectFile(string path,Finding result,DateTime cutoff,FileInfo info=null) {
   try {
    if(ScanPolicy.Excluded(path)||IsRecoveryPath(path))return;
-   var info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
+   if(info==null)info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
    if(!result.Rule.MatchesPattern(path)||!RuleConditionEvaluator.SizeMatches(result.Rule.Conditions,info.Length))return;
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
    result.Files++; result.TotalBytes+=info.Length;
    if(result.Samples.Count<5) result.Samples.Add(path);
    if(result.Running)return;
-   Snapshot snapshot=null;if(!result.Rule.Protected&&result.Rule.Accept(path))snapshot=Capture(path,result,cutoff);
+   Snapshot snapshot=null;if(!result.Rule.Protected&&result.Rule.Accept(path,p=>Session.Personal(info)))snapshot=Capture(path,result,cutoff,info);
    if(snapshot!=null){snapshot.Condition=condition;result.Candidates.Add(snapshot);result.EligibleBytes+=snapshot.Bytes;}
-   else if(result.Rule.ManualAccept(path)){var manual=Capture(path,result,DateTime.UtcNow);if(manual!=null){manual.Condition=condition;result.ManualCandidates.Add(manual);result.ManualBytes+=manual.Bytes;}}
+   else if(result.Rule.ManualAccept(path)){var manual=Capture(path,result,DateTime.UtcNow,info);if(manual!=null){manual.Condition=condition;result.ManualCandidates.Add(manual);result.ManualBytes+=manual.Bytes;}}
    else result.Blocked++;
   } catch { result.Unreadable++; }finally{Pulse(result,false);}
  }
  void Pulse(Finding f,bool force){if(LiveProgress==null||live==null)return;if(!force&&(DateTime.UtcNow-lastPulse).TotalMilliseconds<160)return;lastPulse=DateTime.UtcNow;LiveProgress(new ScanProgress{Completed=live.Completed,Total=live.Total,Title=live.Title,Group=live.Group,FoundBytes=baseBytes+f.EligibleBytes,Files=baseFiles+f.Files,RegistryItems=baseRegistry+f.RegistryCandidates.Count});}
  public Finding ScanRule(Rule rule,CancellationToken token) {
+  if(!scanning)Session.BeginFiles();
   if(rule.InfoKind=="disable-hibernation")return Hibernation.Inspect(rule);
   var result=new Finding { Rule=rule };
   if(rule.Roots.Length>0&&rule.Roots.All(ScanPolicy.Excluded)){result.Blocked=rule.Roots.Length;result.Extra="Windows 系统目录不参与扫描";return result;}
@@ -140,12 +143,12 @@ public sealed class Engine {
     try {
      if(ScanPolicy.Excluded(current))continue;
      if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
-     foreach(var entry in new DirectoryInfo(current).GetFileSystemInfos()) {
+     foreach(var entry in Session.Entries(current,token)) {
       token.ThrowIfCancellationRequested();
       if(ScanPolicy.Excluded(entry.FullName))continue;
       if((entry.Attributes&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
       if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop&&(!rule.Excluded(entry.FullName)||rule.AllowManual&&!rule.ExplicitExcluded(entry.FullName,true))&&!IsRecoveryPath(entry.FullName))pending.Push(entry.FullName);}
-      else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff);
+      else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff,entry as FileInfo);
      }
     } catch(OperationCanceledException) { throw; } catch { result.Unreadable++; }
    }
@@ -153,10 +156,12 @@ public sealed class Engine {
   return result;
  }
  public List<Finding> Scan(CancellationToken token,Action<int,int,string> progress) {
-  ResetProcessSnapshot();var results=new List<Finding>();var paths=new HashSet<string>(StringComparer.OrdinalIgnoreCase);baseBytes=0;baseFiles=0;baseRegistry=0;
-  for(int i=0;i<Rules.Count;i++) {token.ThrowIfCancellationRequested();live=new ScanProgress{Completed=i,Total=Rules.Count,Title=Rules[i].Title,Group=Rules[i].Group};if(progress!=null)progress(i,Rules.Count,Rules[i].Title);var f=ScanRule(Rules[i],token);f.Candidates.RemoveAll(s=>!paths.Add(s.Path));f.EligibleBytes=f.Candidates.Sum(s=>s.Bytes);if(f.Files>0||f.Unreadable>0||f.Links>0||f.Rule.Notice||f.RegistryCandidates.Count>0)results.Add(f);live.Completed=i+1;Pulse(f,true);baseBytes+=f.EligibleBytes;baseFiles+=f.Files;baseRegistry+=f.RegistryCandidates.Count;}
+  Session.BeginFiles();scanning=true;try{
+  ResetProcessSnapshot();var results=new List<Finding>();var paths=new HashSet<string>(StringComparer.OrdinalIgnoreCase);baseBytes=0;baseFiles=0;baseRegistry=0;lastPulse=DateTime.MinValue;
+  for(int i=0;i<Rules.Count;i++) {token.ThrowIfCancellationRequested();live=new ScanProgress{Completed=i,Total=Rules.Count,Title=Rules[i].Title,Group=Rules[i].Group};if(progress!=null)progress(i,Rules.Count,Rules[i].Title);var f=ScanRule(Rules[i],token);f.Candidates.RemoveAll(s=>!paths.Add(s.Path));f.EligibleBytes=f.Candidates.Sum(s=>s.Bytes);if(f.Files>0||f.Unreadable>0||f.Links>0||f.Rule.Notice||f.RegistryCandidates.Count>0)results.Add(f);live.Completed=i+1;Pulse(f,i==Rules.Count-1);baseBytes+=f.EligibleBytes;baseFiles+=f.Files;baseRegistry+=f.RegistryCandidates.Count;}
   foreach(var f in results){f.ManualCandidates.RemoveAll(s=>!paths.Add(s.Path));f.ManualBytes=f.ManualCandidates.Sum(s=>s.Bytes);}live=null;
   return results.OrderBy(f=>f.Rule.Protected).ThenByDescending(f=>f.TotalBytes).ToList();
+  }finally{live=null;scanning=false;Session.BeginFiles();}
  }
  bool DeleteSnapshot(Rule rule,Snapshot snapshot,bool manual,RecoverySession recovery,CancellationToken token,out string reason,out int errorCode) {
   errorCode=0;

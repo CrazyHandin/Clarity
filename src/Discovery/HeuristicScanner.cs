@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +21,7 @@ public static class HeuristicScanner {
 }
 public sealed class ScanCatalog {public List<Rule> Rules;public DiscoveryResult Discovery;public string RuleVersion,Trust;}
 public static class DiscoveryCatalog {
- public static ScanCatalog Build(CleanerSettings settings,bool heuristic,CancellationToken token,Action<string> status){var discovery=ApplicationDiscovery.Scan(settings.PortableDirectories,token,status);if(status!=null)status(discovery.Summary+" · 匹配路径规则…");var rules=RuleBook.Create();foreach(var rule in rules){var apps=discovery.Applications.Where(a=>ApplicationDiscovery.Matches(a,new[]{rule.Software??rule.Title},rule.Processes.Select(p=>p+".exe").ToArray(),null)).Take(3).ToArray();rule.Detection=apps.Length>0?String.Join("\n",apps.Select(RuleStore.Describe)):"标准路径规则；未核对到安装指纹。缓存目录存在不等于软件仍已安装。";}
+ public static ScanCatalog Build(CleanerSettings settings,bool heuristic,CancellationToken token,Action<string> status,ScanSession session=null){var discovery=ApplicationDiscovery.Scan(settings.PortableDirectories,token,status,session);if(status!=null)status(discovery.Summary+" · 匹配路径规则…");var rules=RuleBook.Create();foreach(var rule in rules){var apps=discovery.Applications.Where(a=>ApplicationDiscovery.Matches(a,new[]{rule.Software??rule.Title},rule.Processes.Select(p=>p+".exe").ToArray(),null)).Take(3).ToArray();rule.Detection=apps.Length>0?String.Join("\n",apps.Select(RuleStore.Describe)):"标准路径规则；未核对到安装指纹。缓存目录存在不等于软件仍已安装。";}
   var external=ExternalRuleSources.Resolve(settings,discovery,token,status);rules.AddRange(external.Rules);string version=external.RuleVersion,trust=external.Trust;if(heuristic){if(status!=null)status("按缓存特征寻找未知目录…");rules.AddRange(HeuristicScanner.Discover(discovery,rules,token,status));}return new ScanCatalog{Rules=rules,Discovery=discovery,RuleVersion=version,Trust=trust};}
 }
 }

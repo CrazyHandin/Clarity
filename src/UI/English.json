@@ -1056,5 +1056,14 @@
   "JSON 文件：": "JSON file: ",
   "成功": " successful",
   " 条规则 · ": " rules · ",
-  "软件更新检查超时，请检查网络后重试。": "The update check timed out. Check your connection and try again."
+  "软件更新检查超时，请检查网络后重试。": "The update check timed out. Check your connection and try again.",
+  "扫描加速": "Scan acceleration",
+  "启用本地扫描缓存": "Enable local scan cache",
+  "清除扫描缓存": "Clear scan cache",
+  "复用已识别信息，加快再次扫描。仅保存在本机，可随时清除。": "Reuse identified metadata to speed up repeat scans. Stored locally and can be cleared at any time.",
+  "扫描加速设置已保存。": "Scan acceleration settings saved.",
+  "扫描加速设置未保存：": "Scan acceleration settings were not saved: ",
+  "扫描缓存已清除，下次扫描将重新识别。": "Scan cache cleared. The next scan will identify metadata again.",
+  "扫描缓存未清除：": "Scan cache was not cleared: ",
+  "扫描缓存路径包含链接，无法清除。": "The scan cache path contains a link and cannot be cleared."
 }

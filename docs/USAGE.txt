@@ -29,6 +29,9 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 4. 查看容量、项目说明和风险后清理。选中风险项目时弹窗确认。
 5. 清理结束可打开“查看未完成项目”，核对失败、跳过或取消项目的路径与原因；点击“完成”回到初始界面。
 Clarity 不扫描 Windows 系统目录。Windows 磁盘清理仍是清理按钮旁的独立选项。
+默认启用本地扫描缓存，复用未变化程序的指纹和文件类型识别，减少再次扫描的重复读取。
+每次仍重新读取文件列表、大小、年龄与运行状态；清理前重新核验文件身份、内容保护和占用，不直接使用上次的删除候选。
+在“设置与备份 → 常规设置 → 扫描加速”可关闭或清除缓存。缓存仅保存在本机，不包含文件内容，不增加后台监控。
 “系统垃圾 → 休眠文件”仅在高级模式自选，会通过 Windows 命令关闭休眠、快速启动及混合睡眠，不经过文件备份。需管理员权限并确认风险后执行；恢复需以管理员身份运行 powercfg /hibernate on。
 
 备份与恢复
@@ -119,6 +122,9 @@ Start cleaning
 5. Risk selections require confirmation. Eligible low-risk one-click cleanup does not show a risk prompt.
 6. Open View unfinished items to inspect selected failed, skipped or cancelled paths and reasons. Click Done to return to the initial screen.
 Clarity excludes the Windows system directory. Windows Disk Cleanup remains a separate optional action.
+Local scan caching is enabled by default. It reuses unchanged application fingerprints and file-type classifications, without background monitoring or storing file contents.
+Each scan still reads current file lists, sizes, ages and process state. Cleanup rechecks file identity, protected content and locks; previous deletion candidates are never loaded from disk.
+Disable or clear the cache in Settings & Backups > General > Scan acceleration.
 The Sun/Moon button beside Minimize switches themes; General settings offers Dark, Light and Follow Windows, with saved preferences.
 Liquid Glass appearance offers Full transparency and Internal glass. Internal glass is the default and keeps the desktop hidden, including in update dialogs.
 The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.

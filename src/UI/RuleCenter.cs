@@ -20,7 +20,7 @@ public static class RuleCenter {
 #endif
   return Task.Run(()=>{if(ini)community.Update(token);else store.Update(url,token);});
  }
- public static SettingsView Create(Window owner,CleanerSettings settings,DiscoveryResult discovery,Action changed,Action back,Action about,Action<CleanerSettings> persist=null,Action<string> openLocation=null,Action restartAdministrator=null,Action<string> notify=null,Action jsonGuide=null,Action<string> success=null,Action rulePacks=null){
+ public static SettingsView Create(Window owner,CleanerSettings settings,DiscoveryResult discovery,Action changed,Action back,Action about,Action<CleanerSettings> persist=null,Action<string> openLocation=null,Action restartAdministrator=null,Action<string> notify=null,Action jsonGuide=null,Action<string> success=null,Action rulePacks=null,Action clearScanCache=null){
   UserControl w;
   w=(UserControl)App.LoadView("ClearSpace.Settings.xaml");
   Action<string> message=value=>{((TextBlock)w.FindName("Status")).Text=value;((FrameworkElement)w.FindName("SettingsStatusFrame")).Visibility=Visibility.Collapsed;if(notify!=null)notify(value);};
@@ -28,6 +28,9 @@ public static class RuleCenter {
   Action<string> saved=value=>{((TextBlock)w.FindName("Status")).Text=value;((FrameworkElement)w.FindName("SettingsStatusFrame")).Visibility=Visibility.Collapsed;if(success!=null)success(value);else if(notify!=null)notify(value);};
   WireHistoryAndGuide(w,jsonGuide,message);
   Action persistSettings=()=>{if(persist!=null)persist(settings);else settings.Save();};Func<string,TextBox> text=n=>(TextBox)w.FindName(n);Func<string,Button> button=n=>(Button)w.FindName(n);
+  var scanCache=(CheckBox)w.FindName("ScanCacheChoice");scanCache.IsChecked=settings.ScanCacheEnabled;
+  scanCache.Click+=(s,e)=>{bool previous=settings.ScanCacheEnabled;try{settings.ScanCacheEnabled=scanCache.IsChecked==true;persistSettings();saved("扫描加速设置已保存。");}catch(Exception ex){settings.ScanCacheEnabled=previous;scanCache.IsChecked=previous;message("扫描加速设置未保存："+ex.Message);}};
+  button("ClearScanCache").Click+=(s,e)=>{try{if(clearScanCache!=null)clearScanCache();else ScanSession.Clear();saved("扫描缓存已清除，下次扫描将重新识别。");}catch(Exception ex){message("扫描缓存未清除："+ex.Message);}};
   var language=(ComboBox)w.FindName("LanguageChoice");language.ItemsSource=new[]{"简体中文","English"};language.SelectedIndex=UiText.Normalize(settings.Language)=="en"?1:0;
   var glass=(CheckBox)w.FindName("LiquidGlassChoice");glass.IsChecked=settings.LiquidGlass;
   var glassMode=(ComboBox)w.FindName("GlassModeChoice");glassMode.ItemsSource=new[]{"全透式","内部通透"};glassMode.SelectedIndex=UiGlass.NormalizeMode(settings.GlassMode)=="full"?0:1;glassMode.IsEnabled=settings.LiquidGlass;bool restoringGlass=false;

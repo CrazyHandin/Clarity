@@ -35,6 +35,7 @@
        <CheckBox x:Name="LiquidGlassChoice" Content="液态玻璃外观" ToolTip="全透式透出桌面；内部通透仅展示软件内的通透效果。" Margin="0,4,0,6"/><ComboBox x:Name="GlassModeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,4,0,8"/><TextBlock x:Name="GlassPerformanceNote" Text="该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。" Foreground="#E8BE58" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
       </StackPanel>
      </local:GlassPanel>
+     <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0"><StackPanel><TextBlock Text="扫描加速" FontSize="18" FontWeight="SemiBold"/><CheckBox x:Name="ScanCacheChoice" Content="启用本地扫描缓存" Margin="0,12,0,10"/><TextBlock Text="复用已识别信息，加快再次扫描。仅保存在本机，可随时清除。" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,12"/><Button x:Name="ClearScanCache" Content="清除扫描缓存" HorizontalAlignment="Left"/></StackPanel></local:GlassPanel>
      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
       <StackPanel>
        <TextBlock Text="管理员模式" FontSize="18" FontWeight="SemiBold"/>
