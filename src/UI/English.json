@@ -1,5 +1,8 @@
 {
-    "液态玻璃（Beta）": "Liquid Glass (Beta)",
+    "该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。": "This effect uses GPU resources and may cause stuttering. Enable it only if your device has sufficient graphics performance.",
+  "液体玻璃外观": "Liquid Glass appearance",
+  "透明背景与系统模糊，文字保持不透明。": "Transparent backgrounds with system blur; text stays opaque.",
+  "剩余 ": "Free ",
   "玻璃样式已保存。": "Glass appearance saved.",
   "玻璃样式未保存：": "Glass appearance was not saved: ",
   "已占用 ": "Used ",

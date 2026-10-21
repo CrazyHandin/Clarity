@@ -18,7 +18,7 @@ public sealed partial class Controller {
   try{
    settings.Theme="dark";RefreshTheme(false);SaveTheme=s=>{saved++;File.WriteAllText(file,new JavaScriptSerializer().Serialize(s));};UiMotion.SetEnabled(Window,true);
    surfaceSlot.PropertyChanged+=onColor;
-   Get<Button>("ThemeButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(80);var mark=Get<ThemeSwitchMark>("ThemeMark");Color middle=((SolidColorBrush)Window.Background).Color;
+   Get<Button>("ThemeButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(80);var mark=Get<ThemeSwitchMark>("ThemeMark");Color middle=((SolidColorBrush)Get<Grid>("WindowRoot").Background).Color;
    check(saved==1&&settings.Theme=="light"&&UiTheme.Light&&mark.Sun.Opacity>0&&mark.Sun.Opacity<1&&mark.Moon.Opacity>0&&mark.Moon.Opacity<1,"The Sun and Moon crossfade as theme selection is saved");
    check(middle!=Color.FromRgb(22,29,37)&&middle!=Color.FromRgb(243,248,248),"Theme colors visibly interpolate between light and dark palettes");int revision=surfaceSlot.Revision;UiTheme.Set("light",true);check(surfaceSlot.Revision==revision,"Repeated refreshes preserve the running theme animation instead of restarting it");await Task.Delay(300);
    check(colorChanges==1&&!surfaceSlot.Brush.HasAnimatedProperties,"A theme transition updates its color source once and releases its completed animation clock");surfaceSlot.PropertyChanged-=onColor;

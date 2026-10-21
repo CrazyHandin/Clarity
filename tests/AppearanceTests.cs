@@ -10,23 +10,25 @@ public sealed partial class Controller {
  async Task VerifyAppearance(string output,Action<bool,string> check){
   ShowReady();UiText.SetLanguage("zh-CN");long unit=1024L*1024*1024;
   try{
-   ShowDiskSpace(100*unit,25*unit);check(Get<ProgressBar>("DiskBar").Value==75&&Get<TextBlock>("DiskPercentText").Text=="已占用 75%"&&Get<TextBlock>("DiskText").Text.Contains("25.00 GB"),"Disk fill represents occupied space while the primary label shows the remaining space");
+   ShowDiskSpace(100*unit,25*unit);check(Get<ProgressBar>("DiskBar").Value==75&&Get<TextBlock>("DiskPercentText").Text=="剩余 25%"&&Get<TextBlock>("DiskText").Text.Contains("25.00 GB"),"Disk fill represents occupied space while the primary label shows the remaining space");
    ShowDiskSpace(100*unit,5*unit);check(Get<ProgressBar>("DiskBar").Value==95&&((SolidColorBrush)Get<ProgressBar>("DiskBar").Foreground).Color==Color.FromRgb(242,119,119),"A nearly full disk uses occupied capacity and a warning color");
    ShowDiskSpace(100,150);check(Get<ProgressBar>("DiskBar").Value==0,"Free capacity above total is clamped to an empty used-space bar");ShowDiskSpace(0,0);check(Get<ProgressBar>("DiskBar").Value==0&&!Double.IsNaN(Get<ProgressBar>("DiskBar").Value),"An unreadable or zero total never divides by zero");
-   UiText.SetLanguage("en");ShowDiskSpace(100*unit,25*unit);check(Get<TextBlock>("DiskPercentText").Text=="Used 75%"&&Get<ProgressBar>("DiskBar").ToolTip.ToString().Contains("Free"),"English disk labels consistently identify used and free capacity");
+   UiText.SetLanguage("en");ShowDiskSpace(100*unit,25*unit);check(Get<TextBlock>("DiskPercentText").Text=="Free 25%"&&Get<ProgressBar>("DiskBar").ToolTip.ToString().Contains("Free"),"English disk labels consistently identify used and free capacity");
   }finally{UiText.SetLanguage("zh-CN");UpdateDisk();}
-  bool previous=UiGlass.GetEnabled(Window);var options=new CleanerSettings();string file=Path.Combine(output,"glass-preference.json");int saves=0;
+  bool previous=UiGlass.GetEnabled(Window);var allowed=NativeGlass.Allowed;var options=new CleanerSettings();string file=Path.Combine(output,"glass-preference.json");int saves=0;
   try{
    OpenSettings(options,null,s=>{saves++;File.WriteAllText(file,new JavaScriptSerializer().Serialize(s));});
-   var choice=(CheckBox)settingsView.Root.FindName("LiquidGlassChoice");check(options.LiquidGlass&&choice.IsChecked==true&&choice.Content.ToString().Contains("Beta"),"Liquid Glass is enabled by default and clearly marked as experimental");
+   var choice=(CheckBox)settingsView.Root.FindName("LiquidGlassChoice");check(options.LiquidGlass&&choice.IsChecked==true&&choice.Content.ToString()=="液体玻璃外观","Liquid Glass uses the requested appearance label and is enabled by default");
    choice.IsChecked=false;choice.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));check(!UiGlass.GetEnabled(Window)&&!new JavaScriptSerializer().Deserialize<CleanerSettings>(File.ReadAllText(file)).LiquidGlass,"Disabling glass saves the preference and immediately restores the plain interface");
    var popup=UpdateDialogs.Highlights(Window);check(!UiGlass.GetEnabled(popup),"Update dialogs honor a disabled glass preference");popup.Close();
    choice.IsChecked=true;choice.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));check(UiGlass.GetEnabled(Window)&&saves==2&&new JavaScriptSerializer().Deserialize<CleanerSettings>(File.ReadAllText(file)).LiquidGlass,"Re-enabling glass saves without changing scans or creating a new main window");
+   bool native=UiGlass.GetHasBackdrop(Window);check(!native||((SolidColorBrush)Window.Background).Color.A==0&&System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(Window).Handle).CompositionTarget.BackgroundColor.A==0,"Native glass clears both the window and composition-target backgrounds");
+   NativeGlass.Allowed=()=>false;UiGlass.SetEnabled(Window,true);check(!UiGlass.GetHasBackdrop(Window)&&((SolidColorBrush)Window.Background).Color.A==255,"Unavailable composition restores an opaque readable window instead of a black or invisible surface");NativeGlass.Allowed=allowed;UiGlass.SetEnabled(Window,true);check(UiGlass.GetHasBackdrop(Window)==native&&Get<Grid>("WindowRoot").Opacity==1,"Restoring compositor support keeps window content fully opaque while only materials become translucent");
    await Window.Dispatcher.InvokeAsync(new Action(()=>Window.UpdateLayout()),System.Windows.Threading.DispatcherPriority.ContextIdle);
-   check(Get<Grid>("WindowRoot")is GlassBackdrop&&Get<Border>("HeroPanel")is GlassPanel,"The main interface uses the shared translucent material and static color backdrop");
+   check(Get<Grid>("WindowRoot")is GlassBackdrop&&Get<Border>("HeroPanel")is GlassPanel,"The main interface uses the shared translucent material over the live native backdrop");
    popup=UpdateDialogs.Highlights(Window);check(popup.FindName("DialogSurface")is GlassPanel&&UiGlass.GetEnabled(popup),"Version and software update dialogs share the glass material");popup.Close();
    BackPage();App.Render(Window,Path.Combine(output,"glass-main-dark.png"));
-  }finally{while(pages.Count>0)BackPage();UiGlass.SetEnabled(Window,previous);}
+  }finally{while(pages.Count>0)BackPage();NativeGlass.Allowed=allowed;UiGlass.SetEnabled(Window,previous);}
  }
 }
 }

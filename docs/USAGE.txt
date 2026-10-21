@@ -11,8 +11,8 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 
 主题、语言与管理员模式
 标题栏最小化按钮旁的太阳／月亮可切换深浅色；常规设置支持深色、浅色及跟随 Windows，并自动保存。
-“液态玻璃（Beta）”可在常规设置中开启或关闭，应用于主界面与更新弹窗。
-磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间。
+“液体玻璃外观”可在常规设置中开启或关闭，应用于主界面与更新弹窗。
+磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间；百分比显示剩余空间比例。
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
 管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
 普通权限清理失败或没有删除权限时，软件会询问是否以管理员身份重启。
@@ -120,8 +120,8 @@ Start cleaning
 6. Open View unfinished items to inspect selected failed, skipped or cancelled paths and reasons. Click Done to return to the initial screen.
 Clarity excludes the Windows system directory. Windows Disk Cleanup remains a separate optional action.
 The Sun/Moon button beside Minimize switches themes; General settings offers Dark, Light and Follow Windows, with saved preferences.
-Liquid Glass (Beta) can be toggled in General settings and applies to the main interface and update dialogs.
-The colored part of the disk bar represents used space; the unfilled part represents free space.
+Liquid Glass appearance can be toggled in General settings and applies to the main interface and update dialogs.
+The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.
 Advanced cleanup includes an optional System junk → Hibernation file action. It uses Windows powercfg to disable hibernation, Fast Startup and hybrid sleep without a file backup. Administrator privileges and risk confirmation are required. To restore hibernation, run powercfg /hibernate on as administrator.
 
 Backups and restoration

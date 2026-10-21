@@ -122,7 +122,7 @@ public sealed partial class Controller {
  void UpdateDisk(){try{var disk=new DriveInfo(RuleBook.TargetDrive);ShowDiskSpace(disk.TotalSize,disk.AvailableFreeSpace);}catch{Get<TextBlock>("DiskText").Text="磁盘空间暂无法读取";Get<TextBlock>("DiskTotalText").Text=Get<TextBlock>("DiskPercentText").Text="";Get<ProgressBar>("DiskBar").Value=0;Get<ProgressBar>("DiskBar").ToolTip=null;}}
  void ShowDiskSpace(long total,long available){
   total=Math.Max(0,total);available=Math.Max(0,Math.Min(total,available));long occupied=total-available;double percent=total>0?100.0*occupied/total:0;
-  Get<TextBlock>("DiskText").Text=RuleBook.TargetDrive.Substring(0,1)+": 可用 "+App.FormatSize(available);Get<TextBlock>("DiskTotalText").Text="总容量 "+App.FormatSize(total);Get<TextBlock>("DiskPercentText").Text="已占用 "+percent.ToString("0.#")+"%";
+  Get<TextBlock>("DiskText").Text=RuleBook.TargetDrive.Substring(0,1)+": 可用 "+App.FormatSize(available);Get<TextBlock>("DiskTotalText").Text="总容量 "+App.FormatSize(total);Get<TextBlock>("DiskPercentText").Text="剩余 "+(total>0?100.0*available/total:0).ToString("0.#")+"%";
   var bar=Get<ProgressBar>("DiskBar");bar.Value=percent;bar.Foreground=App.Brush(percent>=95?"#F27777":percent>=85?"#E8BE58":"#39C5BB");bar.ToolTip="已占用 "+App.FormatSize(occupied)+" · 可用 "+App.FormatSize(available)+" / "+App.FormatSize(total);System.Windows.Automation.AutomationProperties.SetName(bar,UiText.T(bar.ToolTip.ToString()));
  }
  void SetBusy(bool value,string kind){

@@ -46,6 +46,7 @@ public static class UiTheme {
    var current=slot;animation.Completed+=(s,e)=>{if(current.Revision==revision)brush.BeginAnimation(SolidColorBrush.ColorProperty,null);};
    brush.BeginAnimation(SolidColorBrush.ColorProperty,animation,HandoffBehavior.SnapshotAndReplace);
   }
+  UiGlass.Refresh();
  }
  // Light surfaces, borders and green typography follow the beta0.02 palette.
  static readonly Dictionary<string,string> lightColors=new Dictionary<string,string>{

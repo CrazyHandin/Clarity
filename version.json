@@ -1,9 +1,9 @@
 {
   "channel": "stable",
   "version": "1.1.1",
-  "build": 1,
+  "build": 2,
   "highlights": {
-    "zh-CN": "新增液态玻璃（Beta）样式，覆盖主界面与更新弹窗；调整磁盘空间展示，统一页面切换动画。",
-    "en": "Added Liquid Glass (Beta) for the main interface and update dialogs; improved disk usage display and unified page transitions."
+    "zh-CN": "新增液体玻璃透明外观，覆盖主界面与更新弹窗；优化磁盘空间展示与页面切换。",
+    "en": "Added a transparent Liquid Glass appearance for the main interface and update dialogs; improved disk space display and page transitions."
   }
 }

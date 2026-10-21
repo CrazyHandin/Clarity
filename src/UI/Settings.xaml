@@ -22,7 +22,7 @@
     <TextBlock Text="管理备份、扫描目录与清理规则" Foreground="#9DB5C3" FontSize="14" Margin="0,3,0,0"/>
    </StackPanel>
   </StackPanel><Button Grid.Column="2" x:Name="AboutButton" HorizontalAlignment="Right" VerticalAlignment="Center"><StackPanel Orientation="Horizontal"><TextBlock Text="关于 Clarity"/><Ellipse x:Name="AboutBadge" Width="8" Height="8" Fill="#F27777" Visibility="Collapsed" Margin="8,0,0,0"/></StackPanel></Button></Grid>
-  <TabControl x:Name="RulesTabs" Grid.Row="1" Margin="0,20,0,0" Background="#1D2933" BorderBrush="#344651" Foreground="#DFEAF2" SelectedIndex="0">
+  <TabControl x:Name="RulesTabs" Grid.Row="1" Margin="0,20,0,0" BorderBrush="#344651" Foreground="#DFEAF2" SelectedIndex="0">
    <TabItem x:Name="GeneralTab" Header="常规设置">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="18">
@@ -32,7 +32,7 @@
        <ComboBox x:Name="LanguageChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,14,0,12"/>
        <TextBlock Text="界面主题" FontSize="18" FontWeight="SemiBold" Margin="0,12,0,0"/>
        <ComboBox x:Name="ThemeChoice" Height="38" Width="270" HorizontalAlignment="Left" Margin="0,12,0,12"/>
-       <CheckBox x:Name="LiquidGlassChoice" Content="液态玻璃（Beta）" Margin="0,4,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
+       <CheckBox x:Name="LiquidGlassChoice" Content="液体玻璃外观" ToolTip="透明背景与系统模糊，文字保持不透明。" Margin="0,4,0,6"/><TextBlock x:Name="GlassPerformanceNote" Text="该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。" Foreground="#A7BFCD" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#A7BFCD" FontSize="14"/>
       </StackPanel>
      </local:GlassPanel>
      <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
