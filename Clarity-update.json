@@ -1,23 +1,23 @@
 {
   "Schema": 1,
-  "Version": "1.1.1",
-  "Build": 3,
+  "Version": "1.2.0",
+  "Build": 1,
   "Highlights": {
-    "zh-CN": "新增液态玻璃外观，支持全透式与默认的内部通透模式；优化磁盘空间展示与页面切换。",
-    "en": "Added Liquid Glass appearance with full transparency and default internal glass; improved disk space display and page transitions."
+    "zh-CN": "新增本地扫描缓存，减少再次扫描的重复识别；升级扫描执行层，共享重叠规则的读取结果并降低界面刷新开销。",
+    "en": "Added local scan caching to reduce repeated identification; upgraded the scan execution layer to share reads across overlapping rules and reduce UI refresh overhead."
   },
   "Artifacts": [
     {
-      "Name": "Clarity-1.1.1-setup.exe",
-      "Size": 2822042,
-      "SHA256": "99e72c0396f1dad050dc920c79a61ea3b5c0e89f10305bd13e9f607836115f3b"
+      "Name": "Clarity-1.2.0-setup.exe",
+      "Size": 2825788,
+      "SHA256": "139e8e1dad693d7cede4d486bf31c14b4cf10517b0c52cc7ea780bf4e44bc394"
     },
     {
-      "Name": "Clarity-1.1.1-portable.zip",
-      "Size": 578301,
-      "SHA256": "e694f167b9d2d5034027a8e62cb38f357481d80ba96febd8ec2b219eaff2fb6d"
+      "Name": "Clarity-1.2.0-portable.zip",
+      "Size": 584378,
+      "SHA256": "c4b82bf58eb89777b86ec45b9480586fb4a78782b536e1c67f58ee52350dedc5"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjEuMSIsIkJ1aWxkIjozLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5ray5oCB546755KD5aSW6KeC77yM5pSv5oyB5YWo6YCP5byP5LiO6buY6K6k55qE5YaF6YOo6YCa6YCP5qih5byP77yb5LyY5YyW56OB55uY56m66Ze05bGV56S65LiO6aG16Z2i5YiH5o2i44CCIiwiZW4iOiJBZGRlZCBMaXF1aWQgR2xhc3MgYXBwZWFyYW5jZSB3aXRoIGZ1bGwgdHJhbnNwYXJlbmN5IGFuZCBkZWZhdWx0IGludGVybmFsIGdsYXNzOyBpbXByb3ZlZCBkaXNrIHNwYWNlIGRpc3BsYXkgYW5kIHBhZ2UgdHJhbnNpdGlvbnMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4xLjEtc2V0dXAuZXhlIiwiU2l6ZSI6MjgyMjA0MiwiU0hBMjU2IjoiOTllNzJjMDM5NmYxZGFkMDUwZGM5MjBjNzlhNjFlYTNiNWMwZTg5ZjEwMzA1YmQxM2U5ZjYwNzgzNjExNWYzYiJ9LHsiTmFtZSI6IkNsYXJpdHktMS4xLjEtcG9ydGFibGUuemlwIiwiU2l6ZSI6NTc4MzAxLCJTSEEyNTYiOiJlNjk0ZjE2N2I5ZDJkNTAzNDAyN2E4ZTYyY2IzOGYzNTc0ODFkODBiYTk2ZmViZDhlYzJiMjE5ZWFmZjJmYjZkIn1dfQ==",
-  "Signature": "SEBMSCvRE1blCEVfUsUZFLYjMdg4I0IcdA9SG0MS8Wnp49xMQfoGv6xIX/5Bc+CevwzMuXx0925kyOcHMoD5xAwdS2nZ9c4ExTCMlMeOemBcMdK5onfhNTTy2kfUENREKwbqnuAFDrzY7Bik2a1RhOybSafWAp580mu6IreE1pA4CfZ85sBOUs/wZysM+nmbx2p68etKbvrCJLsM+CrC7IkzKOq4e4ESlrESC44al1xHzqdDHmFHkx0bZCOj1bAFBNajN6lYl02VxCZRaSqNDX1om3wuacKFR7xoYNx3JkQCYl6h8IlPA/EE/Si5//O88gZocfrbL8T6WMgT2883es+C077lL0BfzuRtRuMjvPALhLdpOrjaveF5gWo7sVgMyS7zGxrSencYAGApyG2kJyfAmV+Z+/tJg23vyFLSLOHrVuyYZs3K3kJSu75u+2C3vyz9vGUuNkKYvlJB//DiETEyAXF5qzrUvycb8nfOzaKZOU32nSxIMtNhfl74cApm"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMCIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5pys5Zyw5omr5o+P57yT5a2Y77yM5YeP5bCR5YaN5qyh5omr5o+P55qE6YeN5aSN6K+G5Yir77yb5Y2H57qn5omr5o+P5omn6KGM5bGC77yM5YWx5Lqr6YeN5Y+g6KeE5YiZ55qE6K+75Y+W57uT5p6c5bm26ZmN5L2O55WM6Z2i5Yi35paw5byA6ZSA44CCIiwiZW4iOiJBZGRlZCBsb2NhbCBzY2FuIGNhY2hpbmcgdG8gcmVkdWNlIHJlcGVhdGVkIGlkZW50aWZpY2F0aW9uOyB1cGdyYWRlZCB0aGUgc2NhbiBleGVjdXRpb24gbGF5ZXIgdG8gc2hhcmUgcmVhZHMgYWNyb3NzIG92ZXJsYXBwaW5nIHJ1bGVzIGFuZCByZWR1Y2UgVUkgcmVmcmVzaCBvdmVyaGVhZC4ifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMC1zZXR1cC5leGUiLCJTaXplIjoyODI1Nzg4LCJTSEEyNTYiOiIxMzllOGUxZGFkNjkzZDdjZWRlNGQ0ODZiZjMxYzE0YjRjZjEwNTE3YjBjNTJjYzdlYTc4MGJmNGU0NGJjMzk0In0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMC1wb3J0YWJsZS56aXAiLCJTaXplIjo1ODQzNzgsIlNIQTI1NiI6ImM0YjgyYmY1OGViODk3NzdiODZlYzQ1Yjk0ODA1ODZmYjRhNzg3ODJiNTM2ZTFjNjdmNThlZTUyMzUwZGVkYzUifV19",
+  "Signature": "fczKx25nzY9tivlKUR9NLPJJ9nZfhccICNwb4K/th8etgW4Reaz+MG8SHwnbZLdhzQADir0J6Ro0hI0EcNMlE/BLs4YbzybhYkL760t7dXEFpk31PmhNxQvwLuq4e/GD7E8i+CdTQ1ePek2zmzAk0+N4+QoXc1gbGEmUdhgzKCW3RLlVOUugg5VsoBAS7VHEMUd/lTx1iTZzrN/gSsiOhPXZOEWdW7SqMzQSUCqqniEQm2pipF4WtzKyCzN4b93Kb56KtBEApHq0dQdCOnJGNfmhDaUJNZ7BBr0zMGWBqFQUemowvWLKnL+Geb1E/KzgbCJYVFbbphPXVqKMSv9r2zdMRZrA0ANPnnnINf/11GTDWXhIH0+QhY2uK+Mk8BJQUbytS8Lvw36jm9X5r0AvvOerfmjj/SH92VOv5yXy5u9ruybZ6PGH5VKqpoQJw/BepeMiLhrQvXtZjepZQ6VLJHRFgd0oYfRhKqS+2uCEwYF2voI0BW3JZTa9LdKZcOB0"
 }
