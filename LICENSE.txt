@@ -1,21 +1,75 @@
-MIT License
+Clarity 个人使用与源码公开许可协议 1.0
+Copyright (c) 2026 CraZyX. All rights reserved.
+生效日期：2026-10-22
 
-Copyright (c) 2026 CraZyX
+1. 适用范围
+本许可适用于 Clarity 1.2.3 内部构建 5 及之后明确附带本许可的版本中，CraZyX 有权许可的代码、程序、图标和文档（以下简称“本软件”）。
+本软件源码公开，但不按标准开源许可授权。未明确授予的权利由著作权人保留。
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+2. 免费个人使用
+在遵守本许可的前提下，自然人可免费为个人非商业目的下载、安装、运行及备份本软件，并可阅读、研究、在本机编译及修改已公开的源码，仅供本人非商业使用。
+本授权非独占、不可转授权。企业、组织、经营活动及其他商业用途须另行取得著作权人的书面授权。
+可分享官方项目页面和官方下载链接；分享链接不等于提供软件或源码副本。
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+3. 未经书面授权不得进行的行为
+（1）无论收费与否，向第三方再分发、转载、上传或提供本软件的源码、二进制、副本或修改版，包括通过镜像、下载站或其他软件提供副本。
+（2）出售、出租、转授权、商业使用，或将本软件与收费服务、产品、整机或其他软件捆绑提供。
+（3）面向第三方二次打包、换名发布、预装、再发行，或冒充官方发行。第 2 条允许的本人本机编译与修改不属于此项禁止的二次打包。
+（4）对已编译程序进行逆向工程、反编译、反汇编或其他旨在还原程序实现的行为；第 2 条允许的源码阅读、研究、编译和修改不受此项限制。
+（5）删除、隐去或伪造本软件的版权、许可和来源声明。
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+4. 既有权利与第三方内容
+以上限制不影响适用法律中不能被合同排除或限制的权利及例外。
+本项目在 GitHub 公开时，GitHub 服务条款已经授予平台及其用户的权利（包括在平台内查看和 fork）不受本许可限制。这些平台权利不代表另行取得在平台之外再发行或商业使用本软件的授权。
+此前已按 MIT 发布的版本及其内容，仍按其原 MIT 许可授权；本许可不追溯撤销、限制或替代接收者已经取得的 MIT 权利。历史发布与标签中的原许可保持有效。
+Winapp2 规则数据库独立适用 CC BY-SA 4.0。本许可不限制该数据库或其他第三方内容在其各自许可下授予的使用、修改和再分发权利。第三方许可及声明见 THIRD_PARTY_NOTICES.md 和随附使用说明。
+本许可不限制用户对自己文件、个人数据和备份的权利。
+
+5. 保证与责任
+在适用法律允许的最大范围内，本软件按“现状”提供，不作明示或默示保证，包括适销性、特定用途适用性和不侵权保证。
+扫描、清理、备份、恢复及更新均可能失败。用户应另行备份重要资料，核对清理范围及风险，不应将本软件作为唯一的数据保护措施。
+在适用法律允许的最大范围内，著作权人不对使用或无法使用本软件所导致的损失或损害承担责任。本条不排除依法不能排除的责任。
+
+6. 终止与其他授权
+违反本许可时，第 2 条授予的许可终止；应停止本许可所授权的使用并删除由本许可取得的副本，但不影响第 4 条保留的既有权利。
+超出本许可的使用需获得著作权人另行书面授权。本许可不授予商标权，也不意味着作者对第三方内容或发行的认可。
+项目及授权联系：https://github.com/CrazyHandin/Clarity
+
+============================================================
+Clarity Personal Use and Source Available License 1.0
+Copyright (c) 2026 CraZyX. All rights reserved.
+Effective date: 2026-10-22
+License identifier: LicenseRef-Clarity-Personal-Use-1.0
+
+1. Scope
+This license covers the code, application, artwork and documentation that CraZyX has authority to license (the Software), starting with Clarity 1.2.3 internal build 5 and later versions that expressly include this license.
+The source is available for inspection; this is not a standard open-source license. Rights not expressly granted are reserved by the copyright holder.
+
+2. Free personal use
+Subject to this license, an individual may download, install, run and back up the Software without charge for personal, noncommercial purposes. The individual may read, study, locally compile and modify the published source solely for that individual's personal, noncommercial use.
+This grant is nonexclusive and nonsublicensable. Business, organizational and other commercial uses require separate written permission from the copyright holder.
+Links to the official project and official downloads may be shared. Sharing a link does not authorize supplying copies of the Software or its source.
+
+3. Activities requiring prior written permission
+(1) Redistributing, republishing, uploading or supplying the Software, its source, binaries, copies or modified versions to third parties, whether free or paid, including through mirrors, download sites or other software.
+(2) Selling, renting, sublicensing or commercially using the Software, or bundling it with paid services, products, computers or other software.
+(3) Repackaging, rebranding, preinstalling or reissuing the Software for third parties, or presenting a third-party release as official. Private local compilation and modification permitted by section 2 are not prohibited repackaging.
+(4) Reverse engineering, decompiling, disassembling or otherwise attempting to reconstruct the implementation of compiled binaries. Source reading, study, compilation and modification permitted by section 2 are unaffected.
+(5) Removing, concealing or falsifying copyright, license or origin notices.
+
+4. Existing rights and third-party materials
+These restrictions do not limit rights or exceptions that applicable law does not allow a contract to exclude or restrict.
+While the project is public on GitHub, rights already granted to GitHub and its users through GitHub's terms, including viewing and forking within the service, remain unaffected. Such platform rights do not themselves grant permission for distribution outside the service or commercial use of the Software.
+Versions and materials previously published under MIT remain available under their original MIT license. This license does not retroactively revoke, restrict or replace MIT rights already granted to recipients. The original licenses in historical releases and tags remain effective.
+The Winapp2 rule database is separately licensed under CC BY-SA 4.0. This license does not restrict rights to use, modify or redistribute that database or other third-party materials under their respective licenses. See THIRD_PARTY_NOTICES.md and the bundled user guide for third-party notices.
+This license does not restrict users' rights in their own files, personal data or backups.
+
+5. Warranty and liability
+To the maximum extent permitted by applicable law, the Software is provided AS IS, without express or implied warranties, including merchantability, fitness for a particular purpose and noninfringement.
+Scanning, cleanup, backup, restoration and updates can fail. Maintain separate backups of important data, review cleanup scopes and risks, and do not rely on this Software as your only data protection measure.
+To the maximum extent permitted by applicable law, the copyright holder is not liable for loss or damage arising from use of, or inability to use, the Software. Liability that cannot lawfully be excluded is unaffected.
+
+6. Termination and additional permission
+Violating this license terminates the grant in section 2. Stop use authorized under this license and remove copies obtained under it, without affecting rights preserved by section 4.
+Uses beyond this license require separate written permission from the copyright holder. No trademark rights or endorsement of third-party materials or releases are granted.
+Project and permission requests: https://github.com/CrazyHandin/Clarity

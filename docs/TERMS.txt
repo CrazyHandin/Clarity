@@ -3,19 +3,20 @@ Clarity © 2026 CraZyX
 
 1. 软件与许可
 Clarity 是 Windows 磁盘清理工具。
-Clarity 自有代码、程序和文档按 MIT 许可发布，完整许可见 LICENSE.txt。
-本说明介绍软件行为与清理风险，不增加 MIT 许可之外的分发、商业使用或逆向工程限制。
-Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的 MIT 许可。
+自 1.2.3 内部构建 5 起，明确附带新许可的 Clarity 自有内容采用《Clarity 个人使用与源码公开许可协议 1.0》。完整许可见 LICENSE.txt、随附使用说明及本页后附的许可全文。
+源码公开不等于标准开源授权；本说明介绍软件行为与清理风险，具体授权范围以随附许可为准。
+Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的个人使用许可。
 
 2. 费用、版权与允许的使用
-作者提供的官方版本完全免费，作者从未以任何形式出售本软件。
-著作权由作者保留。遵守 MIT 许可并保留版权与许可声明，即可使用、复制、修改、编译、再分发和商业使用 Clarity 自有内容。
-第三方发行版、修改版或收费服务不代表作者或官方，也不意味着得到作者背书。
+作者提供的官方版本供个人非商业用途免费使用，作者从未以任何形式出售本软件。
+著作权由作者保留。自然人可为本人非商业用途下载、安装、运行、备份，并可阅读、研究、在本机编译及修改已公开的源码，仅供本人使用。
+企业、组织及其他商业用途需另行取得书面授权；可直接分享官方项目页面和官方下载链接。
 
 3. 许可条件与未获授权的行为
-分发软件或其实质部分时，必须附带 MIT 要求的版权与许可声明；去除或遗漏这些声明不符合许可条件。
-对 Winapp2 规则的使用和再分发应遵守其独立许可，不应额外限制该许可授予接收者的权利。
-关于页的免费说明适用于官方发行；不禁止 MIT 许可允许的第三方销售或商业使用。
+未经书面授权，不得再分发、转载、出售、商业使用、收费捆绑、预装或面向第三方二次打包本软件及源码；不得逆向工程、反编译、反汇编或移除版权与许可声明。
+法律中不能被合同限制的权利和例外，以及 GitHub 平台条款已经授予的查看、fork 等权利，均予保留。
+此前已按 MIT 发布的版本及内容仍遵循原 MIT 许可；新许可不追溯撤销或限制既有权利。
+Winapp2 及其他第三方内容继续遵守各自独立许可，其许可允许的使用、修改和再分发不受本软件自有内容限制。
 
 4. 扫描与清理
 打开软件不会自动扫描。快速扫描检查内置低风险规则；常规扫描还包含应用发现、外部规则与未知缓存识别。
@@ -34,12 +35,12 @@ Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的 MIT 许
 6. 规则、隐私与风险
 规则更新会下载规则文件，不上传应用列表、路径或扫描结果。外部规则应从可信来源获取。
 设置、日志和备份保存在本机，可能包含路径、应用信息或被备份的个人资料；分享前请自行检查。
-软件按 MIT 许可中的“现状”条款提供，不保证识别、清理、空间释放或恢复结果。
+软件按随附许可中的“现状”条款提供，不保证识别、清理、空间释放或恢复结果；依法不能排除的权利和责任不受影响。
 使用规则库或启动系统磁盘清理，并不表示作者为第三方内容或操作结果提供额外担保。
 
 7. 文档与联系
 项目、最新版本与反馈：https://github.com/CrazyHandin/Clarity
-MIT 许可原文：https://opensource.org/license/mit
+Clarity 许可全文：https://github.com/CrazyHandin/Clarity/blob/main/LICENSE.txt
 Winapp2 规则：https://github.com/MoscaDotTo/Winapp2
 CC BY-SA 4.0：https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
@@ -50,20 +51,20 @@ Clarity © 2026 CraZyX
 
 1. Application and license
 Clarity is a Windows disk cleaner.
-Clarity's own code, application, and documentation are licensed under MIT. See LICENSE.txt for the full license.
-These notes explain behavior and cleanup risks. They add no restrictions on distribution, commercial use, or reverse engineering beyond MIT.
-The Winapp2 rule database is separately licensed under CC BY-SA 4.0, not Clarity's MIT license.
+Starting with 1.2.3 internal build 5, Clarity's own materials that expressly include the new license use the Clarity Personal Use and Source Available License 1.0. See LICENSE.txt, the bundled user guide or the license appended to this page.
+Available source is not a standard open-source grant. These notes explain behavior and cleanup risks; the bundled license defines the permissions.
+The Winapp2 rule database is separately licensed under CC BY-SA 4.0, not Clarity's personal-use license.
 
 2. Cost, copyright, and permitted use
-Official builds supplied by the author are free. The author has never sold Clarity in any form.
-Copyright remains with the author. MIT permits use, copying, modification, compilation, redistribution, and commercial use of Clarity's own materials, subject to retaining its copyright and license notices.
-Third-party distributions, modifications, or paid services do not represent the author or imply official endorsement.
+Official builds are free for personal, noncommercial use. The author has never sold Clarity in any form.
+Copyright remains with the author. Individuals may download, install, run and back up the Software and read, study, locally compile and modify its published source solely for their own noncommercial use.
+Business, organizational and other commercial uses require separate written permission. Links to the official project and official downloads may be shared.
 
 3. License conditions
-Copies or substantial portions of the software must include the copyright and permission notices required by MIT.
-Removing or omitting these notices does not comply with the license.
-Use and redistribution of Winapp2 rules remain subject to its own license, including its restriction against adding downstream limitations.
-The statement about free official builds does not prohibit third-party sales or commercial use permitted by MIT.
+Prior written permission is required for redistribution, republication, sales, commercial use, paid bundling, preinstallation or repackaging of the Software or source for third parties. Reverse engineering, decompilation, disassembly and removal of copyright or license notices are prohibited subject to the license's exceptions.
+Nonwaivable statutory rights and exceptions, and rights already granted through GitHub's terms such as viewing and forking, remain unaffected.
+Versions and materials previously published under MIT retain their original MIT license; the new license does not retroactively revoke or limit existing rights.
+Winapp2 and other third-party materials retain their respective licenses. Their separately permitted use, modification and redistribution are unaffected by the restrictions on Clarity's own materials.
 
 4. Scanning and cleanup
 Opening Clarity does not start scanning. Quick scan checks built-in low-risk rules. Regular scan adds application discovery, external rules, and unknown-cache detection.
@@ -82,11 +83,11 @@ Administrator mode may not resolve locked files or antivirus blocks. Restart sti
 6. Rules, privacy, and risks
 Rule updates download rule files without uploading application inventories, paths, or scan results. Obtain external rules from trusted sources.
 Local settings, logs, and backups may contain paths, application information, or personal backup data. Review them before sharing.
-The software is supplied under MIT's AS IS terms, without guarantees about detection, cleanup, freed space, or restoration.
+The software is supplied under the bundled license's AS IS terms, without guarantees about detection, cleanup, freed space or restoration. Rights and liabilities that cannot lawfully be excluded remain unaffected.
 Using a rule database or Windows Disk Cleanup provides no additional warranty from the author for third-party content or operation results.
 
 7. Documentation and contact
 Project, releases, and feedback: https://github.com/CrazyHandin/Clarity
-MIT: https://opensource.org/license/mit
+Clarity license: https://github.com/CrazyHandin/Clarity/blob/main/LICENSE.txt
 Winapp2: https://github.com/MoscaDotTo/Winapp2
 CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/legalcode

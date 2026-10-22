@@ -38,4 +38,4 @@ Clarity（澄净）是一款 Windows C 盘清理工具，提供安装版与便�
 
 ## 许可
 
-Clarity 采用 [MIT 许可](LICENSE.txt)。Winapp2 规则采用独立的 **CC BY-SA 4.0** 许可，详见[第三方说明](THIRD_PARTY_NOTICES.md)。
+自 1.2.3 内部构建 5 起，Clarity 采用[个人使用与源码公开许可](LICENSE.txt)：免费供个人非商业使用，未经授权不得再分发、出售、二次打包或逆向工程，适用例外见许可全文。已按 MIT 发布的历史版本保留原许可。Winapp2 规则独立采用 **CC BY-SA 4.0**，详见[第三方说明](THIRD_PARTY_NOTICES.md)。
