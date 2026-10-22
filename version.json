@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.2.2",
-  "build": 1,
+  "build": 2,
   "highlights": {
     "zh-CN": "bug修复",
     "en": "Bug fixes"
