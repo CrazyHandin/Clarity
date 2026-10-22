@@ -1,4 +1,4 @@
-<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity" Foreground="#DFEAF2" FontSize="15">
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity" Foreground="#DFEAF2" FontSize="15" local:UiInput.PreventWheelSelection="True">
   <local:GlassBackdrop Background="#161D25">
     <Grid Margin="24">
       <Grid.RowDefinitions>

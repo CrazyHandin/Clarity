@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "build": 1,
   "highlights": {
-    "zh-CN": "新增批量目录索引扫描并默认启用 Winapp2；重做轻盈清透外观与独立下拉菜单，优化设置页面按需加载。",
-    "en": "Added batched directory-index scanning with Winapp2 enabled by default; refreshed clear glass surfaces and self-contained dropdowns, and improved settings navigation with lazy loading."
+    "zh-CN": "bug修复",
+    "en": "Bug fixes"
   }
 }
