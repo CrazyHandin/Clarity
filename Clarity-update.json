@@ -1,23 +1,23 @@
 {
   "Schema": 1,
-  "Version": "1.2.0",
+  "Version": "1.2.1",
   "Build": 1,
   "Highlights": {
-    "zh-CN": "新增本地扫描缓存，减少再次扫描的重复识别；升级扫描执行层，共享重叠规则的读取结果并降低界面刷新开销。",
-    "en": "Added local scan caching to reduce repeated identification; upgraded the scan execution layer to share reads across overlapping rules and reduce UI refresh overhead."
+    "zh-CN": "新增批量目录索引扫描并默认启用 Winapp2；重做轻盈清透外观与独立下拉菜单，优化设置页面按需加载。",
+    "en": "Added batched directory-index scanning with Winapp2 enabled by default; refreshed clear glass surfaces and self-contained dropdowns, and improved settings navigation with lazy loading."
   },
   "Artifacts": [
     {
-      "Name": "Clarity-1.2.0-setup.exe",
-      "Size": 2825788,
-      "SHA256": "139e8e1dad693d7cede4d486bf31c14b4cf10517b0c52cc7ea780bf4e44bc394"
+      "Name": "Clarity-1.2.1-setup.exe",
+      "Size": 2829890,
+      "SHA256": "8a6c3e2a9b8683b90aa4190354aed71bac14a64d53258cde758f40b212b73128"
     },
     {
-      "Name": "Clarity-1.2.0-portable.zip",
-      "Size": 584378,
-      "SHA256": "c4b82bf58eb89777b86ec45b9480586fb4a78782b536e1c67f58ee52350dedc5"
+      "Name": "Clarity-1.2.1-portable.zip",
+      "Size": 591046,
+      "SHA256": "61c62fcc2f9554851ee7357d5965c04cda7864c2cebb7c54263b940561d6f865"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMCIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5pys5Zyw5omr5o+P57yT5a2Y77yM5YeP5bCR5YaN5qyh5omr5o+P55qE6YeN5aSN6K+G5Yir77yb5Y2H57qn5omr5o+P5omn6KGM5bGC77yM5YWx5Lqr6YeN5Y+g6KeE5YiZ55qE6K+75Y+W57uT5p6c5bm26ZmN5L2O55WM6Z2i5Yi35paw5byA6ZSA44CCIiwiZW4iOiJBZGRlZCBsb2NhbCBzY2FuIGNhY2hpbmcgdG8gcmVkdWNlIHJlcGVhdGVkIGlkZW50aWZpY2F0aW9uOyB1cGdyYWRlZCB0aGUgc2NhbiBleGVjdXRpb24gbGF5ZXIgdG8gc2hhcmUgcmVhZHMgYWNyb3NzIG92ZXJsYXBwaW5nIHJ1bGVzIGFuZCByZWR1Y2UgVUkgcmVmcmVzaCBvdmVyaGVhZC4ifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMC1zZXR1cC5leGUiLCJTaXplIjoyODI1Nzg4LCJTSEEyNTYiOiIxMzllOGUxZGFkNjkzZDdjZWRlNGQ0ODZiZjMxYzE0YjRjZjEwNTE3YjBjNTJjYzdlYTc4MGJmNGU0NGJjMzk0In0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMC1wb3J0YWJsZS56aXAiLCJTaXplIjo1ODQzNzgsIlNIQTI1NiI6ImM0YjgyYmY1OGViODk3NzdiODZlYzQ1Yjk0ODA1ODZmYjRhNzg3ODJiNTM2ZTFjNjdmNThlZTUyMzUwZGVkYzUifV19",
-  "Signature": "fczKx25nzY9tivlKUR9NLPJJ9nZfhccICNwb4K/th8etgW4Reaz+MG8SHwnbZLdhzQADir0J6Ro0hI0EcNMlE/BLs4YbzybhYkL760t7dXEFpk31PmhNxQvwLuq4e/GD7E8i+CdTQ1ePek2zmzAk0+N4+QoXc1gbGEmUdhgzKCW3RLlVOUugg5VsoBAS7VHEMUd/lTx1iTZzrN/gSsiOhPXZOEWdW7SqMzQSUCqqniEQm2pipF4WtzKyCzN4b93Kb56KtBEApHq0dQdCOnJGNfmhDaUJNZ7BBr0zMGWBqFQUemowvWLKnL+Geb1E/KzgbCJYVFbbphPXVqKMSv9r2zdMRZrA0ANPnnnINf/11GTDWXhIH0+QhY2uK+Mk8BJQUbytS8Lvw36jm9X5r0AvvOerfmjj/SH92VOv5yXy5u9ruybZ6PGH5VKqpoQJw/BepeMiLhrQvXtZjepZQ6VLJHRFgd0oYfRhKqS+2uCEwYF2voI0BW3JZTa9LdKZcOB0"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMSIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5om56YeP55uu5b2V57Si5byV5omr5o+P5bm26buY6K6k5ZCv55SoIFdpbmFwcDLvvJvph43lgZrovbvnm4jmuIXpgI/lpJbop4LkuI7ni6znq4vkuIvmi4noj5zljZXvvIzkvJjljJborr7nva7pobXpnaLmjInpnIDliqDovb3jgIIiLCJlbiI6IkFkZGVkIGJhdGNoZWQgZGlyZWN0b3J5LWluZGV4IHNjYW5uaW5nIHdpdGggV2luYXBwMiBlbmFibGVkIGJ5IGRlZmF1bHQ7IHJlZnJlc2hlZCBjbGVhciBnbGFzcyBzdXJmYWNlcyBhbmQgc2VsZi1jb250YWluZWQgZHJvcGRvd25zLCBhbmQgaW1wcm92ZWQgc2V0dGluZ3MgbmF2aWdhdGlvbiB3aXRoIGxhenkgbG9hZGluZy4ifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMS1zZXR1cC5leGUiLCJTaXplIjoyODI5ODkwLCJTSEEyNTYiOiI4YTZjM2UyYTliODY4M2I5MGFhNDE5MDM1NGFlZDcxYmFjMTRhNjRkNTMyNThjZGU3NThmNDBiMjEyYjczMTI4In0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMS1wb3J0YWJsZS56aXAiLCJTaXplIjo1OTEwNDYsIlNIQTI1NiI6IjYxYzYyZmNjMmY5NTU0ODUxZWU3MzU3ZDU5NjVjMDRjZGE3ODY0YzJjZWJiN2M1NDI2M2I5NDA1NjFkNmY4NjUifV19",
+  "Signature": "FRoD4iiG6UI3g6OAnRyMw856R6+4YuM+BFnCWBGzeq9E5dFIeZA1iIXe6Qtw++iq5YD/xB6ZGNQ/9EE5FxfIncAd1xuoVVeDn9GckPCfzsNmNHGWqbhw1FsUI8SykE3txuE9/44fCQ7a8UgvwHuqCFUJjmiI4DpQWEYcdcjrcd8iM/VWFMF6EpmPf+Ghd9m1cbSzJomfuKaczjUxf8yZTAknJ7UpKi3vmF5z01PyzdY2urNoXVf4/CHzGJPuR2wC/+T2ju3Xgpbo1Hd2JPxrF+2stbNPx/CZJGHsrQClm6uRfM/wuApi20dsnSAGrYIuzG/U4y9JJdvgM2CCC24xD2yOEJ6Gi2v5kXYlOjK8MqBT7NaaMprCy/25vA0lrYr8Sb1hAeG/zhvWVgvR3pTWQRAzauPN1Dtj1X+cGZbzDhLzTzQOxHJjJJ5tno7P+fpiljgf5GAnOToEHwmsXi+J//0JxMn4R4Ssjee9I0tMZeeKMPesaYpxWr9zN4UtTMKX"
 }
