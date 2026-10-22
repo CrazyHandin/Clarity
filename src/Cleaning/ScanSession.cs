@@ -9,7 +9,7 @@ using System.Threading;
 using System.Web.Script.Serialization;
 namespace ClearSpace {
 public sealed class ScanStatistics {
- public long ElapsedMilliseconds;public int DirectoryReads,DirectoryReuses,HeaderReads,HeaderCacheHits,FingerprintReads,FingerprintCacheHits,SnapshotReuses;
+ public long ElapsedMilliseconds;public int DirectoryReads,DirectoryReuses,HeaderReads,HeaderCacheHits,FingerprintReads,FingerprintCacheHits,SnapshotReuses,IndexDirectories,IndexFallbacks,IndividualCaptures;
  public int CacheHits{get{return HeaderCacheHits+FingerprintCacheHits;}}
 }
 // A scan owns its transient reads. Persistent entries are hints, never deletion snapshots or rules.
@@ -19,8 +19,9 @@ public sealed class ScanSession:IDisposable {
  public readonly ScanStatistics Statistics=new ScanStatistics();
  readonly string path;readonly bool persistent;readonly Stopwatch clock=Stopwatch.StartNew();
  readonly Dictionary<string,CacheEntry> records=new Dictionary<string,CacheEntry>(StringComparer.OrdinalIgnoreCase);
- readonly Dictionary<string,FileSystemInfo[]> directories=new Dictionary<string,FileSystemInfo[]>(StringComparer.OrdinalIgnoreCase);
+ readonly Dictionary<string,ScanEntry[]> directories=new Dictionary<string,ScanEntry[]>(StringComparer.OrdinalIgnoreCase);
  readonly Dictionary<string,Snapshot> snapshots=new Dictionary<string,Snapshot>(StringComparer.OrdinalIgnoreCase);
+ readonly Dictionary<string,bool> volumes=new Dictionary<string,bool>(StringComparer.OrdinalIgnoreCase);
  int directoryEntries;bool changed,disposed;
  static readonly byte[] entropy=Encoding.UTF8.GetBytes("Clarity.ScanCache.1");
  public sealed class CacheFile{public int Schema=1;public string Version=ReleaseVersion.FullVersion;public List<CacheEntry> Entries;}
@@ -50,23 +51,31 @@ public sealed class ScanSession:IDisposable {
   if(cached!=null&&cached.Identity!=null){Statistics.FingerprintCacheHits++;var copy=Copy(cached.Identity);copy.FingerprintCached=true;return copy;}
   Statistics.FingerprintReads++;var value=read();if(value!=null&&stamp!=null&&stamp==ExecutableStamp(file))Put(new CacheEntry{Key=key,Stamp=stamp,Identity=Copy(value)});return value;
  }
- public bool Personal(FileInfo info){
-  string stamp=persistent?FileStamp(info):null,key="head:"+info.FullName;var cached=Read(key,stamp);if(cached!=null){Statistics.HeaderCacheHits++;return cached.Personal;}
+ public bool Personal(FileInfo info){return Personal(ScanEntry.From(info));}
+ public bool Personal(ScanEntry info){
+  string stamp=persistent?info.Bytes+":"+DateTime.FromFileTimeUtc(info.Modified).Ticks+":"+DateTime.FromFileTimeUtc(info.Created).Ticks:null,key="head:"+info.FullName;var cached=Read(key,stamp);if(cached!=null){Statistics.HeaderCacheHits++;return cached.Personal;}
   Statistics.HeaderReads++;bool value=HeuristicScanner.LooksPersonal(info.FullName);var refreshed=new FileInfo(info.FullName);if(stamp!=null&&stamp==FileStamp(refreshed))Put(new CacheEntry{Key=key,Stamp=stamp,Personal=value});return value;
  }
- public void BeginFiles(){directories.Clear();snapshots.Clear();directoryEntries=0;}
- public IEnumerable<FileSystemInfo> Entries(string directory,CancellationToken token){
-  FileSystemInfo[] cached;if(directories.TryGetValue(directory,out cached)){Statistics.DirectoryReuses++;return cached;}
+ public void BeginFiles(){directories.Clear();snapshots.Clear();volumes.Clear();directoryEntries=0;}
+ bool Ntfs(string directory){try{string root=Path.GetPathRoot(directory);bool value;if(!volumes.TryGetValue(root,out value)){value=String.Equals(new DriveInfo(root).DriveFormat,"NTFS",StringComparison.OrdinalIgnoreCase);volumes[root]=value;}return value;}catch{return false;}}
+ public IEnumerable<ScanEntry> Entries(string directory,CancellationToken token){
+  ScanEntry[] cached;if(directories.TryGetValue(directory,out cached)){Statistics.DirectoryReuses++;return cached;}
   Statistics.DirectoryReads++;return ReadEntries(directory,token);
  }
- IEnumerable<FileSystemInfo> ReadEntries(string directory,CancellationToken token){
-  var retained=new List<FileSystemInfo>();bool bounded=true;
-  foreach(var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos()){
+ IEnumerable<ScanEntry> RawEntries(string directory,CancellationToken token){
+  using(var index=Ntfs(directory)?DirectoryIndex.Open(directory):null){
+   if(index!=null){Statistics.IndexDirectories++;foreach(var entry in index.Read(token))yield return entry;yield break;}
+  }
+  Statistics.IndexFallbacks++;foreach(var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos()){token.ThrowIfCancellationRequested();yield return ScanEntry.From(entry);}
+ }
+ IEnumerable<ScanEntry> ReadEntries(string directory,CancellationToken token){
+  var retained=new List<ScanEntry>();bool bounded=true;
+  foreach(var entry in RawEntries(directory,token)){
    token.ThrowIfCancellationRequested();if(bounded){if(directoryEntries+retained.Count<MaxDirectoryEntries)retained.Add(entry);else{bounded=false;retained.Clear();}}yield return entry;
   }
   if(bounded){directoryEntries+=retained.Count;directories[directory]=retained.ToArray();}
  }
- public Snapshot SnapshotFor(string file,FileInfo current){Snapshot item;return snapshots.TryGetValue(file,out item)&&item.Bytes==current.Length&&item.Modified==current.LastWriteTimeUtc.ToFileTimeUtc()?Clone(item):null;}
+ public Snapshot SnapshotFor(string file,ScanEntry current){Snapshot item;return snapshots.TryGetValue(file,out item)&&item.Bytes==current.Bytes&&item.Modified==current.Modified?Clone(item):null;}
  public void Remember(Snapshot item){if(snapshots.Count<MaxDirectoryEntries)snapshots[item.Path]=Clone(item);}
  static Snapshot Clone(Snapshot s){return new Snapshot{Path=s.Path,Bytes=s.Bytes,Modified=s.Modified,Volume=s.Volume,IndexHigh=s.IndexHigh,IndexLow=s.IndexLow};}
  public void Complete(CancellationToken token){

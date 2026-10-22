@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "build": 1,
   "highlights": {
-    "zh-CN": "新增本地扫描缓存，减少再次扫描的重复识别；升级扫描执行层，共享重叠规则的读取结果并降低界面刷新开销。",
-    "en": "Added local scan caching to reduce repeated identification; upgraded the scan execution layer to share reads across overlapping rules and reduce UI refresh overhead."
+    "zh-CN": "新增批量目录索引扫描并默认启用 Winapp2；重做轻盈清透外观与独立下拉菜单，优化设置页面按需加载。",
+    "en": "Added batched directory-index scanning with Winapp2 enabled by default; refreshed clear glass surfaces and self-contained dropdowns, and improved settings navigation with lazy loading."
   }
 }

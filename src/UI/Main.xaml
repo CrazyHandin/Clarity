@@ -58,7 +58,7 @@
       </ControlTemplate></ToggleButton.Template>
      </ToggleButton>
      <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False" Margin="11,0,27,0" VerticalAlignment="Center"/>
-     <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade"><local:GlassPanel Background="#25333E" BorderBrush="#4B6572" BorderThickness="1" CornerRadius="8" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" Margin="0,4,0,0" Padding="4"><ScrollViewer MaxHeight="240"><ItemsPresenter/></ScrollViewer></local:GlassPanel></Popup>
+     <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade"><local:GlassPanel x:Name="DropDownPanel" IsOverlay="True" Background="#25333E" BorderBrush="#4B6572" BorderThickness="1" CornerRadius="8" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" Margin="0,4,0,0" Padding="4"><ScrollViewer MaxHeight="240"><ItemsPresenter/></ScrollViewer></local:GlassPanel></Popup>
     </Grid>
     <ControlTemplate.Triggers>
      <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="DropDownToggle" Property="Background" Value="#2B3C46"/></Trigger>

@@ -58,7 +58,8 @@ public static class Native {
  [DllImport("kernel32.dll",SetLastError=true)] public static extern bool SetFileInformationByHandle(SafeFileHandle handle,int type,ref DISPOSITION value,uint size);
  public const uint UnsafeAttributes=0x400|0x1000|0x400000;
  public static string FinalPath(SafeFileHandle handle) {
-  var buffer=new StringBuilder(32768); uint n=GetFinalPathNameByHandle(handle,buffer,(uint)buffer.Capacity,0);
+  var buffer=new StringBuilder(512); uint n=GetFinalPathNameByHandle(handle,buffer,(uint)buffer.Capacity,0);
+  if(n>=buffer.Capacity&&n<32768){buffer.EnsureCapacity((int)n+1);n=GetFinalPathNameByHandle(handle,buffer,(uint)buffer.Capacity,0);}
   if(n==0 || n>=buffer.Capacity) throw new IOException("无法确认文件实际位置");
   string result=buffer.ToString(); if(result.StartsWith("\\\\?\\UNC\\")) return "\\\\"+result.Substring(8); if(result.StartsWith("\\\\?\\")) return result.Substring(4); return result;
  }
@@ -92,27 +93,29 @@ public sealed class Engine {
  public static bool SafeAncestors(string path) {
   try { string current=Path.GetDirectoryName(Path.GetFullPath(path)); while(!String.IsNullOrEmpty(current)) { if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) return false; current=Path.GetDirectoryName(current); } return true; } catch { return false; }
  }
- Snapshot Capture(string path, Finding result, DateTime cutoff,FileInfo current=null) {
-  if(!SafeAncestors(path)) { result.Links++; return null; }
+ Snapshot Capture(string path, Finding result, DateTime cutoff,ScanEntry current=null) {
+  if((current==null||!current.Indexed)&&!SafeAncestors(path)) { result.Links++; return null; }
   var previous=current==null?null:Session.SnapshotFor(path,current);if(previous!=null){Session.Statistics.SnapshotReuses++;if(previous.Modified>cutoff.ToFileTimeUtc()){result.Recent++;return null;}return previous;}
-  using(var handle=Native.CreateFile(path,0x80,7,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
+  Session.Statistics.IndividualCaptures++;using(var handle=Native.CreateFile(path,0x80,7,IntPtr.Zero,3,0x200000,IntPtr.Zero)) {
    Native.INFO info; if(handle.IsInvalid || !Native.GetFileInformationByHandle(handle,out info)) { result.Unreadable++; return null; }
    if((info.Attributes & (Native.UnsafeAttributes|0x10|1))!=0 || info.Links!=1) { result.Links++; return null; }
+   if(current!=null&&current.Indexed&&(info.Volume!=current.Volume||(((ulong)info.IndexHigh<<32)|info.IndexLow)!=current.FileId||info.Bytes!=current.Bytes||info.Write.Value!=current.Modified)){result.Changed++;return null;}
    if(!String.Equals(Normalize(Native.FinalPath(handle)),Normalize(path),StringComparison.OrdinalIgnoreCase)) { result.Links++; return null; }
    var snapshot=new Snapshot { Path=Path.GetFullPath(path),Bytes=info.Bytes,Modified=info.Write.Value,Volume=info.Volume,IndexHigh=info.IndexHigh,IndexLow=info.IndexLow };Session.Remember(snapshot);
    if(info.Write.Value>cutoff.ToFileTimeUtc()) { result.Recent++; return null; }
    return snapshot;
   }
  }
- void InspectFile(string path,Finding result,DateTime cutoff,FileInfo info=null) {
+ void InspectFile(string path,Finding result,DateTime cutoff,ScanEntry info=null,bool recoveryChecked=false) {
   try {
-   if(ScanPolicy.Excluded(path)||IsRecoveryPath(path))return;
-   if(info==null)info=new FileInfo(path); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
-   if(!result.Rule.MatchesPattern(path)||!RuleConditionEvaluator.SizeMatches(result.Rule.Conditions,info.Length))return;
+   if(ScanPolicy.Excluded(path)||(recoveryChecked?path.EndsWith(".csbackup",StringComparison.OrdinalIgnoreCase):IsRecoveryPath(path)))return;
+   if(info==null)info=ScanEntry.From(new FileInfo(path)); if((info.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0) { result.Links++; return; }
+   if(!result.Rule.MatchesPattern(path)||!RuleConditionEvaluator.SizeMatches(result.Rule.Conditions,info.Bytes))return;
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
-   result.Files++; result.TotalBytes+=info.Length;
+   result.Files++; result.TotalBytes+=info.Bytes;
    if(result.Samples.Count<5) result.Samples.Add(path);
    if(result.Running)return;
+   if(!result.Rule.AllowManual&&info.Modified>cutoff.ToFileTimeUtc()){result.Recent++;result.Blocked++;return;}
    Snapshot snapshot=null;if(!result.Rule.Protected&&result.Rule.Accept(path,p=>Session.Personal(info)))snapshot=Capture(path,result,cutoff,info);
    if(snapshot!=null){snapshot.Condition=condition;result.Candidates.Add(snapshot);result.EligibleBytes+=snapshot.Bytes;}
    else if(result.Rule.ManualAccept(path)){var manual=Capture(path,result,DateTime.UtcNow,info);if(manual!=null){manual.Condition=condition;result.ManualCandidates.Add(manual);result.ManualBytes+=manual.Bytes;}}
@@ -142,13 +145,14 @@ public sealed class Engine {
     token.ThrowIfCancellationRequested(); string current=pending.Pop();
     try {
      if(ScanPolicy.Excluded(current))continue;
+     if(IsRecoveryPath(current))continue;
      if((File.GetAttributes(current)&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
      foreach(var entry in Session.Entries(current,token)) {
       token.ThrowIfCancellationRequested();
       if(ScanPolicy.Excluded(entry.FullName))continue;
       if((entry.Attributes&FileAttributes.ReparsePoint)!=0) { result.Links++; continue; }
-      if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop&&(!rule.Excluded(entry.FullName)||rule.AllowManual&&!rule.ExplicitExcluded(entry.FullName,true))&&!IsRecoveryPath(entry.FullName))pending.Push(entry.FullName);}
-      else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff,entry as FileInfo);
+      if((entry.Attributes&FileAttributes.Directory)!=0) {if(!rule.OnlyTop&&(!rule.Excluded(entry.FullName)||rule.AllowManual&&!rule.ExplicitExcluded(entry.FullName,true)))pending.Push(entry.FullName);}
+      else if(InScope(rule,entry.FullName)) InspectFile(entry.FullName,result,cutoff,entry,true);
      }
     } catch(OperationCanceledException) { throw; } catch { result.Unreadable++; }
    }

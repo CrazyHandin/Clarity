@@ -12,6 +12,7 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 主题、语言与管理员模式
 标题栏最小化按钮旁的太阳／月亮可切换深浅色；常规设置支持深色、浅色及跟随 Windows，并自动保存。
 “液态玻璃外观”提供“全透式”和“内部通透”两种模式，默认内部通透，不透出桌面；模式同样适用于更新弹窗。
+玻璃外观使用中性底色和薄高光边缘。下拉菜单具有独立的不透明底层，不透出后方主页内容。
 磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间；百分比显示剩余空间比例。
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
 管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
@@ -19,6 +20,7 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 文件占用或安全软件拦截不一定能通过提权解决；重启后需手动扫描，不会自动继续删除。
 在“设置与备份”右上角可打开“关于 Clarity”。
 设置、关于与使用说明均在主窗口内切换。返回清理会保留扫描结果与勾选状态。
+设置子页首次选择时加载，规则摘要在后台按需读取；读取期间仍可切换页面或返回清理。
 关于页显示当前版本、内部构建号及更新概括，并提供使用说明入口。
 范围卡片的整个区域均可点击；扫描取消及设置保存等消息在窗口上部显示，两秒后自动消失。
 
@@ -30,6 +32,8 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 5. 清理结束可打开“查看未完成项目”，核对失败、跳过或取消项目的路径与原因；点击“完成”回到初始界面。
 Clarity 不扫描 Windows 系统目录。Windows 磁盘清理仍是清理按钮旁的独立选项。
 默认启用本地扫描缓存，复用未变化程序的指纹和文件类型识别，减少再次扫描的重复读取。
+NTFS 目录支持批量读取文件索引和时间信息，减少扫描开销；无需额外提权，不支持时自动回退。
+Winapp2 默认启用，用于常规扫描；已明确关闭的设置继续保留。快速扫描仍仅使用内置低风险规则。
 每次仍重新读取文件列表、大小、年龄与运行状态；清理前重新核验文件身份、内容保护和占用，不直接使用上次的删除候选。
 在“设置与备份 → 常规设置 → 扫描加速”可关闭或清除缓存。缓存仅保存在本机，不包含文件内容，不增加后台监控。
 “系统垃圾 → 休眠文件”仅在高级模式自选，会通过 Windows 命令关闭休眠、快速启动及混合睡眠，不经过文件备份。需管理员权限并确认风险后执行；恢复需以管理员身份运行 powercfg /hibernate on。
@@ -110,6 +114,7 @@ Elevation may not resolve locked files or security software blocks. Restart does
 scan again manually and review the results before cleaning.
 Open About Clarity from the top-right corner of Settings & Backups.
 Settings, About, and help use the same window. Back to cleanup preserves scan results and selections.
+Settings tabs load on first selection. Rule summaries load in the background without blocking navigation.
 About contains the version, internal build, update summary, and user guide.
 Click anywhere on a scope card to select it. Scan cancellation and saved-setting messages appear at the top for two seconds.
 Windows folder pickers and UAC prompts follow the Windows display language.
@@ -122,11 +127,14 @@ Start cleaning
 5. Risk selections require confirmation. Eligible low-risk one-click cleanup does not show a risk prompt.
 6. Open View unfinished items to inspect selected failed, skipped or cancelled paths and reasons. Click Done to return to the initial screen.
 Clarity excludes the Windows system directory. Windows Disk Cleanup remains a separate optional action.
+NTFS directories use batched file-index metadata without extra administrator privileges, with automatic fallback when unavailable.
+Winapp2 defaults on for Regular scans; an explicit saved opt-out is preserved. Quick scans continue to use only built-in low-risk rules.
 Local scan caching is enabled by default. It reuses unchanged application fingerprints and file-type classifications, without background monitoring or storing file contents.
 Each scan still reads current file lists, sizes, ages and process state. Cleanup rechecks file identity, protected content and locks; previous deletion candidates are never loaded from disk.
 Disable or clear the cache in Settings & Backups > General > Scan acceleration.
 The Sun/Moon button beside Minimize switches themes; General settings offers Dark, Light and Follow Windows, with saved preferences.
 Liquid Glass appearance offers Full transparency and Internal glass. Internal glass is the default and keeps the desktop hidden, including in update dialogs.
+Glass surfaces use neutral tints and thin highlights. Dropdown menus have their own opaque floor, keeping the main interface hidden behind them.
 The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.
 Advanced cleanup includes an optional System junk → Hibernation file action. It uses Windows powercfg to disable hibernation, Fast Startup and hybrid sleep without a file backup. Administrator privileges and risk confirmation are required. To restore hibernation, run powercfg /hibernate on as administrator.
 

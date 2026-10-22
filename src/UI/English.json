@@ -1065,5 +1065,6 @@
   "扫描加速设置未保存：": "Scan acceleration settings were not saved: ",
   "扫描缓存已清除，下次扫描将重新识别。": "Scan cache cleared. The next scan will identify metadata again.",
   "扫描缓存未清除：": "Scan cache was not cleared: ",
-  "扫描缓存路径包含链接，无法清除。": "The scan cache path contains a link and cannot be cleared."
+  "扫描缓存路径包含链接，无法清除。": "The scan cache path contains a link and cannot be cleared.",
+  "正在读取规则…": "Loading rules…"
 }

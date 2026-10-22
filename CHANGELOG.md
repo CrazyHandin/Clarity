@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| 1.2.1 | Add batched directory-index scanning and enable Winapp2 by default; refresh clear glass surfaces and improve settings navigation with lazy loading. |
 | 1.2.0 | Add local scan caching and a shared scan session; reduce repeat identification, overlapping reads and UI refresh overhead. |
 | 1.1.1 | Add experimental Liquid Glass styling, clarify disk usage and unify page transitions. |
 | 1.1.0 | Add stackable JSON rule packs, read-only previews and filename/age/size conditions; allow Winapp2 and JSON rules together. |

@@ -5,6 +5,7 @@ using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 namespace ClearSpace {
 public sealed partial class Controller {
  async Task VerifyAppearance(string output,Action<bool,string> check){
@@ -34,6 +35,16 @@ public sealed partial class Controller {
    mode.SelectedIndex=1;check(!UiGlass.GetHasBackdrop(Window)&&((SolidColorBrush)Window.Background).Color.A==255&&saves==4,"Switching back to internal glass removes the desktop backdrop immediately");
    failSave=true;mode.SelectedIndex=0;check(mode.SelectedIndex==1&&options.GlassMode=="internal"&&UiGlass.GetMode(Window)=="internal"&&!UiGlass.GetHasBackdrop(Window),"A failed mode save restores both the selector and the active appearance");failSave=false;
    popup=UpdateDialogs.Highlights(Window);popup.WindowStartupLocation=WindowStartupLocation.Manual;popup.Left=popup.Top=-12000;popup.ShowActivated=false;UiMotion.SetEnabled(popup,false);popup.Show();popup.UpdateLayout();check(UiGlass.GetMode(popup)=="internal"&&!UiGlass.GetHasBackdrop(popup)&&DialogPixelAlpha(popup,200,180)==255,"Internal-glass dialogs keep an opaque interior without showing windows or the desktop behind them");popup.Close();
+   string themeBefore=UiTheme.Light?"light":"dark";
+   try{foreach(string theme in new[]{"dark","light"}){
+    UiTheme.Set(theme,false);UiGlass.SetMode(Window,"internal");Window.UpdateLayout();App.Render(Window,Path.Combine(output,"glass-settings-"+theme+".png"));
+    foreach(string glassMode in new[]{"internal","full"}){
+     UiGlass.SetMode(Window,glassMode);mode.ApplyTemplate();mode.IsDropDownOpen=true;await Task.Delay(180);
+     var panel=(GlassPanel)mode.Template.FindName("DropDownPanel",mode);panel.UpdateLayout();var image=new RenderTargetBitmap((int)Math.Ceiling(panel.ActualWidth),(int)Math.Ceiling(panel.ActualHeight),96,96,PixelFormats.Pbgra32);image.Render(panel);var pixel=new byte[4];image.CopyPixels(new Int32Rect(2,(int)panel.ActualHeight/2,1,1),pixel,4,0);
+     check(panel.IsOverlay&&pixel[3]==255,"Dropdowns keep an opaque floor over the main interface in "+theme+" / "+glassMode+" glass");
+     var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(image));using(var stream=File.Create(Path.Combine(output,"glass-dropdown-"+theme+"-"+glassMode+".png")))encoder.Save(stream);mode.IsDropDownOpen=false;
+    }
+   }}finally{mode.IsDropDownOpen=false;UiGlass.SetMode(Window,"internal");UiTheme.Set(themeBefore,false);}
    BackPage();App.Render(Window,Path.Combine(output,"glass-main-dark.png"));
   }finally{while(pages.Count>0)BackPage();NativeGlass.Allowed=allowed;UiGlass.SetMode(Window,previousMode);UiGlass.SetEnabled(Window,previous);}
  }
