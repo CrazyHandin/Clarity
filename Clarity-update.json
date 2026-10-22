@@ -1,23 +1,23 @@
 {
   "Schema": 1,
-  "Version": "1.2.1",
+  "Version": "1.2.2",
   "Build": 1,
   "Highlights": {
-    "zh-CN": "新增批量目录索引扫描并默认启用 Winapp2；重做轻盈清透外观与独立下拉菜单，优化设置页面按需加载。",
-    "en": "Added batched directory-index scanning with Winapp2 enabled by default; refreshed clear glass surfaces and self-contained dropdowns, and improved settings navigation with lazy loading."
+    "zh-CN": "bug修复",
+    "en": "Bug fixes"
   },
   "Artifacts": [
     {
-      "Name": "Clarity-1.2.1-setup.exe",
-      "Size": 2829890,
-      "SHA256": "8a6c3e2a9b8683b90aa4190354aed71bac14a64d53258cde758f40b212b73128"
+      "Name": "Clarity-1.2.2-setup.exe",
+      "Size": 2830770,
+      "SHA256": "a8e0aaa44e90925ab5c6c34581c5df88f8d2fbc32744f31aff360aea2632560a"
     },
     {
-      "Name": "Clarity-1.2.1-portable.zip",
-      "Size": 591046,
-      "SHA256": "61c62fcc2f9554851ee7357d5965c04cda7864c2cebb7c54263b940561d6f865"
+      "Name": "Clarity-1.2.2-portable.zip",
+      "Size": 592367,
+      "SHA256": "06e32978162c685189499cad9bb558d6a485f574325721fc7ca14afd7598d1ec"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMSIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKe5om56YeP55uu5b2V57Si5byV5omr5o+P5bm26buY6K6k5ZCv55SoIFdpbmFwcDLvvJvph43lgZrovbvnm4jmuIXpgI/lpJbop4LkuI7ni6znq4vkuIvmi4noj5zljZXvvIzkvJjljJborr7nva7pobXpnaLmjInpnIDliqDovb3jgIIiLCJlbiI6IkFkZGVkIGJhdGNoZWQgZGlyZWN0b3J5LWluZGV4IHNjYW5uaW5nIHdpdGggV2luYXBwMiBlbmFibGVkIGJ5IGRlZmF1bHQ7IHJlZnJlc2hlZCBjbGVhciBnbGFzcyBzdXJmYWNlcyBhbmQgc2VsZi1jb250YWluZWQgZHJvcGRvd25zLCBhbmQgaW1wcm92ZWQgc2V0dGluZ3MgbmF2aWdhdGlvbiB3aXRoIGxhenkgbG9hZGluZy4ifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMS1zZXR1cC5leGUiLCJTaXplIjoyODI5ODkwLCJTSEEyNTYiOiI4YTZjM2UyYTliODY4M2I5MGFhNDE5MDM1NGFlZDcxYmFjMTRhNjRkNTMyNThjZGU3NThmNDBiMjEyYjczMTI4In0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMS1wb3J0YWJsZS56aXAiLCJTaXplIjo1OTEwNDYsIlNIQTI1NiI6IjYxYzYyZmNjMmY5NTU0ODUxZWU3MzU3ZDU5NjVjMDRjZGE3ODY0YzJjZWJiN2M1NDI2M2I5NDA1NjFkNmY4NjUifV19",
-  "Signature": "FRoD4iiG6UI3g6OAnRyMw856R6+4YuM+BFnCWBGzeq9E5dFIeZA1iIXe6Qtw++iq5YD/xB6ZGNQ/9EE5FxfIncAd1xuoVVeDn9GckPCfzsNmNHGWqbhw1FsUI8SykE3txuE9/44fCQ7a8UgvwHuqCFUJjmiI4DpQWEYcdcjrcd8iM/VWFMF6EpmPf+Ghd9m1cbSzJomfuKaczjUxf8yZTAknJ7UpKi3vmF5z01PyzdY2urNoXVf4/CHzGJPuR2wC/+T2ju3Xgpbo1Hd2JPxrF+2stbNPx/CZJGHsrQClm6uRfM/wuApi20dsnSAGrYIuzG/U4y9JJdvgM2CCC24xD2yOEJ6Gi2v5kXYlOjK8MqBT7NaaMprCy/25vA0lrYr8Sb1hAeG/zhvWVgvR3pTWQRAzauPN1Dtj1X+cGZbzDhLzTzQOxHJjJJ5tno7P+fpiljgf5GAnOToEHwmsXi+J//0JxMn4R4Ssjee9I0tMZeeKMPesaYpxWr9zN4UtTMKX"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMiIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoiYnVn5L+u5aSNIiwiZW4iOiJCdWcgZml4ZXMifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMi1zZXR1cC5leGUiLCJTaXplIjoyODMwNzcwLCJTSEEyNTYiOiJhOGUwYWFhNDRlOTA5MjVhYjVjNmMzNDU4MWM1ZGY4OGY4ZDJmYmMzMjc0NGYzMWFmZjM2MGFlYTI2MzI1NjBhIn0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMi1wb3J0YWJsZS56aXAiLCJTaXplIjo1OTIzNjcsIlNIQTI1NiI6IjA2ZTMyOTc4MTYyYzY4NTE4OTQ5OWNhZDliYjU1OGQ2YTQ4NWY1NzQzMjU3MjFmYzdjYTE0YWZkNzU5OGQxZWMifV19",
+  "Signature": "DIS1XRW09neUGHCWqVXhTMdFoFSyOdf9SVcMWIz22LipS6nPLD0CmAUGR4J6lWpFdwghTcsd9edurWvRuK1q99UrRVABPyZRHogBr6qQrpWTXlYBn9zF25QO4jCDRQMz8Fgm5s9eG/ezP7quTxzBk6Ye05YTucCIiU9V8EaQ6SWEbgYt+Lms+2nTaRRXcLLiWgO4/qQz+yqzvvWevCh7cQgUIDxFhFWn9+qpw+EnrBmIIowmdRPgZ8VcQ0b6CAsq+DGgtJH7+wwBMy/qT30YkJlSkl8w3HVJsgTIDh76u7mBseheHDbSscZiTUSbZHSq+HKZxNQhixIZk/yNo3PQ9X05jXB/PvC8CIZyOwd60i8/TUOdB3jI3XB4/qlJOhbeS/OCsI0sifIhnmE+bApCaOK0ZQyf175ZtORdCgiuaTvhiqGj+kL4Wl6pb1jODwqFiXuM3xUUdHAAdczH/aIpEkzOOOMwdxeD93ZHshssspcwg23xI9SNkk+96ZlayvTf"
 }
