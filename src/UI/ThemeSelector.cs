@@ -26,9 +26,9 @@ public sealed class ThemeSelector:Control {
   if(buttons==null||track==null||indicator==null||position==null)return;int index=Array.IndexOf(values,Value);if(index<0)index=2;
   for(int i=0;i<buttons.Length;i++)if(buttons[i]!=null)buttons[i].SetCurrentValue(RadioButton.IsCheckedProperty,i==index);
   double width=Math.Max(0,track.ActualWidth/3),from=position.X,to=width*index;indicator.Width=width;int current=++revision;position.BeginAnimation(TranslateTransform.XProperty,null);position.X=to;
-  if(!animate||width==0||Math.Abs(from-to)<0.1)return;
-  var motion=new DoubleAnimation(from,to,TimeSpan.FromMilliseconds(180)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut},FillBehavior=FillBehavior.Stop};
-  motion.Completed+=(s,e)=>{if(current==revision)position.BeginAnimation(TranslateTransform.XProperty,null);};position.BeginAnimation(TranslateTransform.XProperty,motion,HandoffBehavior.SnapshotAndReplace);
+  if(!animate||width==0||Math.Abs(from-to)<0.1)return;position.X=from;
+  var motion=new DoubleAnimation(from,to,UiTheme.Transition){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut}};
+  motion.Completed+=(s,e)=>{if(current==revision){position.X=to;position.BeginAnimation(TranslateTransform.XProperty,null);}};position.BeginAnimation(TranslateTransform.XProperty,motion,HandoffBehavior.SnapshotAndReplace);
  }
  protected override void OnPreviewKeyDown(KeyEventArgs args){
   int index=Array.IndexOf(values,Value);if(index<0)index=2;

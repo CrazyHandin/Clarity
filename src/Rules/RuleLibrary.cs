@@ -44,7 +44,12 @@ public sealed class RuleStore {
  }
  public List<Rule> Resolve(LoadedRulePack pack,DiscoveryResult discovery,CancellationToken token=default(CancellationToken)){return RuleCompiler.Resolve(pack,discovery,token);}
  public static string Describe(ApplicationIdentity a){return a.Name+" · "+a.Version+" · "+a.Signature+(String.IsNullOrEmpty(a.Signer)?"":" / "+a.Signer)+"\n来源："+a.Evidence+"\n程序："+a.Executable;}
- public static bool MatchesDefinition(ApplicationRule rule,ApplicationIdentity app){if(rule.RequireSignature&&app.FingerprintCached&&ApplicationDiscovery.Matches(app,rule.MatchNames,rule.ExecutableNames,rule.Publishers))ApplicationDiscovery.RefreshSignature(app);return ApplicationDiscovery.Matches(app,rule.MatchNames,rule.ExecutableNames,rule.Publishers)&&((rule.ProductNames??new string[0]).Length==0||rule.ProductNames.Any(p=>String.Equals(app.Product,p,StringComparison.OrdinalIgnoreCase)))&&(!rule.RequireSignature||app.Signature=="签名验证通过");}
+ public static bool MatchesDefinition(ApplicationRule rule,ApplicationIdentity app){
+  if(!ApplicationDiscovery.Matches(app,rule.MatchNames,rule.ExecutableNames,null)||(rule.ProductNames??new string[0]).Length>0&&!rule.ProductNames.Any(p=>String.Equals(app.Product,p,StringComparison.OrdinalIgnoreCase)))return false;
+ bool publisher=(rule.Publishers??new string[0]).Length==0||rule.Publishers.Any(n=>(app.Publisher+" "+app.Company).IndexOf(n,StringComparison.OrdinalIgnoreCase)>=0);
+  if((rule.RequireSignature||!publisher)&&(app.FingerprintCached||!app.SignatureChecked))ApplicationDiscovery.RefreshSignature(app);
+  return ApplicationDiscovery.Matches(app,rule.MatchNames,rule.ExecutableNames,rule.Publishers)&&(!rule.RequireSignature||app.Signature=="签名验证通过");
+ }
 }
 public static class PathPolicy {
  public static readonly string[] SensitiveNames={"Cookies","Login Data","History","Web Data","Preferences","Secure Preferences","Bookmarks","Local State","Local Storage","Session Storage","IndexedDB","Sessions","Backups","User","LocalHistory","config","settings","accounts","databases","wallet","vault","keychain","credentials","chats","messages"};

@@ -34,14 +34,19 @@ public static class UiGlass {
 // Tint only the existing surface; text and controls retain their normal opacity.
 // Border owns the corner geometry, including asymmetric and borderless choices.
 public sealed class GlassPanel:Border {
+ public static readonly DependencyProperty BackdropProperty=DependencyProperty.Register("Backdrop",typeof(Brush),typeof(GlassPanel),new FrameworkPropertyMetadata(null,FrameworkPropertyMetadataOptions.AffectsRender));
+ public Brush Backdrop{get{return (Brush)GetValue(BackdropProperty);}set{SetValue(BackdropProperty,value);}}
  public static readonly DependencyProperty IsOverlayProperty=DependencyProperty.Register("IsOverlay",typeof(bool),typeof(GlassPanel),new FrameworkPropertyMetadata(false,FrameworkPropertyMetadataOptions.AffectsRender));
  public bool IsOverlay{get{return (bool)GetValue(IsOverlayProperty);}set{SetValue(IsOverlayProperty,value);}}
  protected override void OnRender(DrawingContext drawing){
   var color=Background as SolidColorBrush;
   if(!UiGlass.Active(this)||Background==null||Background.Opacity==0||color!=null&&color.Color.A==0){base.OnRender(drawing);return;}
   bool accent=color!=null&&color.Color.G-color.Color.R>65;
-  bool floor=IsOverlay||UiGlass.GetMode(this)=="internal"&&Parent is Window;
+  bool root=Parent is Window,floor=IsOverlay||UiGlass.GetMode(this)=="internal"&&root&&Backdrop==null;
+  var bounds=new Rect(0,0,ActualWidth,ActualHeight);
+  if(root&&Backdrop!=null){if(UiGlass.GetMode(this)=="internal")drawing.DrawRoundedRectangle(Background,null,bounds,CornerRadius.TopLeft,CornerRadius.TopLeft);drawing.DrawRoundedRectangle(Backdrop,null,bounds,CornerRadius.TopLeft,CornerRadius.TopLeft);}
   drawing.PushOpacity(floor?1:accent?0.98:UiTheme.Light?0.64:0.66);base.OnRender(drawing);drawing.Pop();
+  if(root&&ActualWidth>0&&ActualHeight>0){drawing.PushClip(new RectangleGeometry(bounds,CornerRadius.TopLeft,CornerRadius.TopLeft));drawing.PushOpacity(0.6);UiGlass.DrawAmbient(drawing,bounds);drawing.Pop();drawing.Pop();}
  }
 }
 // Only the window root paints the ambient layer. In-place settings inherit it.

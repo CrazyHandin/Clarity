@@ -15,6 +15,7 @@ public sealed class ThemeColorSlot:INotifyPropertyChanged {
  public event PropertyChangedEventHandler PropertyChanged;
 }
 public static class UiTheme {
+ internal static readonly TimeSpan Transition=TimeSpan.FromMilliseconds(240);
  static readonly ResourceDictionary palette=new ResourceDictionary();static readonly Dictionary<string,ThemeColorSlot> slots=new Dictionary<string,ThemeColorSlot>();static readonly HashSet<string> colorResources=new HashSet<string>();
  public static bool Light{get;private set;}
  public static string Normalize(string value){return String.Equals(value,"system",StringComparison.OrdinalIgnoreCase)?"system":String.Equals(value,"light",StringComparison.OrdinalIgnoreCase)?"light":"dark";}
@@ -42,7 +43,7 @@ public static class UiTheme {
    brush.BeginAnimation(SolidColorBrush.ColorProperty,null);slot.Color=to;
    if(!animate||from==to)continue;
    // Keep resource notifications out of animation frames; WPF animates the shared brush.
-   var animation=new ColorAnimation(from,to,TimeSpan.FromMilliseconds(240)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut},FillBehavior=FillBehavior.Stop};
+   var animation=new ColorAnimation(from,to,Transition){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut},FillBehavior=FillBehavior.Stop};
    var current=slot;animation.Completed+=(s,e)=>{if(current.Revision==revision)brush.BeginAnimation(SolidColorBrush.ColorProperty,null);};
    brush.BeginAnimation(SolidColorBrush.ColorProperty,animation,HandoffBehavior.SnapshotAndReplace);
   }
