@@ -52,7 +52,7 @@ public static class UiText {
   public Context(Window value){window=value;}
   public void Attach(){loaded=(s,e)=>Visit(e.OriginalSource as DependencyObject);window.AddHandler(FrameworkElement.LoadedEvent,loaded,true);window.Closed+=(s,e)=>{window.RemoveHandler(FrameworkElement.LoadedEvent,loaded);foreach(var state in states)state.Descriptor.RemoveValueChanged(state.Target,state.Handler);states.Clear();visited.Clear();contexts.Remove(window);};Visit(window);Apply();}
   void Watch(DependencyObject target,DependencyProperty property){
-   if(states.Any(s=>s.Target==target&&s.Property==property))return;
+   // Visit registers each node once; the properties below are distinct.
    var value=target.GetValue(property)as string;
    var state=new TextState{Target=target,Property=property,Source=value,Descriptor=DependencyPropertyDescriptor.FromProperty(property,target.GetType())};
    state.Handler=(s,e)=>{if(state.Writing)return;var current=target.GetValue(property)as string;if(current==null)return;state.Source=current;state.Apply();};
