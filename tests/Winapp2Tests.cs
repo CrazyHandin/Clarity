@@ -25,6 +25,7 @@ public static class Winapp2Tests {
   check(rejected(()=>Winapp2Store.BundledSnapshot(Path.Combine(fixture,"missing-bundle.ini"))),"A missing bundled rule file fails clearly rather than using an unrelated path");
   using(var writer=new FileStream(dataFile,FileMode.Open,FileAccess.ReadWrite,FileShare.ReadWrite|FileShare.Delete))check(rejected(()=>Winapp2Store.BundledSnapshot(dataFile)),"Bundled rule verification rejects concurrent writers");
   File.AppendAllText(dataFile,"\n; modified but still valid INI\n");check(rejected(()=>Winapp2Store.BundledSnapshot(dataFile)),"A modified standalone snapshot is rejected even when it remains valid INI");
+  Winapp2LookupTests.Verify(output,check);
   File.WriteAllLines(Path.Combine(output,"winapp2-test-results.txt"),checks.Concat(new[]{"ALL "+checks.Count+" WINAPP2 CHECKS PASSED","Only generated workspace fixtures were modified."}));return 0;
  }catch(Exception ex){File.WriteAllLines(Path.Combine(output,"winapp2-test-results.txt"),checks.Concat(new[]{ex.ToString()}));return 1;}
  }
