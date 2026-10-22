@@ -1,23 +1,23 @@
 {
   "Schema": 1,
-  "Version": "1.2.2",
-  "Build": 2,
+  "Version": "1.2.3",
+  "Build": 1,
   "Highlights": {
-    "zh-CN": "bug修复",
-    "en": "Bug fixes"
+    "zh-CN": "更新液态玻璃外观，优化浅深色半透明效果，并新增图标式主题切换栏。",
+    "en": "Updated the Liquid Glass appearance for light and dark themes and added an icon-based theme selector."
   },
   "Artifacts": [
     {
-      "Name": "Clarity-1.2.2-setup.exe",
-      "Size": 2829443,
-      "SHA256": "a70dcbe744659500391a979a76a20bf24082cf69b3c2824167e7ffc68badc77b"
+      "Name": "Clarity-1.2.3-setup.exe",
+      "Size": 2832093,
+      "SHA256": "2cf47b44871a0e3f950a02bac38486cd23b4feb556050deac33625bb8ac9e684"
     },
     {
-      "Name": "Clarity-1.2.2-portable.zip",
-      "Size": 590537,
-      "SHA256": "1a1d18dfc7065b9e09696df6f69fdaff2aac4e328bbf062ded40e1f9de312dd6"
+      "Name": "Clarity-1.2.3-portable.zip",
+      "Size": 594068,
+      "SHA256": "cb8f851b1b0718d7d1c1d4bfd6b3db1bbc5b0203f60895da7dd8dafe1f17ec38"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMiIsIkJ1aWxkIjoyLCJIaWdobGlnaHRzIjp7InpoLUNOIjoiYnVn5L+u5aSNIiwiZW4iOiJCdWcgZml4ZXMifSwiQXJ0aWZhY3RzIjpbeyJOYW1lIjoiQ2xhcml0eS0xLjIuMi1zZXR1cC5leGUiLCJTaXplIjoyODI5NDQzLCJTSEEyNTYiOiJhNzBkY2JlNzQ0NjU5NTAwMzkxYTk3OWE3NmEyMGJmMjQwODJjZjY5YjNjMjgyNDE2N2U3ZmZjNjhiYWRjNzdiIn0seyJOYW1lIjoiQ2xhcml0eS0xLjIuMi1wb3J0YWJsZS56aXAiLCJTaXplIjo1OTA1MzcsIlNIQTI1NiI6IjFhMWQxOGRmYzcwNjViOWUwOTY5NmRmNmY2OWZkYWZmMmFhYzRlMzI4YmJmMDYyZGVkNDBlMWY5ZGUzMTJkZDYifV19",
-  "Signature": "DmjKrBEyuCC/qArBi3TW4ZMP1hi8I+HpUPXx4ve32rRnqWiA3TDm4pXepry2UlEIKJKubsfzOTEyWbCtPFJaPLJCPoOrTFMA16+9DHxwQayFRbTt1fyIQKPZVgRLYUoGd0h3qm+pi4AgQmT9qlQRpb0Nr464VJr7H/FMGkuWmz/jszsKDxlDlsaewQau6I3xOuNF8NJWGjhbUB4QjFD24Pf7/vmprimtANbbf8OoIWOx/r4lFtcS4mHLW2NmwzQIQf35N3Y/2jXxBy45E6DyCxFOXtn+r0yvWTmHnGasxg8wjU5zzzFrfxWW01I/Kpo9oznYNE4CakaejZ+pNGs8KKLpXIB+duPducxJMsHaTkR+uARbTHy3JznaMq2BpKWFt1GipT/rdqJV/NoAfEaDiqXKKaKSQdqu3fu4vHnn7R79OiYMQXgu9Z4Kn4tKKx7E5Mlf8ow6RdPu5dCo9Hm4J6jMNmCCXXtG+cxZ3T8GF3Sc75RFBHqVE4BT4TtK2M7p"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMyIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5pu05paw5ray5oCB546755KD5aSW6KeC77yM5LyY5YyW5rWF5rex6Imy5Y2K6YCP5piO5pWI5p6c77yM5bm25paw5aKe5Zu+5qCH5byP5Li76aKY5YiH5o2i5qCP44CCIiwiZW4iOiJVcGRhdGVkIHRoZSBMaXF1aWQgR2xhc3MgYXBwZWFyYW5jZSBmb3IgbGlnaHQgYW5kIGRhcmsgdGhlbWVzIGFuZCBhZGRlZCBhbiBpY29uLWJhc2VkIHRoZW1lIHNlbGVjdG9yLiJ9LCJBcnRpZmFjdHMiOlt7Ik5hbWUiOiJDbGFyaXR5LTEuMi4zLXNldHVwLmV4ZSIsIlNpemUiOjI4MzIwOTMsIlNIQTI1NiI6IjJjZjQ3YjQ0ODcxYTBlM2Y5NTBhMDJiYWMzODQ4NmNkMjNiNGZlYjU1NjA1MGRlYWMzMzYyNWJiOGFjOWU2ODQifSx7Ik5hbWUiOiJDbGFyaXR5LTEuMi4zLXBvcnRhYmxlLnppcCIsIlNpemUiOjU5NDA2OCwiU0hBMjU2IjoiY2I4Zjg1MWIxYjA3MThkN2QxYzFkNGJmZDZiM2RiMWJiYzViMDIwM2Y2MDg5NWRhN2RkOGRhZmUxZjE3ZWMzOCJ9XX0=",
+  "Signature": "rMLLUtLCx0qyIFrFosVbOzO0BLPPOpd8Pyynbc3FwcBVzCeXQ7CSHyJpGXGlvffasxaBfQJZqnTWrvsIXmuN61dJN+Fjk/3b4ekdW35d8+gtH03lGL2F5iD7mVDIVbdxqapkexCmcgr8df5q4pBzy+aj/aZp+tNY405ldP5HT4e0EjfCus0wDv+eMGvOKXI+l2D1Z/J1rFwcYWDwSy/wWyb6IC/LHnpUgwZdgcESYlQTesbaPpuRPW0zAyWGn4+s3h8CdHGBB2IvI6m8LDV56ZpOk5I7xF9uThQfs5ZWb4b/cCSaXuzHcfEVq+/gKC6pHIjiNgtEhHPgQBHpL4psONE5t25SftsmsIRJAKj8DyDp3L93mhwtNTRjrpPtPh5v1F+wBZ95S2ELFBtHxmBe4MBQObQUMRHJ1h9PVliq8Jh9oxUtQKXiuZGEb2WvdiTmD6QfQbB7U9w6my/6xYwfjoP0qz/enTKK558qVVsBNySLX4gZ07yW6n0BO2DqZkqF"
 }
