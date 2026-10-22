@@ -4,6 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
+| 1.2.3 | Update the Liquid Glass appearance for light and dark themes and add an icon-based theme selector. |
 | 1.2.2 | Bug fixes. |
 | 1.2.1 | Add batched directory-index scanning and enable Winapp2 by default; refresh clear glass surfaces and improve settings navigation with lazy loading. |
 | 1.2.0 | Add local scan caching and a shared scan session; reduce repeat identification, overlapping reads and UI refresh overhead. |

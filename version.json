@@ -1,9 +1,9 @@
 {
   "channel": "stable",
-  "version": "1.2.2",
-  "build": 2,
+  "version": "1.2.3",
+  "build": 1,
   "highlights": {
-    "zh-CN": "bug修复",
-    "en": "Bug fixes"
+    "zh-CN": "更新液态玻璃外观，优化浅深色半透明效果，并新增图标式主题切换栏。",
+    "en": "Updated the Liquid Glass appearance for light and dark themes and added an icon-based theme selector."
   }
 }

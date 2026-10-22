@@ -21,7 +21,7 @@ public sealed partial class Controller {
    OpenSettings(new CleanerSettings(),null,s=>saves++);var root=settingsView.Root;var tabs=(TabControl)root.FindName("RulesTabs");Window.UpdateLayout();
    var tab=(TabItem)root.FindName("GeneralTab");tab.ApplyTemplate();var tabSurface=(GlassPanel)tab.Template.FindName("TabSurface",tab);
    check(PanelAlpha(tabSurface,0,(int)tabSurface.ActualHeight-1)==0&&PanelAlpha(tabSurface,(int)tabSurface.ActualWidth/2,(int)tabSurface.ActualHeight/2)>0,"The selected settings tab has a transparent rounded lower corner with no square backing");
-   foreach(string name in new[]{"LanguageChoice","ThemeChoice","GlassModeChoice"}){
+   foreach(string name in new[]{"LanguageChoice","GlassModeChoice"}){
     var choice=(ComboBox)root.FindName(name);int selected=choice.SelectedIndex,before=saves;choice.Focus();int forwarded=0;var scroller=VisualChildren<ScrollViewer>(tabs).First();MouseWheelEventHandler observer=(sender,args)=>forwarded++;scroller.AddHandler(UIElement.MouseWheelEvent,observer,true);
     try{var wheel=new MouseWheelEventArgs(Mouse.PrimaryDevice,Environment.TickCount,-120){RoutedEvent=UIElement.PreviewMouseWheelEvent};choice.RaiseEvent(wheel);check(wheel.Handled&&choice.SelectedIndex==selected&&saves==before&&forwarded==1,"Scrolling over "+name+" scrolls its page without selecting or saving another value");}finally{scroller.RemoveHandler(UIElement.MouseWheelEvent,observer);}
    }
@@ -29,8 +29,8 @@ public sealed partial class Controller {
    var holder=(Panel)language.Parent;var longList=new ComboBox{ItemsSource=Enumerable.Range(0,30).Select(i=>"Choice "+i).ToArray(),SelectedIndex=0,Width=270};holder.Children.Insert(0,longList);
    try{longList.BringIntoView();Window.UpdateLayout();longList.IsDropDownOpen=true;await Task.Delay(80);var popup=(Popup)longList.Template.FindName("PART_Popup",longList);var scroll=VisualChildren<ScrollViewer>(popup.Child).First();longList.RaiseEvent(new MouseWheelEventArgs(Mouse.PrimaryDevice,Environment.TickCount,-120){RoutedEvent=UIElement.PreviewMouseWheelEvent});Window.UpdateLayout();check(scroll.VerticalOffset>0&&longList.SelectedIndex==0,"A long open settings list actually scrolls while preserving its current value");}finally{longList.IsDropDownOpen=false;holder.Children.Remove(longList);}
    var isolated=new ComboBox{ItemsSource=new[]{"a","b"},SelectedIndex=0};var outsideWheel=new MouseWheelEventArgs(Mouse.PrimaryDevice,Environment.TickCount,-120){RoutedEvent=UIElement.PreviewMouseWheelEvent};isolated.RaiseEvent(outsideWheel);check(!outsideWheel.Handled,"The settings wheel guard does not change unrelated selectors");
-   var theme=(ComboBox)root.FindName("ThemeChoice");theme.SelectedIndex=2;check(saves==1,"Explicit dropdown selection still saves the selected theme");
-   VisualChildren<ScrollViewer>(tabs).First().ScrollToTop();foreach(string appearance in new[]{"light","dark"}){UiTheme.Set(appearance,false);Window.UpdateLayout();App.Render(Window,Path.Combine(output,"fixed-settings-"+appearance+".png"));}
+   var theme=(ThemeSelector)root.FindName("ThemeChoice");theme.Value="light";check(saves==1,"Explicit theme segment selection still saves the selected theme");
+   VisualChildren<ScrollViewer>(tabs).First().ScrollToTop();foreach(string appearance in new[]{"light","dark"}){theme.Value=appearance;UiTheme.Set(appearance,false);Get<ThemeSwitchMark>("ThemeMark").Show(UiTheme.Light,false);Window.UpdateLayout();App.Render(Window,Path.Combine(output,"fixed-settings-"+appearance+".png"));}
    BackPage();
    string fixture=Path.Combine(output,"glass-result-fixture");var safe=new Rule("glass-safe","资源缓存","软件缓存","Generated UI fixture","Rebuildable",new[]{Path.Combine(fixture,"Cache")},7,true){Software="Visual Studio Code",Part="资源缓存"};
    var manual=new Rule("glass-manual","媒体缓存","软件缓存","Generated UI fixture","Requires selection",new[]{Path.Combine(fixture,"Media")},7,false){Software="Visual Studio Code",Part="媒体缓存"};
@@ -38,7 +38,7 @@ public sealed partial class Controller {
    foreach(var rule in rules){Directory.CreateDirectory(rule.Roots[0]);string file=Path.Combine(rule.Roots[0],"old.dat");File.WriteAllText(file,"Generated glass regression fixture");File.SetLastWriteTimeUtc(file,DateTime.UtcNow.AddDays(-30));}
    engine=new Engine(rules);engine.IsRunning=owners=>false;quickScan=false;Apply(engine.Scan(CancellationToken.None,null));SetMode(true);foreach(var node in treeNodes)ExpandAll(node,true);Window.UpdateLayout();int chosen=Chosen().Count;
    foreach(string appearance in new[]{"light","dark"})foreach(string mode in new[]{"internal","full"}){
-    UiTheme.Set(appearance,false);UiGlass.SetMode(Window,mode);Window.UpdateLayout();await Window.Dispatcher.InvokeAsync(new Action(()=>{}),System.Windows.Threading.DispatcherPriority.ContextIdle);
+    UiTheme.Set(appearance,false);Get<ThemeSwitchMark>("ThemeMark").Show(UiTheme.Light,false);UiGlass.SetMode(Window,mode);Window.UpdateLayout();await Window.Dispatcher.InvokeAsync(new Action(()=>{}),System.Windows.Threading.DispatcherPriority.ContextIdle);
     tree.ApplyTemplate();var surface=(Border)tree.Template.FindName("TreeSurface",tree);check(((SolidColorBrush)surface.Background).Color.A==0,"The result-list background exposes the glass material in "+appearance+" / "+mode);
     var row=VisualChildren<TreeViewItem>(tree).First(item=>item.DataContext is CleanNode&&((CleanNode)item.DataContext).IsLeaf);row.ApplyTemplate();var material=(GlassPanel)row.Template.FindName("HeaderSurface",row);
     check(material!=null&&material.CornerRadius.BottomLeft>0&&((SolidColorBrush)material.Background).Color.A>0&&Chosen().Count==chosen,"Cleanup leaves receive their own rounded glass surface without changing selection in "+appearance+" / "+mode);
