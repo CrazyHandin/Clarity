@@ -3,7 +3,7 @@ Copyright (c) 2026 CraZyX. All rights reserved.
 生效日期：2026-10-22
 
 1. 适用范围
-本许可适用于 Clarity 1.2.3 内部构建 5 及之后明确附带本许可的版本中，CraZyX 有权许可的代码、程序、图标和文档（以下简称“本软件”）。
+本许可适用于所有明确附带本许可的 Clarity 版本和内部构建中，CraZyX 有权许可的代码、程序、图标和文档（以下简称“本软件”）。
 本软件源码公开，但不按标准开源许可授权。未明确授予的权利由著作权人保留。
 
 2. 免费个人使用
@@ -42,7 +42,7 @@ Effective date: 2026-10-22
 License identifier: LicenseRef-Clarity-Personal-Use-1.0
 
 1. Scope
-This license covers the code, application, artwork and documentation that CraZyX has authority to license (the Software), starting with Clarity 1.2.3 internal build 5 and later versions that expressly include this license.
+This license covers the code, application, artwork and documentation that CraZyX has authority to license (the Software), in every Clarity version and internal build expressly distributed with this license.
 The source is available for inspection; this is not a standard open-source license. Rights not expressly granted are reserved by the copyright holder.
 
 2. Free personal use

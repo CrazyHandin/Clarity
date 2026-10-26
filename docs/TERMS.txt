@@ -3,7 +3,7 @@ Clarity © 2026 CraZyX
 
 1. 软件与许可
 Clarity 是 Windows 磁盘清理工具。
-自 1.2.3 内部构建 5 起，明确附带新许可的 Clarity 自有内容采用《Clarity 个人使用与源码公开许可协议 1.0》。完整许可见 LICENSE.txt、随附使用说明及本页后附的许可全文。
+所有明确附带本许可的 Clarity 发行版本及内部构建，其自有内容均采用《Clarity 个人使用与源码公开许可协议 1.0》。完整许可见 LICENSE.txt、随附使用说明及本页后附的许可全文。
 源码公开不等于标准开源授权；本说明介绍软件行为与清理风险，具体授权范围以随附许可为准。
 Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的个人使用许可。
 
@@ -51,7 +51,7 @@ Clarity © 2026 CraZyX
 
 1. Application and license
 Clarity is a Windows disk cleaner.
-Starting with 1.2.3 internal build 5, Clarity's own materials that expressly include the new license use the Clarity Personal Use and Source Available License 1.0. See LICENSE.txt, the bundled user guide or the license appended to this page.
+Clarity's own materials in every release and internal build expressly distributed with this license use the Clarity Personal Use and Source Available License 1.0. See LICENSE.txt, the bundled user guide or the license appended to this page.
 Available source is not a standard open-source grant. These notes explain behavior and cleanup risks; the bundled license defines the permissions.
 The Winapp2 rule database is separately licensed under CC BY-SA 4.0, not Clarity's personal-use license.
 

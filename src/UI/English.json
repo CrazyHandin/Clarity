@@ -870,7 +870,7 @@
   "重启后仍需手动扫描。": "Restart still requires manual scanning.",
   "版权": "Copyright",
   "本软件源码公开，供个人非商业用途免费使用，作者从未以任何形式出售。著作权由作者保留。": "Clarity's source is available for inspection, with free personal, noncommercial use. The author has never sold it. Copyright remains with the author.",
-  "新许可自 1.2.3 内部构建 5 起适用；旧 MIT 版本及第三方内容保留原许可权利。": "The new license starts with 1.2.3 internal build 5. Historical MIT releases and third-party materials retain their original rights.",
+  "所有新发行版本及内部构建均采用个人使用许可；既有 MIT 副本及第三方内容保留原许可权利。": "All new releases and internal builds use the personal-use license. Previously granted MIT and third-party rights remain effective.",
   "下列行为未获许可": "Actions outside the license",
   "• 未经授权再分发、出售、商业使用或面向第三方二次打包。": "• Unauthorized redistribution, sales, commercial use or repackaging for third parties.",
   "• 逆向工程、反编译、反汇编，或移除版权与许可声明。": "• Reverse engineering, decompilation, disassembly or removal of copyright and license notices.",

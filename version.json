@@ -1,9 +1,9 @@
 {
   "channel": "stable",
   "version": "1.2.3",
-  "build": 7,
+  "build": 8,
   "highlights": {
-    "zh-CN": "更新液态玻璃外观，新增轻量流畅与增强折射两种效果。",
-    "en": "Updated the Liquid Glass appearance with Lightweight and Enhanced Refraction modes."
+    "zh-CN": "更新液态玻璃外观，优化弹窗的打开与拖动体验。",
+    "en": "Updated Liquid Glass and improved popup opening and dragging."
   }
 }

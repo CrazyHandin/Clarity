@@ -38,4 +38,4 @@ Build with C# / WPF and the .NET Framework compiler:
 
 ## License
 
-From 1.2.3 internal build 5, Clarity uses a [Personal Use and Source Available License](LICENSE.txt): free personal, noncommercial use; redistribution, sales, repackaging and reverse engineering require permission, subject to the license's exceptions. Historical MIT releases retain their original license. Winapp2 rules retain **CC BY-SA 4.0**; see [third-party notices](THIRD_PARTY_NOTICES.md).
+All newly distributed Clarity versions and internal builds use a [Personal Use and Source Available License](LICENSE.txt): free personal, noncommercial use; redistribution, sales, repackaging and reverse engineering require permission, subject to the license's exceptions. Historical MIT releases retain their original license. Winapp2 rules retain **CC BY-SA 4.0**; see [third-party notices](THIRD_PARTY_NOTICES.md).
