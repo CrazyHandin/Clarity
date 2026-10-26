@@ -12,7 +12,10 @@ namespace ClearSpace {
 internal sealed class NativeGlass {
  static readonly ConditionalWeakTable<Window,NativeGlass> states=new ConditionalWeakTable<Window,NativeGlass>();
  static readonly List<WeakReference> windows=new List<WeakReference>();
- readonly Window window;readonly Brush originalBackground;HwndSource source;IntPtr handle;Thickness originalGlass;bool applied,closed,queued;bool? lastLight;
+ readonly Window window;readonly Brush originalBackground;HwndSource source;IntPtr handle;Thickness originalGlass;bool applied,closed,queued;
+#if CLARITY_TESTS
+ internal static int AccentActivations;
+#endif
  [StructLayout(LayoutKind.Sequential)]struct AccentPolicy {public int State,Flags,Color,Animation;}
  [StructLayout(LayoutKind.Sequential)]struct CompositionData {public int Attribute;public IntPtr Data;public int Size;}
  [StructLayout(LayoutKind.Sequential)]struct Margins {public int Left,Right,Top,Bottom;}
@@ -32,6 +35,9 @@ internal sealed class NativeGlass {
   if((message==0x31E||message==0x31A||message==0x1A||message==0x232||message==0x7D||message==5)&&!queued&&!closed){queued=true;window.Dispatcher.BeginInvoke(new Action(()=>{queued=false;Apply(true);}));}return IntPtr.Zero;
  }
  static bool Accent(IntPtr handle,bool enabled){
+#if CLARITY_TESTS
+  if(enabled)AccentActivations++;
+#endif
   // Zero flags are essential: the tint flag makes the clear blur nearly opaque.
   var policy=new AccentPolicy{State=enabled?3:0};var memory=Marshal.AllocHGlobal(Marshal.SizeOf(typeof(AccentPolicy)));
   try{Marshal.StructureToPtr(policy,memory,false);var data=new CompositionData{Attribute=19,Data=memory,Size=Marshal.SizeOf(typeof(AccentPolicy))};return SetWindowCompositionAttribute(handle,ref data);}finally{Marshal.FreeHGlobal(memory);}
@@ -40,12 +46,14 @@ internal sealed class NativeGlass {
   if(closed||source==null||source.IsDisposed||handle==IntPtr.Zero)return;
   bool requested=UiGlass.GetEnabled(window)&&UiGlass.GetMode(window)=="full"&&Allowed(),composition=false;
   if(!requested&&!applied){RestoreBackground();return;}
-  if(!force&&requested&&applied&&lastLight==UiTheme.Light)return;
+  // Clear blur has no theme-dependent parameters. Keep the compositor surface
+  // while palette brushes animate; native composition/style messages still force refresh.
+  if(!force&&requested&&applied)return;
   try{
    if(requested&&DwmIsCompositionEnabled(out composition)==0&&composition){
     var margins=new Margins{Left=-1,Right=-1,Top=-1,Bottom=-1};bool ready=DwmExtendFrameIntoClientArea(handle,ref margins)==0;
     if(ready&&Accent(handle,true)){
-     source.CompositionTarget.BackgroundColor=Colors.Transparent;window.Background=Brushes.Transparent;applied=true;lastLight=UiTheme.Light;UiGlass.SetHasBackdrop(window,true);return;
+     source.CompositionTarget.BackgroundColor=Colors.Transparent;window.Background=Brushes.Transparent;applied=true;UiGlass.SetHasBackdrop(window,true);return;
     }
    }
   }catch(EntryPointNotFoundException){}catch(DllNotFoundException){}catch(ExternalException){}

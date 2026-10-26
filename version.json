@@ -1,7 +1,7 @@
 {
   "channel": "stable",
   "version": "1.2.3",
-  "build": 9,
+  "build": 10,
   "highlights": {
     "zh-CN": "更新液态玻璃外观，优化弹窗的打开与拖动体验。",
     "en": "Updated Liquid Glass and improved popup opening and dragging."

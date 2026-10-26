@@ -20,7 +20,7 @@ public sealed partial class Controller {
  void SettingsChanged(){UpdateRecoveryNote();UpdateDisk();if(UiText.Language!=UiText.Normalize(settings.Language))UiText.SetLanguage(settings.Language);RefreshTheme(UiMotion.GetEnabled(Window));}
  void OpenSettings(CleanerSettings options=null,DiscoveryResult discovery=null,Action<CleanerSettings> persist=null,Action<string> openLocation=null){
   if(busy||pages.Count>0)return;
-  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess,()=>OpenRulePacks(options??settings,options==null?LastDiscovery:discovery,persist));
+  settingsView=RuleCenter.Create(Window,options??settings,options==null?LastDiscovery:discovery,options==null?(Action)SettingsChanged:()=>UiText.SetLanguage(options.Language),BackPage,OpenAbout,persist,openLocation,()=>ElevateAction(),Notify,()=>PushPage(DocumentPage.JsonRules(BackPage)),NotifySuccess,()=>OpenRulePacks(options??settings,options==null?LastDiscovery:discovery,persist),themeChanged:options==null?(Action)(()=>RefreshTheme(UiMotion.GetEnabled(Window))):null);
   PushPage(settingsView.Root);RefreshSoftwareUpdateState();
  }
  void OpenRulePacks(CleanerSettings options,DiscoveryResult discovery,Action<CleanerSettings> persist=null){if(settingsView!=null&&!settingsView.TryLeave())return;rulePackView=RulePackCenter.Create(Window,options,discovery,BackPage,SettingsChanged,Notify,NotifySuccess,null,null,persist);PushPage(rulePackView.Root);}
