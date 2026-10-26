@@ -51,11 +51,19 @@ public sealed class GlassPanel:Border {
  void Illuminate(double to){var tint=Background as SolidColorBrush;if(!IsEnabled||!IsLens||IsOverlay||Background==null||tint!=null&&(tint.Color.A==0||tint.Color.G-tint.Color.R>65)||!UiGlass.Enhanced(this))return;double from=Gleam;int revision=++gleamRevision;BeginAnimation(GleamProperty,null);Gleam=from;if(!UiMotion.GetEnabled(this)){Gleam=to;return;}var motion=new DoubleAnimation(from,to,TimeSpan.FromMilliseconds(150)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut}};motion.Completed+=(s,e)=>{if(revision==gleamRevision){Gleam=to;BeginAnimation(GleamProperty,null);}};BeginAnimation(GleamProperty,motion,HandoffBehavior.SnapshotAndReplace);}
  protected override void OnMouseEnter(System.Windows.Input.MouseEventArgs e){base.OnMouseEnter(e);Illuminate(1);}
  protected override void OnMouseLeave(System.Windows.Input.MouseEventArgs e){base.OnMouseLeave(e);Illuminate(0);}
- public static readonly DependencyProperty BackdropProperty=DependencyProperty.Register("Backdrop",typeof(Brush),typeof(GlassPanel),new FrameworkPropertyMetadata(null,FrameworkPropertyMetadataOptions.AffectsRender));
+ // Brush transforms update the retained composition resource directly.
+ // Rebuild the drawing only when the brush itself is replaced.
+ public static readonly DependencyProperty BackdropProperty=DependencyProperty.Register("Backdrop",typeof(Brush),typeof(GlassPanel),new FrameworkPropertyMetadata(null,FrameworkPropertyMetadataOptions.AffectsRender|FrameworkPropertyMetadataOptions.SubPropertiesDoNotAffectRender));
  public Brush Backdrop{get{return (Brush)GetValue(BackdropProperty);}set{SetValue(BackdropProperty,value);}}
  public static readonly DependencyProperty IsOverlayProperty=DependencyProperty.Register("IsOverlay",typeof(bool),typeof(GlassPanel),new FrameworkPropertyMetadata(false,FrameworkPropertyMetadataOptions.AffectsRender));
  public bool IsOverlay{get{return (bool)GetValue(IsOverlayProperty);}set{SetValue(IsOverlayProperty,value);}}
+#if CLARITY_TESTS
+ internal int Redraws{get;private set;}
+#endif
  protected override void OnRender(DrawingContext drawing){
+#if CLARITY_TESTS
+  Redraws++;
+#endif
   var color=Background as SolidColorBrush;
   if(!UiGlass.Active(this)||Background==null||Background.Opacity==0||color!=null&&color.Color.A==0){base.OnRender(drawing);return;}
   bool accent=color!=null&&color.Color.G-color.Color.R>65;

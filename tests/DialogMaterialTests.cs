@@ -11,7 +11,7 @@ public sealed partial class Controller {
    UiTheme.Set(appearance,false);UiGlass.SetMode(Window,"internal");UiGlass.SetEnabled(Window,true);Window.UpdateLayout();
    var popup=UpdateDialogs.Highlights(Window);UiMotion.SetEnabled(popup,false);popup.WindowStartupLocation=WindowStartupLocation.Manual;popup.Left=Window.Left+(Window.ActualWidth-popup.Width)/2;popup.Top=Window.Top+(Window.ActualHeight-popup.Height)/2;popup.ShowActivated=false;
    var frame=(GlassPanel)popup.FindName("DialogSurface");try{popup.Show();popup.UpdateLayout();await DialogBackdrop.WhenReady(popup);var material=frame.Backdrop as ImageBrush;
-    check(material!=null&&material.IsFrozen&&material.ImageSource.IsFrozen,"Release notes prepare a frozen blurred owner image off the UI thread in "+appearance);
+    check(material!=null&&material.ImageSource.IsFrozen,"Release notes prepare frozen blurred pixels off the UI thread in "+appearance);
     check(DialogPixelAlpha(popup,2,180)==255&&DialogPixelAlpha(popup,330,180)==255&&DialogPixelAlpha(popup,0,0)==0,"Internal popup glass preserves opaque readable interiors and transparent rounded corners in "+appearance);
     App.Render(popup,Path.Combine(output,"release-notes-glass-"+appearance+".png"));
    }finally{popup.Close();}check(frame.Backdrop==null,"Closing release notes releases the captured owner surface in "+appearance);

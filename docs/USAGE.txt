@@ -14,7 +14,7 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 “液态玻璃外观”提供“全透式”和“内部通透”两种模式，默认内部通透，不透出桌面；模式同样适用于更新弹窗。
 玻璃外观使用中性底色和薄高光边缘。下拉菜单具有独立的不透明底层，不透出后方主页内容。
 “设置与备份 → 常规设置 → 玻璃效果”可选择“轻量流畅”或“增强折射”，自动保存并即时生效，默认轻量流畅；这与是否透出桌面的模式分别设置。
-轻量效果更柔和、均匀；增强效果提供更通透的材质、细腻高光，并在弹窗背景模拟平滑折射。弹窗先显示，背景以半分辨率限尺寸缓存，模糊与额外采样在后台执行。拖动时仅改变取景位置，停止后补充增强效果，不逐帧截图或模糊。图形加速不可用时回退轻量效果，高对比度模式使用普通外观。文字与图标不参与折射。
+轻量效果更柔和、均匀；增强效果提供更通透的材质、细腻高光，并在弹窗背景模拟平滑折射。弹窗先显示，背景以半分辨率限尺寸缓存，模糊与额外采样在后台执行。拖动时立即平移缓存背景，停止后补充增强效果，不逐帧截图或模糊。图形加速不可用时回退轻量效果，高对比度模式使用普通外观。文字与图标不参与折射。
 磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间；百分比显示剩余空间比例。
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
 管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
@@ -175,7 +175,7 @@ The Sun/Moon button beside Minimize switches themes; General settings offers Dar
 Liquid Glass appearance offers Full transparency and Internal glass. Internal glass is the default and keeps the desktop hidden, including in update dialogs.
 Glass surfaces use neutral tints and thin highlights. Dropdown menus have their own opaque floor, keeping the main interface hidden behind them.
 Settings & Backups > General > Glass effects offers Lightweight (default) and Enhanced refraction, saved and applied immediately. This choice is independent of desktop transparency.
-Lightweight is softly and evenly frosted. Enhanced is clearer with subtle highlights and smooth refraction in popup backgrounds. Popups open before background preparation. Half-resolution snapshots are size-capped and cached; blur and extra sampling run off the UI thread. Dragging only changes the cached viewbox, with enhanced detail restored after movement rather than capturing or blurring every frame. It falls back to Lightweight without graphics acceleration; high-contrast mode uses the plain appearance. Text and icons are never refracted.
+Lightweight is softly and evenly frosted. Enhanced is clearer with subtle highlights and smooth refraction in popup backgrounds. Popups open before background preparation. Half-resolution snapshots are size-capped and cached; blur and extra sampling run off the UI thread. Dragging immediately translates the cached background, with enhanced detail restored after movement rather than capturing or blurring every frame. It falls back to Lightweight without graphics acceleration; high-contrast mode uses the plain appearance. Text and icons are never refracted.
 The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.
 Advanced cleanup includes an optional System junk → Hibernation file action. It uses Windows powercfg to disable hibernation, Fast Startup and hybrid sleep without a file backup. Administrator privileges and risk confirmation are required. To restore hibernation, run powercfg /hibernate on as administrator.
 

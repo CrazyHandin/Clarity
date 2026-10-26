@@ -32,8 +32,8 @@ internal static class GlassBackground {
   }
  }
  internal static BitmapSource Crop(BitmapSource image,Rect region,CancellationToken token){
-  token.ThrowIfCancellationRequested();double sx=image.DpiX/96,sy=image.DpiY/96;int width=Math.Max(1,(int)Math.Ceiling(region.Width*sx)),height=Math.Max(1,(int)Math.Ceiling(region.Height*sy));if((long)width*height>GlassRefraction.MaxPixels)return null;
-  int x=(int)Math.Floor(region.X*sx),y=(int)Math.Floor(region.Y*sy),left=Math.Max(0,x),top=Math.Max(0,y),right=Math.Min(image.PixelWidth,x+width),bottom=Math.Min(image.PixelHeight,y+height),stride=width*4;var pixels=new byte[stride*height];
+  token.ThrowIfCancellationRequested();double sx=image.DpiX/96,sy=image.DpiY/96;int x=(int)Math.Floor(region.X*sx),y=(int)Math.Floor(region.Y*sy),width=Math.Max(1,(int)Math.Ceiling(region.Right*sx)-x),height=Math.Max(1,(int)Math.Ceiling(region.Bottom*sy)-y);if((long)width*height>GlassRefraction.MaxPixels)return null;
+  int left=Math.Max(0,x),top=Math.Max(0,y),right=Math.Min(image.PixelWidth,x+width),bottom=Math.Min(image.PixelHeight,y+height),stride=width*4;var pixels=new byte[stride*height];
   if(right>left&&bottom>top)image.CopyPixels(new Int32Rect(left,top,right-left,bottom-top),pixels,stride,(top-y)*stride+(left-x)*4);
   var result=BitmapSource.Create(width,height,image.DpiX,image.DpiY,PixelFormats.Pbgra32,null,pixels,stride);result.Freeze();return result;
  }
