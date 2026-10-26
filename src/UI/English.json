@@ -935,7 +935,7 @@
   "玻璃效果": "Glass effects",
   "轻量流畅": "Lightweight",
   "增强折射": "Enhanced refraction",
-  "轻量优先流畅；增强增加局部折射与高光。": "Lightweight favors smoothness; Enhanced adds localized refraction and highlights.",
+  "轻量更柔和；增强更通透，带细腻高光。": "Lightweight is softly frosted; Enhanced is clearer with subtle highlights.",
   "选择轻量流畅或增强折射": "Choose Lightweight or Enhanced refraction",
   "增强折射会增加显卡开销，可能导致卡顿。性能不足时建议轻量模式；图形加速不可用时自动回退。": "Enhanced refraction increases GPU use and may stutter. Choose Lightweight on slower devices; unavailable graphics acceleration triggers a fallback.",
   "实验性外观：让面板呈现柔和的半透明效果。": "Experimental appearance with softly translucent panels.",
