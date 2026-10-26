@@ -31,7 +31,7 @@ public sealed class ThemeSwitchMark:Grid {
 public sealed partial class Controller {
  public Action<CleanerSettings> SaveTheme;
  void RefreshTheme(bool animate){UiTheme.Set(settings.Theme,animate);var mark=Get<ThemeSwitchMark>("ThemeMark");if(!animate||mark.IsLight!=UiTheme.Light)mark.Show(UiTheme.Light,animate);Get<Button>("ThemeButton").ToolTip=UiTheme.Light?"切换到深色":"切换到浅色";if(settingsView!=null){var selector=settingsView.Root.FindName("ThemeChoice")as ThemeSelector;if(selector!=null)selector.Value=UiTheme.Normalize(settings.Theme);}}
- void InitializeTheme(){UiGlass.SetMode(Window,settings.GlassMode);UiGlass.SetEnabled(Window,settings.LiquidGlass);RefreshTheme(false);Get<Button>("ThemeButton").Click+=(s,e)=>ToggleTheme();
+ void InitializeTheme(){UiGlass.SetEffect(Window,settings.GlassEffect);UiGlass.SetMode(Window,settings.GlassMode);UiGlass.SetEnabled(Window,settings.LiquidGlass);RefreshTheme(false);Get<Button>("ThemeButton").Click+=(s,e)=>ToggleTheme();
   Window.SourceInitialized+=(s,e)=>{var source=System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(Window).Handle);if(source!=null)source.AddHook((IntPtr handle,int message,IntPtr wParam,IntPtr lParam,ref bool handled)=>{if(message==0x1A||message==0x31A)Window.Dispatcher.BeginInvoke(new Action(OnWindowsThemeChanged));return IntPtr.Zero;});};
  }
  void OnWindowsThemeChanged(){if(Window.IsVisible&&UiTheme.Normalize(settings.Theme)=="system"&&UiTheme.Light!=UiTheme.SystemLight())RefreshTheme(UiMotion.GetEnabled(Window));}

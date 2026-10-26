@@ -44,7 +44,11 @@
                     <StackPanel VerticalAlignment="Center" Margin="0,0,20,0"><CheckBox x:Name="LiquidGlassChoice" Content="液态玻璃外观（Beta）" FontSize="17" FontWeight="SemiBold" ToolTip="全透式透出桌面；内部通透仅展示软件内的通透效果。"/><TextBlock Text="实验性外观：让面板呈现柔和的半透明效果。" Foreground="#9DB5C3" FontSize="13" Margin="0,8,0,0"/></StackPanel>
                     <ComboBox x:Name="GlassModeChoice" Grid.Column="1" Height="40" Width="190" VerticalAlignment="Center"/>
                   </Grid>
-                  <TextBlock x:Name="GlassPerformanceNote" Text="该效果会占用显卡资源，可能导致卡顿，请确认设备性能足够后再开启。" Foreground="#E8BE58" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0" />
+                  <Grid Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,20,0"><TextBlock Text="玻璃效果" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="轻量优先流畅；增强增加局部折射与高光。" Foreground="#9DB5C3" FontSize="13" Margin="0,6,0,0"/></StackPanel>
+                    <ComboBox x:Name="GlassEffectChoice" Grid.Column="1" Height="40" Width="190" VerticalAlignment="Center" ToolTip="选择轻量流畅或增强折射" AutomationProperties.Name="{Binding ToolTip,RelativeSource={RelativeSource Self}}"/>
+                  </Grid>
+                  <TextBlock x:Name="GlassPerformanceNote" Text="增强折射会增加显卡开销，可能导致卡顿。性能不足时建议轻量模式；图形加速不可用时自动回退。" Foreground="#E8BE58" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0" />
                   <Border Height="1" Background="#344651" Opacity="0.65" Margin="0,20"/>
                   <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center" Margin="0,0,20,0"><TextBlock Text="界面语言" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="语言修改自动保存，立即生效。" Foreground="#9DB5C3" FontSize="13" Margin="0,6,0,0"/></StackPanel>

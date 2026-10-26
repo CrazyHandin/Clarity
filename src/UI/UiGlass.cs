@@ -2,9 +2,16 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 namespace ClearSpace {
 public static class UiGlass {
+ public static readonly DependencyProperty EffectProperty=DependencyProperty.RegisterAttached("Effect",typeof(string),typeof(UiGlass),new FrameworkPropertyMetadata("light",FrameworkPropertyMetadataOptions.Inherits|FrameworkPropertyMetadataOptions.AffectsRender));
+ public static string NormalizeEffect(string value){return String.Equals(value,"enhanced",StringComparison.OrdinalIgnoreCase)?"enhanced":"light";}
+ public static string GetEffect(DependencyObject element){return NormalizeEffect((string)element.GetValue(EffectProperty));}
+ public static void SetEffect(DependencyObject element,string value){element.SetValue(EffectProperty,NormalizeEffect(value));}
+ internal static Func<bool> OpticsAvailable=()=> (RenderCapability.Tier>>16)>0;
+ internal static bool Enhanced(DependencyObject element){return Active(element)&&GetEffect(element)=="enhanced"&&OpticsAvailable();}
  public static readonly DependencyProperty EnabledProperty=DependencyProperty.RegisterAttached("Enabled",typeof(bool),typeof(UiGlass),new FrameworkPropertyMetadata(true,FrameworkPropertyMetadataOptions.Inherits|FrameworkPropertyMetadataOptions.AffectsRender));
  public static bool GetEnabled(DependencyObject element){return (bool)element.GetValue(EnabledProperty);}
  public static void SetEnabled(DependencyObject element,bool value){element.SetValue(EnabledProperty,value);var window=element as Window;if(window!=null)NativeGlass.Attach(window);}
@@ -34,6 +41,16 @@ public static class UiGlass {
 // Tint only the existing surface; text and controls retain their normal opacity.
 // Border owns the corner geometry, including asymmetric and borderless choices.
 public sealed class GlassPanel:Border {
+ public static readonly DependencyProperty IsLensProperty=DependencyProperty.Register("IsLens",typeof(bool),typeof(GlassPanel),new FrameworkPropertyMetadata(false,FrameworkPropertyMetadataOptions.AffectsRender));
+ public bool IsLens{get{return (bool)GetValue(IsLensProperty);}set{SetValue(IsLensProperty,value);}}
+ public static readonly DependencyProperty GleamProperty=DependencyProperty.Register("Gleam",typeof(double),typeof(GlassPanel),new FrameworkPropertyMetadata(0.0,FrameworkPropertyMetadataOptions.AffectsRender));
+ public double Gleam{get{return (double)GetValue(GleamProperty);}set{SetValue(GleamProperty,value);}}
+ GlassOptics shape;int gleamRevision;
+ public GlassPanel(){Unloaded+=(s,e)=>{shape=null;gleamRevision++;BeginAnimation(GleamProperty,null);Gleam=0;};}
+ protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e){base.OnPropertyChanged(e);if((e.Property==UiGlass.EffectProperty||e.Property==UiGlass.EnabledProperty)&&(!UiGlass.GetEnabled(this)||UiGlass.GetEffect(this)!="enhanced")){shape=null;gleamRevision++;BeginAnimation(GleamProperty,null);Gleam=0;}}
+ void Illuminate(double to){var tint=Background as SolidColorBrush;if(!IsEnabled||!IsLens||IsOverlay||Background==null||tint!=null&&(tint.Color.A==0||tint.Color.G-tint.Color.R>65)||!UiGlass.Enhanced(this))return;double from=Gleam;int revision=++gleamRevision;BeginAnimation(GleamProperty,null);Gleam=from;if(!UiMotion.GetEnabled(this)){Gleam=to;return;}var motion=new DoubleAnimation(from,to,TimeSpan.FromMilliseconds(150)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut}};motion.Completed+=(s,e)=>{if(revision==gleamRevision){Gleam=to;BeginAnimation(GleamProperty,null);}};BeginAnimation(GleamProperty,motion,HandoffBehavior.SnapshotAndReplace);}
+ protected override void OnMouseEnter(System.Windows.Input.MouseEventArgs e){base.OnMouseEnter(e);Illuminate(1);}
+ protected override void OnMouseLeave(System.Windows.Input.MouseEventArgs e){base.OnMouseLeave(e);Illuminate(0);}
  public static readonly DependencyProperty BackdropProperty=DependencyProperty.Register("Backdrop",typeof(Brush),typeof(GlassPanel),new FrameworkPropertyMetadata(null,FrameworkPropertyMetadataOptions.AffectsRender));
  public Brush Backdrop{get{return (Brush)GetValue(BackdropProperty);}set{SetValue(BackdropProperty,value);}}
  public static readonly DependencyProperty IsOverlayProperty=DependencyProperty.Register("IsOverlay",typeof(bool),typeof(GlassPanel),new FrameworkPropertyMetadata(false,FrameworkPropertyMetadataOptions.AffectsRender));
@@ -44,9 +61,12 @@ public sealed class GlassPanel:Border {
   bool accent=color!=null&&color.Color.G-color.Color.R>65;
   bool root=Parent is Window,floor=IsOverlay||UiGlass.GetMode(this)=="internal"&&root&&Backdrop==null;
   var bounds=new Rect(0,0,ActualWidth,ActualHeight);
+  bool lens=IsLens&&!IsOverlay&&!accent,enhanced=lens&&UiGlass.Enhanced(this);if(lens&&(shape==null||!shape.Fits(bounds.Size,CornerRadius.TopLeft)))shape=new GlassOptics(bounds.Size,CornerRadius.TopLeft);
   if(root&&Backdrop!=null){if(UiGlass.GetMode(this)=="internal")drawing.DrawRoundedRectangle(Background,null,bounds,CornerRadius.TopLeft,CornerRadius.TopLeft);drawing.DrawRoundedRectangle(Backdrop,null,bounds,CornerRadius.TopLeft,CornerRadius.TopLeft);}
-  drawing.PushOpacity(floor?1:accent?0.98:UiTheme.Light?0.64:0.66);base.OnRender(drawing);drawing.Pop();
+  if(enhanced)shape.Refract(drawing,this,Backdrop);
+  drawing.PushOpacity(floor?1:accent?0.98:enhanced?(UiTheme.Light?0.42:0.48):UiTheme.Light?0.64:0.66);base.OnRender(drawing);drawing.Pop();
   if(root&&ActualWidth>0&&ActualHeight>0){drawing.PushClip(new RectangleGeometry(bounds,CornerRadius.TopLeft,CornerRadius.TopLeft));drawing.PushOpacity(0.6);UiGlass.DrawAmbient(drawing,bounds);drawing.Pop();drawing.Pop();}
+  if(lens)shape.Rim(drawing,enhanced,Gleam);
  }
 }
 // Only the window root paints the ambient layer. In-place settings inherit it.

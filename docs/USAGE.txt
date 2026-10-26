@@ -13,6 +13,8 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 标题栏最小化按钮旁的太阳／月亮可切换深浅色；常规设置支持深色、浅色及跟随 Windows，并自动保存。
 “液态玻璃外观”提供“全透式”和“内部通透”两种模式，默认内部通透，不透出桌面；模式同样适用于更新弹窗。
 玻璃外观使用中性底色和薄高光边缘。下拉菜单具有独立的不透明底层，不透出后方主页内容。
+“设置与备份 → 常规设置 → 玻璃效果”可选择“轻量流畅”或“增强折射”，自动保存并即时生效，默认轻量流畅；这与是否透出桌面的模式分别设置。
+增强效果模拟软件内的局部折射、边缘高光及短暂交互反馈，会增加显卡开销；图形加速不可用时回退轻量效果，高对比度模式使用普通外观。文字与图标不参与折射。
 磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间；百分比显示剩余空间比例。
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
 管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
@@ -172,6 +174,8 @@ Disable or clear the cache in Settings & Backups > General > Scan acceleration.
 The Sun/Moon button beside Minimize switches themes; General settings offers Dark, Light and Follow Windows, with saved preferences.
 Liquid Glass appearance offers Full transparency and Internal glass. Internal glass is the default and keeps the desktop hidden, including in update dialogs.
 Glass surfaces use neutral tints and thin highlights. Dropdown menus have their own opaque floor, keeping the main interface hidden behind them.
+Settings & Backups > General > Glass effects offers Lightweight (default) and Enhanced refraction, saved and applied immediately. This choice is independent of desktop transparency.
+Enhanced simulates localized in-app refraction, rim highlights and brief interaction feedback, with increased GPU use. It falls back to Lightweight without graphics acceleration; high-contrast mode uses the plain appearance. Text and icons are never refracted.
 The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.
 Advanced cleanup includes an optional System junk → Hibernation file action. It uses Windows powercfg to disable hibernation, Fast Startup and hybrid sleep without a file backup. Administrator privileges and risk confirmation are required. To restore hibernation, run powercfg /hibernate on as administrator.
 
