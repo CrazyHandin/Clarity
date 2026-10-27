@@ -9,7 +9,7 @@ using System.Threading;
 using System.Web.Script.Serialization;
 namespace ClearSpace {
 public sealed class ScanStatistics {
- public long ElapsedMilliseconds;public int DirectoryReads,DirectoryReuses,HeaderReads,HeaderCacheHits,FingerprintReads,FingerprintCacheHits,SnapshotReuses,IndexDirectories,IndexFallbacks,IndividualCaptures;
+ public long ElapsedMilliseconds;public int DirectoryReads,DirectoryReuses,HeaderReads,HeaderCacheHits,FingerprintReads,FingerprintCacheHits,SnapshotReuses,IndexDirectories,IndexFallbacks,IndividualCaptures;public int AppDataDirectories,AppDataCacheRules;public bool AppDataLimited;
  public int CacheHits{get{return HeaderCacheHits+FingerprintCacheHits;}}
 }
 // A scan owns its transient reads. Persistent entries are hints, never deletion snapshots or rules.

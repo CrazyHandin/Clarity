@@ -33,7 +33,7 @@ public sealed class Snapshot {
  public string Path, Condition; public long Bytes, Modified; public uint Volume, IndexHigh, IndexLow;
 }
 public sealed class Finding {
- public Rule Rule; public long TotalBytes, EligibleBytes; public int Files, Unreadable, Recent, Links, Changed;
+ public Rule Rule; public long TotalBytes, EligibleBytes,RecentBytes,RunningBytes,FilteredBytes; public int Files, Unreadable, Recent, Links, Changed;
  public bool Running; public List<Snapshot> Candidates = new List<Snapshot>(); public List<string> Samples = new List<string>();
  public int VirtualItems, SuspectedItems, Blocked; public string Extra;
  public bool ManualOverride;public long ManualBytes;public List<Snapshot> ManualCandidates=new List<Snapshot>();
@@ -114,9 +114,11 @@ public sealed class Engine {
    string condition=null;if(result.Rule.Shortcut) {condition=ShortcutAudit.MissingTarget(path);if(condition==null)return;}
    result.Files++; result.TotalBytes+=info.Bytes;
    if(result.Samples.Count<5) result.Samples.Add(path);
-   if(result.Running)return;
-   if(!result.Rule.AllowManual&&info.Modified>cutoff.ToFileTimeUtc()){result.Recent++;result.Blocked++;return;}
-   Snapshot snapshot=null;if(!result.Rule.Protected&&result.Rule.Accept(path,p=>Session.Personal(info)))snapshot=Capture(path,result,cutoff,info);
+   if(result.Running){result.RunningBytes+=info.Bytes;return;}
+   if(!result.Rule.AllowManual&&info.Modified>cutoff.ToFileTimeUtc()){result.Recent++;result.RecentBytes+=info.Bytes;result.Blocked++;return;}
+   bool accepted=!result.Rule.Protected&&result.Rule.Accept(path,p=>Session.Personal(info));if(!accepted&&!result.Rule.Protected)result.FilteredBytes+=info.Bytes;
+   if(accepted&&info.Modified>cutoff.ToFileTimeUtc())result.RecentBytes+=info.Bytes;
+   Snapshot snapshot=null;if(accepted)snapshot=Capture(path,result,cutoff,info);
    if(snapshot!=null){snapshot.Condition=condition;result.Candidates.Add(snapshot);result.EligibleBytes+=snapshot.Bytes;}
    else if(result.Rule.ManualAccept(path)){var manual=Capture(path,result,DateTime.UtcNow,info);if(manual!=null){manual.Condition=condition;result.ManualCandidates.Add(manual);result.ManualBytes+=manual.Bytes;}}
    else result.Blocked++;
@@ -263,7 +265,7 @@ public static class RuleBook {
   foreach(string systemFile in new[]{"pagefile.sys"}) { var s=Add(rules,"system-"+systemFile,"虚拟内存文件（保留）","受保护资料","属于 Windows 正常运行使用的系统文件，不是垃圾。","本工具不删除，也不修改相关系统设置。",new[]{Path.GetPathRoot(windows)+systemFile},0,false); s.Protected=true; s.Single=true; }
   ExtendedRules.Add(rules,local,roaming,profile,windows,programData);
   CatalogV2.Upgrade(rules,local,roaming,profile,windows,programData);
-  CommonSoftwareRules.Add(rules,local,roaming,profile,programData);SimpleCleanupRules.Apply(rules);
+  CommonSoftwareRules.Add(rules,local,roaming,profile,programData);AppDataRules.Add(rules,local,roaming,low);SimpleCleanupRules.Apply(rules);
   foreach(var rule in rules)if(rule.Roots.Length>0&&String.IsNullOrEmpty(rule.InfoKind)&&!rule.Id.StartsWith("system-"))rule.AllowManual=true;
   rules.First(r=>r.Id=="office").Processes=new[]{"OfficeClickToRun","msiexec","setup"};rules.First(r=>r.Id=="uv-cache").Processes=new[]{"uv"};
 

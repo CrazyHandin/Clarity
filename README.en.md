@@ -8,6 +8,7 @@ Clarity is a Windows C-drive cleaner with installer and portable editions. It cl
 
 ## Features
 
+- **AppData coverage**: Scan Local, Roaming and LocalLow, including app profiles, partitions and WebView2 caches. See why files are retained because of running apps, age or safety checks.
 - **Simple and advanced cleanup:** Clean eligible low-risk items or select individual items with descriptions and risk information.
 - **Two scan modes:** Quick uses built-in rules; Regular adds application discovery, external rules and unknown cache detection. Local caching reduces repeated identification work. Scanning starts only when requested.
 - **Extensible rules:** Winapp2 is enabled by default and works alongside JSON, with multi-file JSON import, individual toggles, previews, upgrades and rollback.

@@ -38,6 +38,7 @@ public static class CommonRulesTests {
    engine.IsRunning=owners=>owners.Contains("Code");found=engine.ScanRule(cpp,CancellationToken.None);verify(found.Running&&found.Candidates.Count==0,"VS Code running state blocks its C/C++ cache cleanup");
    var catalog=RuleBook.Create();verify(!catalog.Any(r=>new[]{"neko","aclos","ocs-web","perfect-web","taptap","discord-canary","opera-gx","vscode-insiders"}.Contains(r.Id)||r.Id.StartsWith("edge-dev")||r.Id.StartsWith("chrome-canary")||r.Id.StartsWith("discord-ptb")),"The built-in catalog omits niche launchers and preview-channel duplicates");
    verify(catalog.Select(r=>r.Id).Distinct().Count()==catalog.Count&&catalog.Where(r=>r.Id.StartsWith("adobe-")).All(r=>!r.Quick&&r.ForceBackup),"Common-software additions keep unique identifiers and Adobe remains advanced with mandatory backup");
+   AppDataCoverageTests.Verify(root,verify);
    File.WriteAllLines(Path.Combine(output,"common-rules-test-results.txt"),checks.Concat(new[]{"ALL "+checks.Count+" COMMON CHECKS PASSED","Only generated workspace fixtures were modified."}));return 0;
   }catch(Exception ex){File.WriteAllLines(Path.Combine(output,"common-rules-test-results.txt"),checks.Concat(new[]{ex.ToString()}));return 1;}
  }

@@ -16,7 +16,8 @@ public sealed class ApplicationIdentity {
  public string PortableRoot{get;set;}
  public string SearchText{get{return String.Join(" ",new[]{Name,Publisher,Product,Company,Executable});}}
 }
-public sealed class DiscoveryResult {public List<ApplicationIdentity> Applications=new List<ApplicationIdentity>();public int Unreadable;public string Summary{get{return "发现 "+Applications.Count+" 个应用指纹"+(Unreadable>0?" · "+Unreadable+" 处无法读取":"");}}}
+public sealed class CacheSearchReport {public int Directories,Caches,Unreadable;public bool Limited;}
+public sealed class DiscoveryResult {public CacheSearchReport CacheSearch;public List<ApplicationIdentity> Applications=new List<ApplicationIdentity>();public int Unreadable;public string Summary{get{return "发现 "+Applications.Count+" 个应用指纹"+(Unreadable>0?" · "+Unreadable+" 处无法读取":"");}}}
 public static class ApplicationDiscovery {
  [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]struct TrustFile {public uint Size;[MarshalAs(UnmanagedType.LPWStr)]public string Path;public IntPtr Handle,Subject;}
  [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]struct TrustData {public uint Size;public IntPtr Policy,Sip;public uint UI,Revocation,Choice;public IntPtr File;public uint State;public IntPtr StateData,Url;public uint Flags,Context;}
