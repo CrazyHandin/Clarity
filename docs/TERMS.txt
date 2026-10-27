@@ -15,7 +15,7 @@ Winapp2 规则数据库独立适用 CC BY-SA 4.0，不适用 Clarity 的个人�
 3. 许可条件与未获授权的行为
 未经书面授权，不得再分发、转载、出售、商业使用、收费捆绑、预装或面向第三方二次打包本软件及源码；不得逆向工程、反编译、反汇编或移除版权与许可声明。
 法律中不能被合同限制的权利和例外，以及 GitHub 平台条款已经授予的查看、fork 等权利，均予保留。
-此前已按 MIT 发布的版本及内容仍遵循原 MIT 许可；新许可不追溯撤销或限制既有权利。
+本许可不追溯撤销或限制接收者此前已依法取得的授权与权利。
 Winapp2 及其他第三方内容继续遵守各自独立许可，其许可允许的使用、修改和再分发不受本软件自有内容限制。
 
 4. 扫描与清理
@@ -63,7 +63,7 @@ Business, organizational and other commercial uses require separate written perm
 3. License conditions
 Prior written permission is required for redistribution, republication, sales, commercial use, paid bundling, preinstallation or repackaging of the Software or source for third parties. Reverse engineering, decompilation, disassembly and removal of copyright or license notices are prohibited subject to the license's exceptions.
 Nonwaivable statutory rights and exceptions, and rights already granted through GitHub's terms such as viewing and forking, remain unaffected.
-Versions and materials previously published under MIT retain their original MIT license; the new license does not retroactively revoke or limit existing rights.
+This license does not retroactively revoke or limit authorizations and rights lawfully obtained by recipients.
 Winapp2 and other third-party materials retain their respective licenses. Their separately permitted use, modification and redistribution are unaffected by the restrictions on Clarity's own materials.
 
 4. Scanning and cleanup

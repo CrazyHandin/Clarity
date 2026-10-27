@@ -21,7 +21,7 @@ Copyright (c) 2026 CraZyX. All rights reserved.
 4. 既有权利与第三方内容
 以上限制不影响适用法律中不能被合同排除或限制的权利及例外。
 本项目在 GitHub 公开时，GitHub 服务条款已经授予平台及其用户的权利（包括在平台内查看和 fork）不受本许可限制。这些平台权利不代表另行取得在平台之外再发行或商业使用本软件的授权。
-此前已按 MIT 发布的版本及其内容，仍按其原 MIT 许可授权；本许可不追溯撤销、限制或替代接收者已经取得的 MIT 权利。历史发布与标签中的原许可保持有效。
+本许可不追溯撤销、限制或替代接收者此前已依法取得的授权与权利。
 Winapp2 规则数据库独立适用 CC BY-SA 4.0。本许可不限制该数据库或其他第三方内容在其各自许可下授予的使用、修改和再分发权利。第三方许可及声明见 THIRD_PARTY_NOTICES.md 和随附使用说明。
 本许可不限制用户对自己文件、个人数据和备份的权利。
 
@@ -60,7 +60,7 @@ Links to the official project and official downloads may be shared. Sharing a li
 4. Existing rights and third-party materials
 These restrictions do not limit rights or exceptions that applicable law does not allow a contract to exclude or restrict.
 While the project is public on GitHub, rights already granted to GitHub and its users through GitHub's terms, including viewing and forking within the service, remain unaffected. Such platform rights do not themselves grant permission for distribution outside the service or commercial use of the Software.
-Versions and materials previously published under MIT remain available under their original MIT license. This license does not retroactively revoke, restrict or replace MIT rights already granted to recipients. The original licenses in historical releases and tags remain effective.
+This license does not retroactively revoke, restrict or replace authorizations and rights lawfully obtained by recipients.
 The Winapp2 rule database is separately licensed under CC BY-SA 4.0. This license does not restrict rights to use, modify or redistribute that database or other third-party materials under their respective licenses. See THIRD_PARTY_NOTICES.md and the bundled user guide for third-party notices.
 This license does not restrict users' rights in their own files, personal data or backups.
 

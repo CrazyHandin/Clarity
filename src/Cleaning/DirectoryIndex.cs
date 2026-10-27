@@ -19,15 +19,19 @@ internal sealed class DirectoryIndex:IDisposable {
  internal static bool ForceFallback;
 #endif
  DirectoryIndex(string directory,SafeFileHandle handle,IntPtr buffer,uint volume,bool empty){this.directory=directory;this.handle=handle;this.buffer=buffer;this.volume=volume;this.empty=empty;}
- public static DirectoryIndex Open(string directory){
+ public static DirectoryIndex Open(string directory){return Open(directory,true);}
+ // Discovery has no deletion authority. Its handle's final path and attributes
+ // validate the complete resolved location without repeatedly statting ancestors.
+ internal static DirectoryIndex OpenForDiscovery(string directory){return Open(directory,false);}
+ static DirectoryIndex Open(string directory,bool checkAncestors){
 #if CLARITY_TESTS
   if(ForceFallback)return null;
 #endif
   SafeFileHandle handle=null;IntPtr buffer=IntPtr.Zero;
   try{
-   if(ScanPolicy.Excluded(directory)||!Engine.SafeAncestors(Path.Combine(directory,"probe")))return null;
+   if(ScanPolicy.Excluded(directory)||checkAncestors&&!Engine.SafeAncestors(Path.Combine(directory,"probe")))return null;
    handle=Native.CreateFile(directory,0x81,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero);Native.INFO info;
-   if(handle.IsInvalid||!Native.GetFileInformationByHandle(handle,out info)||(info.Attributes&0x400)!=0||!String.Equals(Engine.Normalize(directory),Engine.Normalize(Native.FinalPath(handle)),StringComparison.OrdinalIgnoreCase))return null;
+   if(handle.IsInvalid||!Native.GetFileInformationByHandle(handle,out info)||(info.Attributes&(checkAncestors?0x400u:Native.UnsafeAttributes))!=0||!String.Equals(Engine.Normalize(directory),Engine.Normalize(Native.FinalPath(handle)),StringComparison.OrdinalIgnoreCase))return null;
    buffer=Marshal.AllocHGlobal(Capacity);bool success=GetFileInformationByHandleEx(handle,11,buffer,Capacity);int error=Marshal.GetLastWin32Error();
    if(!success&&error!=18)return null;
    var reader=new DirectoryIndex(directory,handle,buffer,info.Volume,!success);handle=null;buffer=IntPtr.Zero;return reader;

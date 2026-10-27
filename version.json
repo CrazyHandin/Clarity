@@ -1,9 +1,9 @@
 {
   "channel": "stable",
   "version": "1.3.0",
-  "build": 1,
+  "build": 2,
   "highlights": {
-    "zh-CN": "新增 AppData 扩展识别，补全常用软件与多配置缓存，扩充低风险清理，并说明未能清理的原因。",
-    "en": "Added extended AppData discovery, broader app and multi-profile cache coverage, more low-risk cleanup, and clearer reasons for retained files."
+    "zh-CN": "扩充软件缓存清理，优化扫描速度与结果展示。",
+    "en": "Expanded app cache cleanup and improved scanning speed and results."
   }
 }

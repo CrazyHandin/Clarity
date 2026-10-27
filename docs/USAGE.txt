@@ -16,11 +16,11 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 “设置与备份 → 常规设置 → 玻璃效果”可选择“轻量流畅”或“增强折射”，自动保存并即时生效，默认轻量流畅；这与是否透出桌面的模式分别设置。
 轻量效果更柔和、均匀；增强效果提供更通透的材质、细腻高光，并在弹窗背景模拟平滑折射。弹窗先显示，背景以半分辨率限尺寸缓存，模糊与额外采样在后台执行。拖动时立即平移缓存背景，停止后补充增强效果，不逐帧截图或模糊。图形加速不可用时回退轻量效果，高对比度模式使用普通外观。文字与图标不参与折射。
 
-AppData 扩展识别
+缓存扫描
 快速扫描的内置规则重点检查 AppData 的 Local、Roaming、LocalLow；新增 QQ 新版、多配置浏览器、Electron 分区、WebView2 多配置、界面编译缓存和旧诊断资料。资源缓存默认保留最近 1 天，旧日志和转储保留 14 天，着色器保留 7 天；使用中、只读、链接与云端文件继续保护。实际保留期以项目说明为准。
 常规扫描进一步寻找未被现有规则覆盖的缓存目录，包含受约束的 Microsoft 和商店应用目录，并跳过身份验证、令牌、聊天、会话与离线存储。未知目录仍属于高级自选，默认不选且强制先备份；“缓存”文件夹名不能证明其中全部文件可安全删除。
 同一软件、同类未知缓存按小组聚合，每组最多 32 处目录；单次发现限制为 24,000 个目录、2,048 处缓存、1,024 组规则和 12 层目录，避免长时间占用资源。达到限制会在扫描结果中说明；无权限目录也会计数。扫描不会穷举整个 C 盘，更不会访问 Windows 系统目录。
-项目详情分别显示因软件运行、文件较新、资料过滤或读取限制而保留的容量/数量。“检测到”不代表当前都能清理，也不代表能够获得同等的实际释放空间。清理前仍会重新核对范围、占用状态与文件身份。
+结果列表只显示有实际清理候选的项目，无候选的普通项目自动隐藏；高级清理仍保留可自选的风险删除项。项目详情说明文件保留或无法读取的原因。“检测到”不代表当前都能清理，也不代表能够获得同等的实际释放空间。清理前仍会重新核对范围、占用状态与文件身份。
 磁盘空间条的彩色部分表示已占用空间，未填充部分表示剩余空间；百分比显示剩余空间比例。
 在“设置与备份 → 常规设置”选择简体中文或 English，自动保存并立即生效。
 管理员模式位于同一页面，可在确认 Windows 提权请求后重新启动。
@@ -116,7 +116,7 @@ Copyright (c) 2026 CraZyX. All rights reserved.
 4. 既有权利与第三方内容
 以上限制不影响适用法律中不能被合同排除或限制的权利及例外。
 本项目在 GitHub 公开时，GitHub 服务条款已经授予平台及其用户的权利（包括在平台内查看和 fork）不受本许可限制。这些平台权利不代表另行取得在平台之外再发行或商业使用本软件的授权。
-此前已按 MIT 发布的版本及其内容，仍按其原 MIT 许可授权；本许可不追溯撤销、限制或替代接收者已经取得的 MIT 权利。历史发布与标签中的原许可保持有效。
+本许可不追溯撤销、限制或替代接收者此前已依法取得的授权与权利。
 Winapp2 规则数据库独立适用 CC BY-SA 4.0。本许可不限制该数据库或其他第三方内容在其各自许可下授予的使用、修改和再分发权利。第三方许可及声明见 THIRD_PARTY_NOTICES.md 和随附使用说明。
 本许可不限制用户对自己文件、个人数据和备份的权利。
 
@@ -183,11 +183,11 @@ Glass surfaces use neutral tints and thin highlights. Dropdown menus have their 
 Settings & Backups > General > Glass effects offers Lightweight (default) and Enhanced refraction, saved and applied immediately. This choice is independent of desktop transparency.
 Lightweight is softly and evenly frosted. Enhanced is clearer with subtle highlights and smooth refraction in popup backgrounds. Popups open before background preparation. Half-resolution snapshots are size-capped and cached; blur and extra sampling run off the UI thread. Dragging immediately translates the cached background, with enhanced detail restored after movement rather than capturing or blurring every frame. It falls back to Lightweight without graphics acceleration; high-contrast mode uses the plain appearance. Text and icons are never refracted.
 
-Extended AppData discovery
+Cache scanning
 Quick scanning uses built-in rules for Local, Roaming and LocalLow, including modern QQ, browser profiles, Electron partitions, WebView2 profiles, renderer caches and old diagnostics. Resource caches normally retain the last day, old logs and dumps retain 14 days, and shader caches retain seven days. Running apps, read-only files, links and cloud files remain protected. Each item's description states its actual retention period.
 Regular scanning also discovers uncovered cache directories, including bounded Microsoft and Store-app locations. Authentication, tokens, chats, sessions and offline storage are skipped. Unknown directories remain unchecked advanced items with mandatory backup; a folder name alone does not establish safe deletion.
 Unknown caches of the same app and type are grouped in batches of at most 32 directories. Discovery is bounded to 24,000 directories, 2,048 cache locations, 1,024 groups and 12 levels to control resource use. Results disclose reached limits and unreadable locations. This is not an exhaustive scan of the drive, and the Windows system directory stays excluded.
-Item details explain retention due to running apps, age, safety filtering and read restrictions. Detected size is different from currently eligible cleanup or actual freed space. Scope, ownership and file identity are checked again before deletion.
+Results hide ordinary items with no cleanup candidates; advanced cleanup keeps explicit risk deletion options. Item details explain retention and read restrictions. Detected size is different from currently eligible cleanup or actual freed space. Scope, ownership and file identity are checked again before deletion.
 The colored part of the disk bar represents used space; the unfilled part represents free space. The percentage label shows remaining capacity.
 Advanced cleanup includes an optional System junk → Hibernation file action. It uses Windows powercfg to disable hibernation, Fast Startup and hybrid sleep without a file backup. Administrator privileges and risk confirmation are required. To restore hibernation, run powercfg /hibernate on as administrator.
 
@@ -268,7 +268,7 @@ Links to the official project and official downloads may be shared. Sharing a li
 4. Existing rights and third-party materials
 These restrictions do not limit rights or exceptions that applicable law does not allow a contract to exclude or restrict.
 While the project is public on GitHub, rights already granted to GitHub and its users through GitHub's terms, including viewing and forking within the service, remain unaffected. Such platform rights do not themselves grant permission for distribution outside the service or commercial use of the Software.
-Versions and materials previously published under MIT remain available under their original MIT license. This license does not retroactively revoke, restrict or replace MIT rights already granted to recipients. The original licenses in historical releases and tags remain effective.
+This license does not retroactively revoke, restrict or replace authorizations and rights lawfully obtained by recipients.
 The Winapp2 rule database is separately licensed under CC BY-SA 4.0. This license does not restrict rights to use, modify or redistribute that database or other third-party materials under their respective licenses. See THIRD_PARTY_NOTICES.md and the bundled user guide for third-party notices.
 This license does not restrict users' rights in their own files, personal data or backups.
 

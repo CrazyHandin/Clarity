@@ -4,7 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
-| 1.3.0 | Expand AppData cache discovery, multi-profile app coverage and low-risk cleanup, with clearer explanations for retained files. |
+| 1.3.0 | Expand app cache cleanup and improve scanning speed and results. |
 | 1.2.3 | Update the Liquid Glass appearance with selectable Lightweight and Enhanced Refraction modes. |
 | 1.2.2 | Bug fixes. |
 | 1.2.1 | Add batched directory-index scanning and enable Winapp2 by default; refresh clear glass surfaces and improve settings navigation with lazy loading. |
@@ -15,7 +15,7 @@
 | 1.0.5 | Add light/dark themes and Windows theme sync, window animations, unfinished cleanup details and optional hibernation cleanup; improve cleanup completion and Windows Disk Cleanup. |
 | 1.0.0 | Fixed a rule-packaging false-positive trigger and strengthened rule integrity checks, software updates, and backup handling. |
 | beta0.20 | Added online software updates and automatic cleanup history, with improvements to backup recovery and rule management. |
-| beta0.15 | Fix full-card scope selection, add startup motion and timed top notifications, and introduce MIT licensing with Clarity-specific terms. |
+| beta0.15 | Fix full-card scope selection, add startup motion and timed top notifications. |
 | beta0.14 | Move Settings, About, and help into the main window; unify the title bar and add interaction transitions with improved readability. |
 | beta0.13 | Add English UI and language preferences, an About screen, and administrator restart guidance; include a bilingual TXT user guide. |
 | beta0.12 | Introduce a clearer Settings & Backups center, consolidate file and registry recovery, and apply rule-source changes only after saving. |

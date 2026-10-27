@@ -12,6 +12,6 @@ internal static class ScanExplanation {
   if(finding.Changed>0)reasons.Add(UiText.T("扫描期间已变化：")+finding.Changed+UiText.T(" 项"));
   return reasons.Count==0?"":"\n"+UiText.T("保留原因：")+String.Join(" · ",reasons);
  }
- internal static string Coverage(CacheSearchReport report){return report==null?"":UiText.T("AppData 扩展识别：")+report.Directories+UiText.T(" 个目录")+" · "+report.Caches+UiText.T(" 处额外缓存")+(report.Limited?UiText.T(" · 已达识别上限，部分目录未完成"):report.Unreadable>0?" · "+report.Unreadable+UiText.T(" 处无法读取"):"");}
+ internal static string Coverage(CacheSearchReport report){return report==null?"":report.Limited?UiText.T("部分目录未完成扫描"):report.Unreadable>0?report.Unreadable+UiText.T(" 处无法读取"):"";}
 }
 }

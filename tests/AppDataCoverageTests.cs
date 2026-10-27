@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -43,6 +44,18 @@ public static class AppDataCoverageTests {
    check(session.Statistics.AppDataDirectories==discovery.CacheSearch.Directories&&discovery.CacheSearch.Caches==extra.Sum(r=>r.Roots.Length)&&session.Statistics.AppDataCacheRules==extra.Count,"Discovery coverage counters match cache directories as well as merged rules");
   }
   var limited=new DiscoveryResult();HeuristicScanner.DiscoverUnder(new[]{local,roaming,low},limited,known,CancellationToken.None,null,directoryLimit:1);check(limited.CacheSearch.Limited&&limited.CacheSearch.Directories<=1,"A bounded discovery pass explicitly reports an incomplete scope instead of silently truncating");
+  string[] nativeRoots;using(var session=new ScanSession()){
+   nativeRoots=HeuristicScanner.DiscoverUnder(new[]{local,roaming,low},new DiscoveryResult(),known,CancellationToken.None,null,session).SelectMany(r=>r.Roots).OrderBy(p=>p,StringComparer.OrdinalIgnoreCase).ToArray();
+   check(!String.Equals(new DriveInfo(Path.GetPathRoot(root)).DriveFormat,"NTFS",StringComparison.OrdinalIgnoreCase)||session.Statistics.DiscoveryIndexReads>0,"Cache discovery reads native directory batches instead of repeatedly querying child attributes");
+  }
+  DirectoryIndex.ForceFallback=true;try{using(var session=new ScanSession()){
+   var fallback=HeuristicScanner.DiscoverUnder(new[]{local,roaming,low},new DiscoveryResult(),known,CancellationToken.None,null,session);
+   check(session.Statistics.DiscoveryIndexReads==0&&session.Statistics.DiscoveryFallbackReads>0&&fallback.SelectMany(r=>r.Roots).OrderBy(p=>p,StringComparer.OrdinalIgnoreCase).SequenceEqual(nativeRoots),"Managed fallback discovers exactly the same cache roots as native traversal");
+  }}finally{DirectoryIndex.ForceFallback=false;}
+  string outside=Path.Combine(root,"personal-outside"),link=Path.Combine(local,"LinkedVendor");Directory.CreateDirectory(Path.Combine(outside,"Product\\Cache"));
+  var junction=Process.Start(new ProcessStartInfo("powershell.exe","-NoProfile -NonInteractive -Command \"New-Item -ItemType Junction -Path '"+link.Replace("'","''")+"' -Target '"+outside.Replace("'","''")+"' | Out-Null\""){UseShellExecute=false,CreateNoWindow=true});junction.WaitForExit();check(junction.ExitCode==0,"Discovery redirection fixture is created inside the isolated workspace");
+  using(var direct=DirectoryIndex.OpenForDiscovery(link))using(var ancestor=DirectoryIndex.OpenForDiscovery(Path.Combine(link,"Product"))){check(direct==null&&ancestor==null,"Discovery handles reject both direct reparse directories and redirected ancestors by their final resolved path");}
+  var redirected=HeuristicScanner.DiscoverUnder(new[]{Path.Combine(link,"Product")},new DiscoveryResult(),new Rule[0],CancellationToken.None,null);check(redirected.Count==0&&Directory.Exists(Path.Combine(outside,"Product\\Cache")),"A redirected discovery base cannot expose or modify an outside cache");
   bool canceled=false;try{HeuristicScanner.DiscoverUnder(new[]{local},new DiscoveryResult(),known,new CancellationToken(true),null);}catch(OperationCanceledException){canceled=true;}check(canceled,"Expanded AppData discovery honors cancellation before traversing the scope");
   var catalog=RuleBook.Create();check(catalog.Select(r=>r.Id).Distinct().Count()==catalog.Count&&catalog.All(r=>r.Roots.All(p=>!ScanPolicy.Excluded(p))),"Expanded built-in catalog retains unique IDs and excludes the Windows system directory");
  }

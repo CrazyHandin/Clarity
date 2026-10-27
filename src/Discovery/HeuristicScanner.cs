@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 namespace ClearSpace {
 public static class HeuristicScanner {
- public static Rule CacheRule(string id,string directory,string owner,string[] processes){return new Rule(id,"疑似缓存 · "+owner,"软件缓存","按缓存目录特征识别并读取目录全部文件，包括无扩展名、二进制与子目录内容。普通候选保留最近 1 天及个人资料；保留内容可在高级模式单独自选。","无法确认每个文件可重建；可能重置软件状态、丢失离线内容。默认不选，清理前核对路径，所有未知缓存强制先备份。",new[]{directory},1,false,processes){Software=owner,Part=Path.GetFileName(directory)+"（疑似）",GroupOverride="软件缓存",Heuristic=true,Notice=true,AllowManual=true,ManualIgnoresPersonalNames=true,ExcludedNames=PathPolicy.SensitiveNames,Detection="启发式依据：缓存目录名与所在应用目录；读取全部文件并区分普通候选、需风险确认的保留内容与不可处理文件。\n无法确认可重建，不进入一键清理。"};}
+ public static Rule CacheRule(string id,string directory,string owner,string[] processes){return new Rule(id,"疑似缓存 · "+owner,"软件缓存","按缓存目录特征识别并读取目录全部文件，包括无扩展名、二进制与子目录内容。普通清理保留最近 1 天及个人资料。","无法确认每个文件可重建；可能重置软件状态、丢失离线内容。默认不选，清理前核对路径，所有未知缓存强制先备份。",new[]{directory},1,false,processes){Software=owner,Part=Path.GetFileName(directory)+"（疑似）",GroupOverride="软件缓存",Heuristic=true,Notice=true,AllowManual=true,ManualIgnoresPersonalNames=true,ExcludedNames=PathPolicy.SensitiveNames,Detection="启发式依据：缓存目录名与所在应用目录；读取全部文件并区分普通候选、需风险确认的保留内容与不可处理文件。\n无法确认可重建，不进入一键清理。"};}
  public static bool LooksPersonal(string path){try{using(var stream=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read)){byte[] head=new byte[32];int n=stream.Read(head,0,head.Length);if(n<4)return false;string text=Encoding.ASCII.GetString(head,0,n);return text.StartsWith("%PDF")||text.StartsWith("SQLite format 3")||head[0]==0x50&&head[1]==0x4b||head[0]==0x4d&&head[1]==0x5a||head[0]==0x89&&head[1]==0x50||head[0]==0xff&&head[1]==0xd8||text.StartsWith("{\\rtf");}}catch{return true;}}
  public static List<Rule> Discover(DiscoveryResult discovery,IEnumerable<Rule> known,CancellationToken token,Action<string> status,ScanSession session=null){
   string profile=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -21,28 +21,36 @@ public static class HeuristicScanner {
    token.ThrowIfCancellationRequested();if(report.Directories>=directoryLimit||rules.Count>=ruleLimit||report.Caches>=2048){report.Limited=true;break;}
    var item=queue.Dequeue();string current=Engine.Normalize(item.Item1);if(!seen.Add(current))continue;
    try{
-    if(!scopes.Any(p=>Inside(current,p))||excluded.Any(p=>Inside(current,p))||!Engine.SafeAncestors(Path.Combine(current,"probe")))continue;
+    if(!scopes.Any(p=>Inside(current,p))||excluded.Any(p=>Inside(current,p)))continue;
     report.Directories++;if(item.Item3>0&&Covered(current,knownScopes))continue;string name=Path.GetFileName(current);
     if(item.Item3>0&&PathPolicy.CacheName(name)&&PathPolicy.CacheBoundary(current)){
      // A known parent owns its whole cache, but a known child must not hide sibling caches.
      if(!Covered(current,knownScopes)){
       Tuple<string,string[]> label;if(!labels.TryGetValue(item.Item2,out label)){var owners=identities.Where(a=>!String.IsNullOrWhiteSpace(item.Item2)&&a.Text.IndexOf(item.Item2,StringComparison.OrdinalIgnoreCase)>=0).Take(5).Select(a=>a.App).ToArray();string app=owners.Length>0?owners[0].Name:item.Item2;var processes=owners.Select(a=>Path.GetFileNameWithoutExtension(a.Executable)).Where(p=>!String.IsNullOrEmpty(p)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();if(processes.Length==0)processes=new[]{item.Item2};label=Tuple.Create(String.IsNullOrWhiteSpace(app)?name:app,processes);labels[item.Item2]=label;}
-      string key=label.Item1+"\0"+name;Rule rule;if(!merged.TryGetValue(key,out rule)||rule.Roots.Length>=32){rule=CacheRule("heuristic-"+rules.Count,current,label.Item1,label.Item2);rule.ExcludedRoots=new string[0];rule.Detection="AppData 扩展识别：Local / Roaming / LocalLow 与应用缓存结构；目录名为 "+name+"。用途未经应用规则确认，默认不选并强制先备份。";rules.Add(rule);merged[key]=rule;}else rule.Roots=rule.Roots.Concat(new[]{current}).ToArray();
+      string key=label.Item1+"\0"+name;Rule rule;if(!merged.TryGetValue(key,out rule)||rule.Roots.Length>=32){rule=CacheRule("heuristic-"+rules.Count,current,label.Item1,label.Item2);rule.ExcludedRoots=new string[0];rule.Detection="缓存目录特征："+name+"。用途未经应用规则确认，默认不选并强制先备份。";rules.Add(rule);merged[key]=rule;}else rule.Roots=rule.Roots.Concat(new[]{current}).ToArray();
       rule.ExcludedRoots=rule.ExcludedRoots.Concat(roots.Where(r=>Inside(r,current)&&!r.Equals(current,StringComparison.OrdinalIgnoreCase))).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();report.Caches++;continue;
      }
      continue;
     }
-    if(item.Item3>=12){if(Directory.EnumerateDirectories(current).Any(p=>!Skip(Path.GetFileName(p))))report.Limited=true;continue;}
-    var children=Directory.EnumerateDirectories(current).Where(p=>!Skip(Path.GetFileName(p))).Take(513).Select(p=>new DirectoryInfo(p)).ToArray();if(children.Length>512)report.Limited=true;
+    if(item.Item3>=12){if(Directories(current,token,session).Any(p=>!Skip(p.Name)))report.Limited=true;continue;}
+    var children=Directories(current,token,session).Where(p=>!Skip(p.Name)).Take(513).ToArray();if(children.Length>512)report.Limited=true;
     foreach(var child in children.Take(512).OrderBy(d=>Priority(d.Name)).ThenBy(d=>d.Name,StringComparer.OrdinalIgnoreCase)){
      token.ThrowIfCancellationRequested();if((child.Attributes&(FileAttributes.ReparsePoint|FileAttributes.Offline))!=0||Skip(child.Name))continue;
      string owner=item.Item2;if(item.Item3==0||String.IsNullOrEmpty(owner)||new[]{"Microsoft","Tencent","Packages","Adobe","LocalCache","LocalState","RoamingState"}.Contains(owner,StringComparer.OrdinalIgnoreCase))owner=child.Name;
      if(Path.GetFileName(current).Equals("Packages",StringComparison.OrdinalIgnoreCase))owner=child.Name.Split('_')[0];queue.Enqueue(Tuple.Create(child.FullName,owner,item.Item3+1));
     }
    }catch(OperationCanceledException){throw;}catch{report.Unreadable++;}
-   if(status!=null&&report.Directories%256==0)status("扩展识别 AppData 缓存 · 已检查 "+report.Directories+" 个目录");
+   if(status!=null&&report.Directories%256==0)status("正在识别软件缓存 · 已检查 "+report.Directories+" 个目录");
   }
   discovery.CacheSearch=report;if(session!=null){session.Statistics.AppDataDirectories=report.Directories;session.Statistics.AppDataCacheRules=rules.Count;session.Statistics.AppDataLimited=report.Limited;}return rules;
+ }
+ static IEnumerable<ScanEntry> Directories(string directory,CancellationToken token,ScanSession session){
+  using(var index=DirectoryIndex.OpenForDiscovery(directory)){
+   if(index!=null){if(session!=null)session.Statistics.DiscoveryIndexReads++;foreach(var entry in index.Read(token))if((entry.Attributes&FileAttributes.Directory)!=0)yield return entry;yield break;}
+  }
+  if(!Engine.SafeAncestors(Path.Combine(directory,"probe")))throw new IOException("目录路径包含链接或无法验证。");
+  if(session!=null)session.Statistics.DiscoveryFallbackReads++;
+  foreach(var directoryInfo in new DirectoryInfo(directory).EnumerateDirectories()){token.ThrowIfCancellationRequested();yield return ScanEntry.From(directoryInfo);}
  }
  static bool Inside(string path,string root){return path.Equals(root,StringComparison.OrdinalIgnoreCase)||path.Length>root.Length&&path[root.Length]==Path.DirectorySeparatorChar&&path.StartsWith(root,StringComparison.OrdinalIgnoreCase);}
  static bool Covered(string path,HashSet<string> roots){string current=path;while(true){if(roots.Contains(current))return true;int split=current.LastIndexOf(Path.DirectorySeparatorChar);if(split<2)return false;current=current.Substring(0,split);}}
