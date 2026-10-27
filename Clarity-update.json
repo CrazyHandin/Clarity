@@ -1,23 +1,23 @@
 {
   "Schema": 1,
   "Version": "1.3.0",
-  "Build": 2,
+  "Build": 3,
   "Highlights": {
-    "zh-CN": "扩充软件缓存清理，优化扫描速度与结果展示。",
-    "en": "Expanded app cache cleanup and improved scanning speed and results."
+    "zh-CN": "扩充缓存清理，优化应用识别与界面体验。",
+    "en": "Expanded cache cleanup and improved app detection and the interface."
   },
   "Artifacts": [
     {
       "Name": "Clarity-1.3.0-setup.exe",
-      "Size": 2852812,
-      "SHA256": "0d7e3b904c99a63a3b522ca2ae2a9e84c0f7a255415117802ef9840f95a16a3f"
+      "Size": 2853829,
+      "SHA256": "f18ae16371c112047cf6eb0dfc2652a37e86b364733d4de576c8c3d70e92645d"
     },
     {
       "Name": "Clarity-1.3.0-portable.zip",
-      "Size": 633606,
-      "SHA256": "3f509e95a6e90c2f8cb5bff04e781317a3c3dbf8c43be68f7a236c8a77dbdd60"
+      "Size": 635221,
+      "SHA256": "7e0273fa6e7a1b05dab5c5fd8bec24ed1ad129093dce449bf97f3c3c7f6c3cca"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjMuMCIsIkJ1aWxkIjoyLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5omp5YWF6L2v5Lu257yT5a2Y5riF55CG77yM5LyY5YyW5omr5o+P6YCf5bqm5LiO57uT5p6c5bGV56S644CCIiwiZW4iOiJFeHBhbmRlZCBhcHAgY2FjaGUgY2xlYW51cCBhbmQgaW1wcm92ZWQgc2Nhbm5pbmcgc3BlZWQgYW5kIHJlc3VsdHMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4zLjAtc2V0dXAuZXhlIiwiU2l6ZSI6Mjg1MjgxMiwiU0hBMjU2IjoiMGQ3ZTNiOTA0Yzk5YTYzYTNiNTIyY2EyYWUyYTllODRjMGY3YTI1NTQxNTExNzgwMmVmOTg0MGY5NWExNmEzZiJ9LHsiTmFtZSI6IkNsYXJpdHktMS4zLjAtcG9ydGFibGUuemlwIiwiU2l6ZSI6NjMzNjA2LCJTSEEyNTYiOiIzZjUwOWU5NWE2ZTkwYzJmOGNiNWJmZjA0ZTc4MTMxN2EzYzNkYmY4YzQzYmU2OGY3YTIzNmM4YTc3ZGJkZDYwIn1dfQ==",
-  "Signature": "hEB+vxXHQ7MMzNW6AQdBeBwHGCHidIVtFwC2wQx4sHvqk/F2Q/ItnlKUR9utTKJpB8ReJXP7CMD3gY2D10NMO1Cv5/TZ/V9DyYixEUGuPgzNA+llL3RuahGOV6gsB/mD1TrMN0oMf1MzQdSRconDbKprs8EitBldN7xaUMKpHrjebdMehyT6tkXGRRIdEsf4RLbJ8N2R/B0rAFF3YZRF+GgXFMXkfx46O8HmllsUiSkel884o9pH3j3OeFbuBULDHB4u/LbOC3r4jH5D1lB42QEdsYYEqvatFzywK8GJMLaT9qV6lNKHf3aJqK592gefeJoTHfJ7Ps7XCYPLkTS//4hsAptC9bOtsE9gyEJnktdX1T8KjJxI1W7RdfLEYe8rftvDTBrkBqWG41AVfTZWCnIEFiTjJhnkQ3gzZCnC1wjH7yuvavYGjesdgXZ42hWxL74Hn7OWV5yi6FINTPa4wjGJwHc6o1JTIMOX6IGzckoGeaUtrCGuVCVLqulLBqtU"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjMuMCIsIkJ1aWxkIjozLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5omp5YWF57yT5a2Y5riF55CG77yM5LyY5YyW5bqU55So6K+G5Yir5LiO55WM6Z2i5L2T6aqM44CCIiwiZW4iOiJFeHBhbmRlZCBjYWNoZSBjbGVhbnVwIGFuZCBpbXByb3ZlZCBhcHAgZGV0ZWN0aW9uIGFuZCB0aGUgaW50ZXJmYWNlLiJ9LCJBcnRpZmFjdHMiOlt7Ik5hbWUiOiJDbGFyaXR5LTEuMy4wLXNldHVwLmV4ZSIsIlNpemUiOjI4NTM4MjksIlNIQTI1NiI6ImYxOGFlMTYzNzFjMTEyMDQ3Y2Y2ZWIwZGZjMjY1MmEzN2U4NmIzNjQ3MzNkNGRlNTc2YzhjM2Q3MGU5MjY0NWQifSx7Ik5hbWUiOiJDbGFyaXR5LTEuMy4wLXBvcnRhYmxlLnppcCIsIlNpemUiOjYzNTIyMSwiU0hBMjU2IjoiN2UwMjczZmE2ZTdhMWIwNWRhYjVjNWZkOGJlYzI0ZWQxYWQxMjkwOTNkY2U0NDliZjk3ZjNjM2M3ZjZjM2NjYSJ9XX0=",
+  "Signature": "W2THR+xuKd4G/mxJpl7F3hHIWZn9m0JDaHj03WuXsOBjs0jqdylSExFndB7C2re3PpVP8RdfohFin/Q6ELXX5SMoeMHSjVFMdaStXCuqAta7c77xNuybvVVViP5rT62H8wSyG4GrsCr1IXo4rCxiUNnIaovvfCUPbAQe/jSnKb2brDMJ7nUF3SoOiYmJ5248J/1m4LTrIr/SQDNECs6WQWSgbPYGE1L+qLFbyBoNyjaQPzz5DV3KnfDXPugnrCxy6ulljthlH/womgxtqUKe+qBKPXol7iCXcsoa2NwbUWJd1izme70WPzUAwrR0Huj7qfIHG0/9ed22ASnfPpdA586s53J34wQmISjcarTUoaVkSyDGUCi91u0fxoFGuXG1YryL984xtw6PUZPKENwnWvvgI2E1AgpH183eU/cyLunmImnmVCLFOR1ZPdfb/kYStkw76G89I3Vj4yRNGrXd2+dK5Qtfti5B4e/S3lzECL21rMxVjOxwytiB28Jz0wCs"
 }
