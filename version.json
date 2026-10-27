@@ -1,9 +1,9 @@
 {
   "channel": "stable",
   "version": "1.3.0",
-  "build": 2,
+  "build": 3,
   "highlights": {
-    "zh-CN": "扩充软件缓存清理，优化扫描速度与结果展示。",
-    "en": "Expanded app cache cleanup and improved scanning speed and results."
+    "zh-CN": "扩充缓存清理，优化应用识别与界面体验。",
+    "en": "Expanded cache cleanup and improved app detection and the interface."
   }
 }

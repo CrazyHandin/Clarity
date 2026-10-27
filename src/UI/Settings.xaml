@@ -18,7 +18,7 @@
             <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="25" Foreground="#39C5BB" VerticalAlignment="Center" HorizontalAlignment="Center" />
           </Border>
           <StackPanel VerticalAlignment="Center">
-            <TextBlock x:Name="Heading" Text="设置与备份" FontSize="26" FontWeight="SemiBold" />
+            <TextBlock x:Name="Heading" Text="设置与备份" FontSize="25" FontWeight="SemiBold" />
             <TextBlock Text="管理备份、扫描目录与清理规则" Foreground="#9DB5C3" FontSize="14" Margin="0,3,0,0" />
           </StackPanel>
         </StackPanel>
@@ -32,8 +32,8 @@
       <TabControl x:Name="RulesTabs" Grid.Row="1" Margin="0,20,0,0" BorderBrush="#344651" Foreground="#DFEAF2" SelectedIndex="0">
         <TabItem x:Name="GeneralTab" Header="常规设置">
           <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="18">
-              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18">
+            <StackPanel Margin="20">
+              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22">
                 <StackPanel>
                   <Grid Margin="0,2,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center" Margin="0,0,20,0"><TextBlock Text="界面主题" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="选择应用的外观主题" Foreground="#9DB5C3" FontSize="13" Margin="0,6,0,0"/></StackPanel>
@@ -56,31 +56,23 @@
                   </Grid>
                 </StackPanel>
               </local:GlassPanel>
-              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
-                <StackPanel>
-                  <TextBlock Text="扫描加速" FontSize="18" FontWeight="SemiBold" />
-                  <CheckBox x:Name="ScanCacheChoice" Content="启用本地扫描缓存" Margin="0,12,0,10" />
-                  <TextBlock Text="复用已识别信息，加快再次扫描。仅保存在本机，可随时清除。" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,12" />
-                  <Button x:Name="ClearScanCache" Content="清除扫描缓存" HorizontalAlignment="Left" />
-                </StackPanel>
+              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" Margin="0,14,0,0">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <StackPanel Margin="0,0,24,0"><TextBlock Text="扫描加速" FontSize="18" FontWeight="SemiBold"/><CheckBox x:Name="ScanCacheChoice" Content="启用本地扫描缓存" Margin="0,12,0,8"/><TextBlock Text="复用已识别信息，加快再次扫描。仅保存在本机，可随时清除。" Foreground="#A7BFCD" FontSize="13" TextWrapping="Wrap"/></StackPanel>
+                  <Button Grid.Column="1" x:Name="ClearScanCache" Content="清除扫描缓存" MinWidth="176" Height="42" VerticalAlignment="Center"/>
+                </Grid>
               </local:GlassPanel>
-              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
-                <StackPanel>
-                  <TextBlock Text="管理员模式" FontSize="18" FontWeight="SemiBold" />
-                  <TextBlock x:Name="PrivilegeState" Foreground="#A7BFCD" FontSize="14" Margin="0,12,0,14" />
-                  <Button x:Name="AdminMode" Content="以管理员身份重新启动" HorizontalAlignment="Left" Background="#3B3323" Foreground="#FFE6A3" BorderBrush="#E8BE58" FontWeight="SemiBold" />
-                  <TextBlock Text="重启后仍需手动扫描。" Foreground="#91AAB9" FontSize="14" TextWrapping="Wrap" Margin="0,14,0,0" />
-                </StackPanel>
+              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" Margin="0,14,0,0">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <StackPanel Margin="0,0,24,0"><TextBlock Text="管理员模式" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="PrivilegeState" Foreground="#A7BFCD" FontSize="14" Margin="0,10,0,6"/><TextBlock Text="重启后仍需手动扫描。" Foreground="#91AAB9" FontSize="13" TextWrapping="Wrap"/></StackPanel>
+                  <Button Grid.Column="1" x:Name="AdminMode" Content="以管理员身份重新启动" MinWidth="176" Height="42" VerticalAlignment="Center" Background="#3B3323" Foreground="#FFE6A3" BorderBrush="#E8BE58" FontWeight="SemiBold"/>
+                </Grid>
               </local:GlassPanel>
-              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0">
-                <StackPanel>
-                  <TextBlock Text="清理记录" FontSize="18" FontWeight="SemiBold" />
-                  <TextBlock x:Name="HistoryLocation" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,10,0,12" />
-                  <WrapPanel>
-                    <Button x:Name="OpenHistory" Content="打开清理记录" Margin="0,0,10,0" />
-                    <Button x:Name="OpenHistoryFolder" Content="打开记录文件夹" />
-                  </WrapPanel>
-                </StackPanel>
+              <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" Margin="0,14,0,0">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <StackPanel Margin="0,0,24,0" VerticalAlignment="Center"><TextBlock Text="清理记录" FontSize="18" FontWeight="SemiBold"/><TextBlock x:Name="HistoryLocation" Foreground="#A7BFCD" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,10,0,0"/></StackPanel>
+                  <StackPanel Grid.Column="1"><Button x:Name="OpenHistory" Content="打开清理记录" MinWidth="176" Height="40" Margin="0,0,0,8"/><Button x:Name="OpenHistoryFolder" Content="打开记录文件夹" MinWidth="176" Height="40"/></StackPanel>
+                </Grid>
               </local:GlassPanel>
             </StackPanel>
           </ScrollViewer>

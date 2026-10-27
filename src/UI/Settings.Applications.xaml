@@ -24,7 +24,7 @@
   </Setter>
 </Style></UserControl.Resources><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
   <StackPanel Margin="18">
-    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
+    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
@@ -51,7 +51,7 @@
         <TextBox x:Name="AppEvidence" Grid.Row="3" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="105" VerticalScrollBarVisibility="Auto" Background="#25333E" Foreground="#BBD2DE" BorderThickness="0" Margin="0,12,0,0" Padding="9" FontSize="14" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
       </Grid>
     </local:GlassPanel>
-    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,14,0,0" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
+    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" Margin="0,14,0,0" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
       <Expander x:Name="PortableExpander" IsExpanded="False" Foreground="#DFEAF2" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
         <Expander.Header>
           <TextBlock Text="便携 / 自定义软件目录" FontSize="16" FontWeight="SemiBold" />

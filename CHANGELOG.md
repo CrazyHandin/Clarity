@@ -4,7 +4,7 @@
 
 | Version | Main changes |
 | --- | --- |
-| 1.3.0 | Expand app cache cleanup and improve scanning speed and results. |
+| 1.3.0 | Expand cache cleanup and improve app detection and the interface. |
 | 1.2.3 | Update the Liquid Glass appearance with selectable Lightweight and Enhanced Refraction modes. |
 | 1.2.2 | Bug fixes. |
 | 1.2.1 | Add batched directory-index scanning and enable Winapp2 by default; refresh clear glass surfaces and improve settings navigation with lazy loading. |

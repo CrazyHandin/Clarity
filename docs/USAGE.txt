@@ -33,7 +33,7 @@ Winapp2 规则独立存放在 rules\Winapp2.ini，程序使用前校验随附快
 范围卡片的整个区域均可点击；扫描取消及设置保存等消息在窗口上部显示，两秒后自动消失。
 
 开始清理
-1. 打开软件不会自动扫描。选择模式后点击“开始扫描”。
+1. 打开软件不会自动扫描。选择范围与模式后点击右上方的“开始扫描”。“全选／清空”可批量调整范围。
 2. 快速扫描为默认，仅扫描内置的一键清理规则，使用简洁清理。
 3. 常规扫描包含应用发现、外部规则和未知缓存，可使用高级自选。
 4. 查看容量、项目说明和风险后清理。选中风险项目时弹窗确认。
@@ -165,7 +165,7 @@ Click anywhere on a scope card to select it. Scan cancellation and saved-setting
 Windows folder pickers and UAC prompts follow the Windows display language.
 
 Start cleaning
-1. Opening Clarity does not start a scan. Choose a mode and click Start scan.
+1. Opening Clarity does not start a scan. Choose scopes and a mode, then click Start scan at the upper right. Use Select all or Clear to adjust all scopes.
 2. Quick scan is the default and appears first. It checks built-in, one-click-eligible rules only.
 3. Regular scan appears below Quick scan. It includes app discovery, external rules, and unknown caches.
 4. Review sizes, explanations, and risks. Quick scan provides Simple cleanup; Regular scan also offers Advanced selection.

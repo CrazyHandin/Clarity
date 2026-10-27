@@ -5,7 +5,7 @@
       <ColumnDefinition Width="1.45*" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
-    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" Margin="0,0,14,0" VerticalAlignment="Top" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
+    <local:GlassPanel Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" Margin="0,0,14,0" VerticalAlignment="Top" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
       <StackPanel>
         <TextBlock Text="文件备份" FontSize="18" FontWeight="SemiBold" />
         <TextBlock Text="备份保存位置" Foreground="#A7BFCD" FontSize="14" Margin="0,14,0,0" />
@@ -26,7 +26,7 @@
         <TextBlock Text="文件备份仅支持本机、本账户恢复。清空备份后无法再从该批次恢复。" Foreground="#91AAB9" TextWrapping="Wrap" FontSize="14" Margin="0,5,0,0" />
       </StackPanel>
     </local:GlassPanel>
-    <local:GlassPanel Grid.Column="1" Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="12" Padding="18" VerticalAlignment="Top" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
+    <local:GlassPanel Grid.Column="1" Background="#202D37" BorderBrush="#344651" BorderThickness="1" CornerRadius="16" Padding="22" VerticalAlignment="Top" xmlns:local="clr-namespace:ClearSpace;assembly=Clarity">
       <StackPanel>
         <TextBlock Text="注册表备份" FontSize="18" FontWeight="SemiBold" />
         <TextBlock Text="恢复清理前备份的缺失注册表项，保留现有项目。" Foreground="#A7BFCD" FontSize="14" TextWrapping="Wrap" Margin="0,12,0,14" />

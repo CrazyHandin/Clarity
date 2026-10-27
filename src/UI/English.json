@@ -1111,5 +1111,7 @@
   " · 风险删除": " · Risk deletion",
   "缓存目录特征：": "Cache directory pattern: ",
   "。用途未经应用规则确认，默认不选并强制先备份。": ". Purpose is unverified; unchecked by default, with mandatory backup.",
-  "正在识别软件缓存 · 已检查 ": "Identifying app caches · Checked "
+  "正在识别软件缓存 · 已检查 ": "Identifying app caches · Checked ",
+  "已选范围 ": "Selected scopes: ",
+  "全选": "Select all"
 }
