@@ -46,6 +46,7 @@ public sealed class CleanNode : INotifyPropertyChanged {
  public double TitleSize{get{return Depth==0?18:Depth==1?16:14;}}
  public FontWeight TitleWeight{get{return Depth<2?FontWeights.SemiBold:FontWeights.Normal;}}
  public Brush TitleColor{get{return App.Brush(Depth==0?"#ECF3F8":Depth==1?"#DAE6EE":"#BFD0DD");}}
+ public Brush RowBackground{get{return App.Brush(Depth==0?"#25343F":Depth==1?"#253440":"#253441");}}
  string RiskCode{get{var list=Leaves().ToList();return list.Any(n=>n.Finding.ManualOverride)?"override":list.Any(n=>n.Finding.Rule.InfoKind=="system-disk-cleanup")?"system":list.All(n=>n.Finding.Rule.Protected||n.Finding.Running)?"protected":list.Any(n=>n.Finding.Rule.Heuristic)?"heuristic":list.Any(n=>n.Finding.Rule.ForceBackup)?"community":list.Any(n=>n.Finding.Rule.Privacy)?"privacy":list.Any(n=>!n.Finding.Rule.Quick&&!n.Finding.Rule.Protected)?"manual":"quick";}}
  public string Risk{get{return RiskCode=="override"?(IsLeaf?"风险删除 · 先备份":"含风险删除"):RiskCode=="system"?(IsLeaf?"系统清理 · 不可恢复":"含系统清理"):RiskCode=="protected"?"保留":RiskCode=="heuristic"?"疑似 · 需核对":RiskCode=="community"?(IsLeaf?"社区 · 先备份":"含社区项"):RiskCode=="privacy"?"使用痕迹":RiskCode=="quick"?"低风险":IsLeaf?"需确认":"含需确认项";}}
  public Brush RiskColor{get{return App.Brush(RiskCode=="override"||RiskCode=="system"?"#FFADA2":RiskCode=="protected"?"#87B5DF":RiskCode=="privacy"?"#F69DB5":RiskCode=="quick"?"#39C5BB":"#F2B868");}}
