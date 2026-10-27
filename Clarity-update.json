@@ -1,23 +1,23 @@
 {
   "Schema": 1,
-  "Version": "1.2.3",
-  "Build": 10,
+  "Version": "1.3.0",
+  "Build": 1,
   "Highlights": {
-    "zh-CN": "更新液态玻璃外观，优化弹窗的打开与拖动体验。",
-    "en": "Updated Liquid Glass and improved popup opening and dragging."
+    "zh-CN": "新增 AppData 扩展识别，补全常用软件与多配置缓存，扩充低风险清理，并说明未能清理的原因。",
+    "en": "Added extended AppData discovery, broader app and multi-profile cache coverage, more low-risk cleanup, and clearer reasons for retained files."
   },
   "Artifacts": [
     {
-      "Name": "Clarity-1.2.3-setup.exe",
-      "Size": 2844294,
-      "SHA256": "73b3f49755c65da183b64bafd4ed7a8d21af6db972d44c3d7c235406984ed58d"
+      "Name": "Clarity-1.3.0-setup.exe",
+      "Size": 2852662,
+      "SHA256": "e93cc30175c10ce8516793daa4a6e27aa51acbe30fb5d6bddd12a6bc97b019e1"
     },
     {
-      "Name": "Clarity-1.2.3-portable.zip",
-      "Size": 618678,
-      "SHA256": "a025ea2fd0fb9c19b01187adcaad07682b93f2f180bdfda695eda289b48780ae"
+      "Name": "Clarity-1.3.0-portable.zip",
+      "Size": 633628,
+      "SHA256": "c0faad5fe6889f4982daa182fe066b424dfe9637c7068beb2f716ca33bcf29f1"
     }
   ],
-  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjIuMyIsIkJ1aWxkIjoxMCwiSGlnaGxpZ2h0cyI6eyJ6aC1DTiI6IuabtOaWsOa2suaAgeeOu+eSg+Wkluingu+8jOS8mOWMluW8ueeql+eahOaJk+W8gOS4juaLluWKqOS9k+mqjOOAgiIsImVuIjoiVXBkYXRlZCBMaXF1aWQgR2xhc3MgYW5kIGltcHJvdmVkIHBvcHVwIG9wZW5pbmcgYW5kIGRyYWdnaW5nLiJ9LCJBcnRpZmFjdHMiOlt7Ik5hbWUiOiJDbGFyaXR5LTEuMi4zLXNldHVwLmV4ZSIsIlNpemUiOjI4NDQyOTQsIlNIQTI1NiI6IjczYjNmNDk3NTVjNjVkYTE4M2I2NGJhZmQ0ZWQ3YThkMjFhZjZkYjk3MmQ0NGMzZDdjMjM1NDA2OTg0ZWQ1OGQifSx7Ik5hbWUiOiJDbGFyaXR5LTEuMi4zLXBvcnRhYmxlLnppcCIsIlNpemUiOjYxODY3OCwiU0hBMjU2IjoiYTAyNWVhMmZkMGZiOWMxOWIwMTE4N2FkY2FhZDA3NjgyYjkzZjJmMTgwYmRmZGE2OTVlZGEyODliNDg3ODBhZSJ9XX0=",
-  "Signature": "gyfXPIsxy2FIf0GAl4kHNSDay0W1CH9f0NUz0qgM6bBdn2c3FLQJHC7Xl3504RAI4FKxj7cMOm0GASyLzLR0VBKqp8swz5ibhMMXdDBgxUixa/Ab/gDhjv4pKKIb3ZxHqAVUypGQJ964XvMWNdKyrbOacPKYR1aCpj0/CHybXo5O5E89gqhxgx/ExVI0TpE2Gxwrst2W7JlMbWI22GM7v5jvxIzWDPnypi4GIh5S3nssY3dbitbWYZMbIDOWaP+EmaBqeO+WSJh0TWIxz+dcp6HB2laLGBCgUrhwzB1KgA0KXVthYnY5N5S5ffnD+uacRnVsO05H84+6yLEI4LAplOfKlz6Mp9OiyYYqcHVXqF8wQYsrb+HifbgCByUU35Y/+zr7BWcnnimOR1gfGHQq8KMAuQ0YIuUFvmEuFHB5Vh5G/9R+HTIu6djq8h78VEmYZngNkF1tqN0CiGR2vyRz6CTTw3O8eQNW9pP/Q3UEkOTUY5/0WAsEj4OPzI8x5Rk+"
+  "SignedPayload": "eyJTY2hlbWEiOjEsIlZlcnNpb24iOiIxLjMuMCIsIkJ1aWxkIjoxLCJIaWdobGlnaHRzIjp7InpoLUNOIjoi5paw5aKeIEFwcERhdGEg5omp5bGV6K+G5Yir77yM6KGl5YWo5bi455So6L2v5Lu25LiO5aSa6YWN572u57yT5a2Y77yM5omp5YWF5L2O6aOO6Zmp5riF55CG77yM5bm26K+05piO5pyq6IO95riF55CG55qE5Y6f5Zug44CCIiwiZW4iOiJBZGRlZCBleHRlbmRlZCBBcHBEYXRhIGRpc2NvdmVyeSwgYnJvYWRlciBhcHAgYW5kIG11bHRpLXByb2ZpbGUgY2FjaGUgY292ZXJhZ2UsIG1vcmUgbG93LXJpc2sgY2xlYW51cCwgYW5kIGNsZWFyZXIgcmVhc29ucyBmb3IgcmV0YWluZWQgZmlsZXMuIn0sIkFydGlmYWN0cyI6W3siTmFtZSI6IkNsYXJpdHktMS4zLjAtc2V0dXAuZXhlIiwiU2l6ZSI6Mjg1MjY2MiwiU0hBMjU2IjoiZTkzY2MzMDE3NWMxMGNlODUxNjc5M2RhYTRhNmUyN2FhNTFhY2JlMzBmYjVkNmJkZGQxMmE2YmM5N2IwMTllMSJ9LHsiTmFtZSI6IkNsYXJpdHktMS4zLjAtcG9ydGFibGUuemlwIiwiU2l6ZSI6NjMzNjI4LCJTSEEyNTYiOiJjMGZhYWQ1ZmU2ODg5ZjQ5ODJkYWExODJmZTA2NmI0MjRkZmU5NjM3YzcwNjhiZWIyZjcxNmNhMzNiY2YyOWYxIn1dfQ==",
+  "Signature": "X9Wix2eEpdQa2DCovuV+3wFBo8nw8oL1deKDNJ3QTQ1cR8sz3y9cNtxqkKbPL5EMdyng81TfADZU03rKybSWZvZjq+W5HjYgO8RSPaxTWhb9UZ3o3ezxTKlBpxbZ6UTL9uO9XAzSNBPabRZN3xDR15UFdOiEaCUHK5XAMIfjjy5BoNwJEHud0usk/ShjvKHCofU2r1XYUDmh2sPf9XJ73IkOhZg+bVaL06AcnXGMrzanh8k72d/JS+UOMrXzVaWp/ApuZHLlKEAtG4l7alzdxSl1ov4qavyO2fNAiocIBVIgCp+Sb6ArzoGjYIkaXXvH5fzr0iAfzvkqusnOuCEQFGE9ECFUO+9tKOX/HtvcR9MIcKzK5sS+UdY8/+CrK8TlvAn6uBRRn8Pehe37UCCnTFUbEbNfL4gsIV71TeU/d+1YGqmVye1XuP8yKFx+v4Ia2VezpKjbj/PnsQe5l3iloStv5XS6JUBHItNJU5lf2yfwS0AqSkn0mLfDTOvVzLrd"
 }
