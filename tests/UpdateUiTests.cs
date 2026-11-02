@@ -10,6 +10,18 @@ using System.Windows.Input;
 using System.Windows.Media;
 namespace ClearSpace {
 public sealed partial class Controller {
+ void VerifyDownloadProgressAppearance(SoftwareUpdateView view,string output,Action<bool,string> check){
+  double width=view.Window.Width;string theme=UiTheme.Light?"light":"dark";long total=1024*1024;
+  try{
+   view.Progress.ApplyTemplate();var track=view.Progress.Template.FindName("PART_Track",view.Progress)as FrameworkElement;var fill=view.Progress.Template.FindName("PART_Indicator",view.Progress)as FrameworkElement;
+   check(track!=null&&fill!=null,"The integrated download bar exposes the native progress measurement parts");
+   foreach(string appearance in new[]{"dark","light"})foreach(double size in new[]{660.0,520.0}){
+    UiTheme.Set(appearance,false);view.Window.Width=size;
+    foreach(int percent in new[]{0,50,100}){SetDownloadProgress(view,total*percent/100,total);view.Window.UpdateLayout();check(track.ActualWidth>0&&Math.Abs(fill.ActualWidth-track.ActualWidth*percent/100.0)<=1.5,"Download fill reflects "+percent+" percent after resizing in "+appearance+" at "+size);}
+    SetDownloadProgress(view,total/2,total);App.Render(view.Window,Path.Combine(output,"download-progress-"+appearance+"-"+(int)size+".png"));
+   }
+  }finally{UiTheme.Set(theme,false);view.Window.Width=width;SetDownloadProgress(view,total/2,total);view.Window.UpdateLayout();}
+ }
  async Task VerifyUpdateUi(string output,Action<bool,string> check){
   ShowReady();UiText.SetLanguage("zh-CN");check(Get<Button>("ExportButton")==null&&scanMode.Items[0].ToString()=="快速扫描"&&scanMode.Items[1].ToString()=="常规扫描","The toolbar omits log export and scan modes have concise names");
   var loader=SoftwareCheck;var previous=softwareRelease;var show=ShowSoftwareDialog;var downloader=SoftwareDownload;var sessions=SoftwareSession;var popups=new List<Window>();int windows=Application.Current.Windows.Count;
@@ -32,7 +44,7 @@ public sealed partial class Controller {
    SoftwareCheck=token=>offer();await CheckSoftwareUpdatesAsync(true);var dialog=softwareDialog;check(dialog!=null&&dialog.Window.Width<Window.Width&&pages.Last()==about&&dialog.Install.IsEnabled,"A manual check with an update opens a small download window while About stays in place");App.Render(dialog.Window,Path.Combine(output,"software-update.png"));
    UiText.SetLanguage("en");check(((TextBlock)dialog.Window.FindName("SoftwareNotes")).Text==ReleaseHighlights.English&&((Button)about.FindName("ReleaseNotesButton")).Content.ToString()=="What's new in this version","The summary dialog and About controls follow the English interface");App.Render(dialog.Window,Path.Combine(output,"software-update-english.png"));
    var entered=new TaskCompletionSource<bool>();SoftwareSession=()=>Path.Combine(output,"fixture-update-session");SoftwareDownload=(asset,directory,token,progress)=>{progress(asset.Size/2,asset.Size);entered.TrySetResult(true);token.WaitHandle.WaitOne();token.ThrowIfCancellationRequested();throw new IOException("Fixture download must be cancelled");};dialog.Install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));var downloading=LastSoftwareOperation;await entered.Task;await Task.Delay(60);
-   check(dialog.Progress.Visibility==Visibility.Visible&&dialog.Progress.Value==50&&dialog.ProgressText.Text.StartsWith("50%")&&dialog.ProgressText.Text.Contains("512.0 KB / 1.0 MB")&&dialog.Cancel.Visibility==Visibility.Visible&&!dialog.Install.IsEnabled,"The download window shows real byte progress, percentage and total size while preventing duplicate downloads");App.Render(dialog.Window,Path.Combine(output,"software-download.png"));dialog.Cancel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await downloading;check(!installingSoftware&&dialog.Install.IsEnabled&&dialog.State.Text.Contains("cancelled")&&dialog.Window.IsVisible,"Cancelling download leaves the current app and update dialog available for retry");dialog.Later.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+   check(dialog.Progress.Visibility==Visibility.Visible&&dialog.Progress.Value==50&&dialog.ProgressText.Text.StartsWith("50%")&&dialog.ProgressText.Text.Contains("512.0 KB / 1.0 MB")&&dialog.Cancel.Visibility==Visibility.Visible&&!dialog.Install.IsEnabled,"The download window shows real byte progress, percentage and total size while preventing duplicate downloads");VerifyDownloadProgressAppearance(dialog,output,check);App.Render(dialog.Window,Path.Combine(output,"software-download.png"));dialog.Cancel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await downloading;check(!installingSoftware&&dialog.Install.IsEnabled&&dialog.State.Text.Contains("cancelled")&&dialog.Window.IsVisible,"Cancelling download leaves the current app and update dialog available for retry");dialog.Later.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   }finally{if(softwareDownloadStop!=null)softwareDownloadStop.Cancel();foreach(var popup in popups)if(popup.IsVisible)popup.Close();SoftwareCheck=loader;SoftwareDownload=downloader;SoftwareSession=sessions;ShowSoftwareDialog=show;softwareRelease=previous;RefreshSoftwareUpdateState();while(pages.Count>0)BackPage();UiText.SetLanguage("zh-CN");UiMotion.SetEnabled(Window,false);}
  }
 }
