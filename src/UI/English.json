@@ -136,6 +136,7 @@
   "注册表": "Registry",
   "需确认项目默认不选": "Review-required items are unchecked by default",
   "快速扫描 · 内置低风险项目": "Quick scan · Built-in low-risk items",
+  "可勾选需要清理的项目": "Select the items you want to clean",
   "仅处理低风险缓存": "Only eligible low-risk caches",
   " 项注册表": " registry entries",
   " + 系统清理": " + Windows cleanup",

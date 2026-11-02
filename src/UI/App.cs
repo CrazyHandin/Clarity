@@ -67,7 +67,7 @@ public sealed partial class Controller {
  public Func<CleanResult,bool> ConfirmAdministrator;public Action ElevateAction;public Func<bool> AdministratorState=App.IsAdmin;public Func<IList<Finding>,bool,bool> ConfirmCleanup;public Action<string> OpenBackupFolder=BackupFolders.Open;Rule systemRule=SystemDiskCleanup.CreateRule();Finding systemFinding;CheckBox systemOption;
  CleanerSettings settings=CleanerSettings.Load();ScanSession activeScanSession;public ScanStatistics LastScanStatistics;bool quickScan;ComboBox scanMode;
  Engine engine=new Engine(new List<Rule>());List<GroupOption> groups=new List<GroupOption>();List<CleanNode> leaves=new List<CleanNode>(),treeNodes=new List<CleanNode>();
- bool busy,advanced,hasScanned;
+ bool busy,advanced,hasScanned;bool CanSelectResults{get{return advanced||quickScan;}}
 #if CLARITY_TESTS
  bool testMode;
 #endif
@@ -95,7 +95,7 @@ public sealed partial class Controller {
   Get<Button>("OpenFolderButton").Click+=(s,e)=>OpenFolder();
   tree.AddHandler(Button.ClickEvent,new RoutedEventHandler((s,e)=>{var button=e.OriginalSource as Button;if(button!=null&&button.Tag as string=="info"){detailNode=button.DataContext as CleanNode;ShowDetail();e.Handled=true;}}));
   tree.PreviewMouseLeftButtonUp+=(s,e)=>{
-   if(!advanced||busy)return;var source=e.OriginalSource as DependencyObject;var current=source;
+   if(!CanSelectResults||busy)return;var source=e.OriginalSource as DependencyObject;var current=source;
    while(current!=null&&current!=tree){if(current is CheckBox||current is Button||current is ToggleButton||current is ScrollBar)return;var content=current as FrameworkContentElement;current=content!=null?content.Parent:VisualTreeHelper.GetParent(current);}
    var item=ItemsControl.ContainerFromElement(tree,source)as TreeViewItem;if(item==null)return;var node=item.DataContext as CleanNode;if(node!=null&&node.IsLeaf&&node.Selectable)node.Selected=node.Selected!=true;
   };
@@ -144,7 +144,7 @@ public sealed partial class Controller {
   catch(Exception ex){leaves.Clear();hasScanned=false;busy=false;ShowReady();Status("扫描未完成："+ex.Message);}
   finally{SetBusy(false,"");if(!hasScanned){phase="ready";scan.Content="开始扫描";clean.IsEnabled=false;}cancellation.Dispose();}
  }
- CleanNode Leaf(Finding f,string title){var n=new CleanNode{Finding=f,Title=title,Depth=2,ShowChecks=advanced,Changed=UpdateSelection};n.Selected=f.Rule.Quick&&!f.ManualOverride&&!f.Rule.Protected;return n;}
+ CleanNode Leaf(Finding f,string title){var n=new CleanNode{Finding=f,Title=title,Depth=2,ShowChecks=CanSelectResults,Changed=UpdateSelection};n.Selected=f.Rule.Quick&&!f.ManualOverride&&!f.Rule.Protected;return n;}
  void Apply(List<Finding> findings){
   hasScanned=true;leaves=new List<CleanNode>();if(!engine.Rules.Contains(systemRule))engine.Rules.Add(systemRule);systemFinding=engine.ScanRule(systemRule,CancellationToken.None);systemOption.IsEnabled=!busy&&systemFinding.VirtualItems>0;
   foreach(var f in findings.Where(f=>f.Rule.InfoKind!="system-disk-cleanup")){
@@ -162,12 +162,12 @@ public sealed partial class Controller {
   return source.ToList();
  }
  void RefreshTree(){
-  if(tree==null||!hasScanned)return;var visible=VisibleLeaves();foreach(var n in leaves){n.ShowChecks=advanced;n.Depth=2;}treeNodes=new List<CleanNode>();
-  foreach(string name in Groups.Names){var inGroup=visible.Where(n=>n.Finding.Rule.Group==name).ToList();if(inGroup.Count==0)continue;var root=new CleanNode{Title=name,Depth=0,Icon=groups.First(g=>g.Name==name).Icon,ShowChecks=advanced,Expanded=name=="软件缓存"||name=="网页缓存",Changed=UpdateSelection};
+  if(tree==null||!hasScanned)return;var visible=VisibleLeaves();foreach(var n in leaves){n.ShowChecks=CanSelectResults;n.Depth=2;}treeNodes=new List<CleanNode>();
+  foreach(string name in Groups.Names){var inGroup=visible.Where(n=>n.Finding.Rule.Group==name).ToList();if(inGroup.Count==0)continue;var root=new CleanNode{Title=name,Depth=0,Icon=groups.First(g=>g.Name==name).Icon,ShowChecks=CanSelectResults,Expanded=name=="软件缓存"||name=="网页缓存",Changed=UpdateSelection};
    if(name=="保留项目"){
     var community=inGroup.Where(n=>n.Finding.Rule.Source==Winapp2Store.Url&&(n.Finding.Rule.Category=="软件缓存"||n.Finding.Rule.Category=="网页缓存")).ToList();
     foreach(var category in community.GroupBy(n=>n.Finding.Rule.Category).OrderBy(g=>g.Key=="软件缓存"?0:1)){
-     var apps=category.GroupBy(n=>n.Finding.Rule.Software??n.Finding.Rule.Title).OrderByDescending(a=>a.Sum(n=>n.Finding.EligibleBytes)).Select(app=>SoftwareNode(app,2)).ToList();root.Children.Add(new CleanNode{Title=category.Key,Depth=1,Children=apps,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection});
+     var apps=category.GroupBy(n=>n.Finding.Rule.Software??n.Finding.Rule.Title).OrderByDescending(a=>a.Sum(n=>n.Finding.EligibleBytes)).Select(app=>SoftwareNode(app,2)).ToList();root.Children.Add(new CleanNode{Title=category.Key,Depth=1,Children=apps,ShowChecks=CanSelectResults,Expanded=search.Text.Length>0,Changed=UpdateSelection});
     }
     inGroup=inGroup.Except(community).ToList();
    }
@@ -179,13 +179,13 @@ public sealed partial class Controller {
   tree.ItemsSource=treeNodes;Get<TextBlock>("EmptyText").Visibility=visible.Count==0?Visibility.Visible:Visibility.Collapsed;Get<TextBlock>("ResultCount").Text=visible.Count+" 项";UpdateSelection();
  }
  CleanNode SoftwareNode(IGrouping<string,CleanNode> app,int depth){
-  var children=app.Where(n=>!n.Finding.Rule.Heuristic).ToList();foreach(var node in children)node.Depth=depth+1;var unknown=app.Where(n=>n.Finding.Rule.Heuristic).ToList();if(unknown.Count>0){foreach(var node in unknown)node.Depth=depth+2;children.Add(new CleanNode{Title="未知缓存",Depth=depth+1,Children=unknown,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection});}return new CleanNode{Title=app.Key,Depth=depth,Children=children,ShowChecks=advanced,Expanded=search.Text.Length>0,Changed=UpdateSelection};
+  var children=app.Where(n=>!n.Finding.Rule.Heuristic).ToList();foreach(var node in children)node.Depth=depth+1;var unknown=app.Where(n=>n.Finding.Rule.Heuristic).ToList();if(unknown.Count>0){foreach(var node in unknown)node.Depth=depth+2;children.Add(new CleanNode{Title="未知缓存",Depth=depth+1,Children=unknown,ShowChecks=CanSelectResults,Expanded=search.Text.Length>0,Changed=UpdateSelection});}return new CleanNode{Title=app.Key,Depth=depth,Children=children,ShowChecks=CanSelectResults,Expanded=search.Text.Length>0,Changed=UpdateSelection};
  }
- void SetMode(bool value){value=value&&!quickScan;advanced=value;simple.Background=App.Brush(value?"#202C36":"#254B49");simple.BorderBrush=App.Brush(value?"#33424E":"#39C5BB");advancedButton.Background=App.Brush(value?"#254B49":"#202C36");advancedButton.BorderBrush=App.Brush(value?"#39C5BB":"#33424E");Get<FrameworkElement>("AdvancedActions").Visibility=riskFilter.Visibility=value?Visibility.Visible:Visibility.Collapsed;Get<TextBlock>("ModeHint").Text=value?"需确认项目默认不选":quickScan?"快速扫描 · 内置低风险项目":"仅处理低风险缓存";RefreshTree();}
- List<Finding> Chosen(){var chosen=leaves.Where(n=>n.Selectable&&(advanced?n.Selected==true:n.Finding.Rule.Quick&&!n.Finding.ManualOverride&&!n.Finding.Rule.Protected)).Select(n=>n.Finding).ToList();if(systemOption!=null&&systemOption.IsChecked==true&&systemFinding!=null&&systemFinding.VirtualItems>0)chosen.Add(systemFinding);return chosen;}
+ void SetMode(bool value){value=value&&!quickScan;advanced=value;simple.Background=App.Brush(value?"#202C36":"#254B49");simple.BorderBrush=App.Brush(value?"#33424E":"#39C5BB");advancedButton.Background=App.Brush(value?"#254B49":"#202C36");advancedButton.BorderBrush=App.Brush(value?"#39C5BB":"#33424E");Get<FrameworkElement>("AdvancedActions").Visibility=CanSelectResults?Visibility.Visible:Visibility.Collapsed;riskFilter.Visibility=value?Visibility.Visible:Visibility.Collapsed;recommend.Visibility=quickScan?Visibility.Collapsed:Visibility.Visible;Get<TextBlock>("ModeHint").Text=value?"需确认项目默认不选":quickScan?"可勾选需要清理的项目":"仅处理低风险缓存";RefreshTree();}
+ List<Finding> Chosen(){var chosen=leaves.Where(n=>n.Selectable&&(advanced?n.Selected==true:n.Finding.Rule.Quick&&!n.Finding.ManualOverride&&!n.Finding.Rule.Protected&&(!quickScan||n.Selected==true))).Select(n=>n.Finding).ToList();if(systemOption!=null&&systemOption.IsChecked==true&&systemFinding!=null&&systemFinding.VirtualItems>0)chosen.Add(systemFinding);return chosen;}
  void UpdateSelection(){
   if(clean==null)return;UpdateRecoveryNote();var chosen=phase=="results"?Chosen():new List<Finding>();long bytes=chosen.Sum(f=>f.EligibleBytes);int regs=chosen.Sum(f=>f.RegistryCandidates.Count);
-  Get<TextBlock>("PlannedText").Text=App.FormatSize(bytes)+(regs>0?" + "+regs+" 项注册表":"")+(chosen.Any(f=>f.Rule.InfoKind=="system-disk-cleanup")?" + 系统清理":"");int hidden=leaves.Count(n=>n.Selected==true&&n.Selectable&&!VisibleLeaves().Contains(n));Get<TextBlock>("SelectionText").Text=chosen.Count+" 项已选"+(advanced&&hidden>0?" · 含筛选外 "+hidden+" 项":"");Get<TextBlock>("SelectionText").Foreground=App.Brush(advanced&&hidden>0?"#F2B868":"#A2B5C4");clean.Content=advanced?"清理已选":"一键清理";clean.IsEnabled=!busy&&phase=="results"&&chosen.Count>0;foreach(var n in treeNodes)n.Refresh();
+  Get<TextBlock>("PlannedText").Text=App.FormatSize(bytes)+(regs>0?" + "+regs+" 项注册表":"")+(chosen.Any(f=>f.Rule.InfoKind=="system-disk-cleanup")?" + 系统清理":"");int hidden=leaves.Count(n=>n.Selected==true&&n.Selectable&&!VisibleLeaves().Contains(n));Get<TextBlock>("SelectionText").Text=chosen.Count+" 项已选"+(CanSelectResults&&hidden>0?" · 含筛选外 "+hidden+" 项":"");Get<TextBlock>("SelectionText").Foreground=App.Brush(CanSelectResults&&hidden>0?"#F2B868":"#A2B5C4");clean.Content=CanSelectResults?"清理已选":"一键清理";clean.IsEnabled=!busy&&phase=="results"&&chosen.Count>0;foreach(var n in treeNodes)n.Refresh();
  }
  void ShowDetail(){
   if(detailNode==null||detailNode.Finding==null)return;var f=detailNode.Finding;Get<FrameworkElement>("DetailPanel").Visibility=Visibility.Visible;Get<TextBlock>("DetailTitle").Text=f.Rule.Software+" · "+detailNode.Title;Get<TextBlock>("DetailImpact").Text=f.Rule.Description+"\n清理影响："+f.Rule.Impact+(f.ManualOverride?"\n风险删除：会处理原本保留的近期、个人或备份数据，可能导致账号注销、设置重置与记录丢失；始终先备份。":"");Get<TextBlock>("DetailRange").Text=(f.Rule.InfoKind=="registry-clean"?"本项可处理 "+f.RegistryCandidates.Count+" 项。"+f.Extra:((f.Rule.InfoKind=="system-disk-cleanup"||f.Rule.InfoKind=="disable-hibernation")?f.Extra:(f.ManualOverride?"自选风险删除，保留策略已解除":"普通候选保留最近 "+f.Rule.Days+" 天")+" · 已读取 "+f.Files+" 个文件 · "+f.Candidates.Count+" 个候选 · "+f.ManualCandidates.Count+" 个保留候选"+(f.Running?" · 使用中":f.Unreadable>0?" · "+f.Unreadable+" 项无法读取":"")+(f.Links>0?" · "+f.Links+" 项链接/只读/云端文件":"")))+(String.IsNullOrEmpty(f.Rule.Detection)?"":"\n识别依据："+f.Rule.Detection);
